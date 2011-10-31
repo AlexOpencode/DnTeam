@@ -1,0 +1,39 @@
+﻿@using DnTeam.Models
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Projects</h2>
+    <script type="text/javascript">
+        function onEdit(e) {
+                $(e.form).find('#ProjectStatus').data('tDropDownList').select(function (dataItem) {
+                    return dataItem.Text == e.dataItem['ProjectStatus'];
+                });
+            }
+    </script>
+@(Html.Telerik().Grid<ProjectEditableModel>()
+        .Name("Grid")
+        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataKeys(keys => keys.Add(o => o.Id))
+            .DataBinding(dataBinding => dataBinding.Ajax()
+                                            .Select("Select", "Project")
+                                            .Insert("Insert", "Project")
+                                            .Update("Save", "Project")
+                                            .Delete("Delete", "Project"))
+        .Columns(columns =>
+        {
+            columns.Bound(o => o.Details).Width(45).Encoded(false).Title("");
+            columns.Bound(o => o.Priority);
+            columns.Bound(o => o.Name);
+            columns.Bound(o => o.ProjectStatus);
+            columns.Bound(o => o.CreatedDate).Width(200);
+            columns.Command(commands =>
+            {
+                commands.Edit().ButtonType(GridButtonType.ImageAndText);
+                commands.Delete().ButtonType(GridButtonType.ImageAndText);
+            }).Width(200).Title("Edit");
+        })
+        .ClientEvents(events => events.OnEdit("onEdit"))
+)
+

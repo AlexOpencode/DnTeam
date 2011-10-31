@@ -1,0 +1,8 @@
+use dndata
+db.Enums.insert({Name : "Locations"})
+db.Enums.insert({Name : "ProjectRoles"})
+db.Enums.insert({Name : "ProjectStatuses"})
+db.Enums.insert({Name : "ProjectTypes"})
+db.Enums.insert({Name : "TechnologySpecialties"})
+db.Enums.insert({Name : "FunctionalSpecialties"})
+
