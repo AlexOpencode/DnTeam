@@ -8,7 +8,7 @@ using MongoDB.Driver.Builders;
 
 namespace DnTeamData
 {
-    public static class UsersRepository
+    public static class PersonsRepository
     {
         private static readonly MongoDatabase Db = Mongo.Init();
         

@@ -81,7 +81,7 @@ namespace DnTeam.Models
         public RegisterModel()
         {
           //  TechnologySkills = SettingsRepository.GetAllTechnologies().Select(o => new Specialty { Name = o, Value = 0 }).ToList(); 
-            UsersList = new SelectList(UsersRepository.GetUsersList(), "key", "value");
+            UsersList = new SelectList(PersonsRepository.GetUsersList(), "key", "value");
             LocationsList = new SelectList(SettingsRepository.GetAllLocations());
         }
     }

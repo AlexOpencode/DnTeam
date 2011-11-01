@@ -20,6 +20,8 @@
             menu.Add().Text("Home").Action("Index", "Home");
             menu.Add().Text("Projects").Action("Index", "Project");
             menu.Add().Text("Users").Action("List", "Account");
+            menu.Add().Text("Clients").Action("Index", "Client");
+            menu.Add().Text("Products").Action("Index", "Product");
             menu.Add()
                 .Text("Settings")
                 .Items(item =>
@@ -28,7 +30,6 @@
                     item.Add().Text("Project Roles").Action("Index", "Settings", new { type = "Project Roles" });
                     item.Add().Text("Project Statuses").Action("Index", "Settings", new { type = "Project Statuses" });
                     item.Add().Text("Project Types").Action("Index", "Settings", new { type = "Project Types" });
-                    item.Add().Text("Technology Specialties").Action("Index", "Settings", new { type = "Technology Specialties" });
                     item.Add().Text("Functional Specialties").Action("Index", "Settings", new { type = "Functional Specialties" });
                 });        
         })

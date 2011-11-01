@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using DnTeamData;
 using DnTeamData.Models;
@@ -22,7 +23,9 @@ namespace DnTeam.Controllers
         public ActionResult Select(string type)
         {
             var enumName = SettingsRepository.GetEnumName(type);
-            return View(new GridModel(SettingsRepository.GetSettingValues(enumName).Select(o => new Value { Name = o })));
+            var list = SettingsRepository.GetSettingValues(enumName);
+
+            return View(new GridModel((list != null) ? list.Select(o => new Value {Name = o}).ToList() : new List<Value>()));
         }
 
         [GridAction]

@@ -4,40 +4,35 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DnTeamData.Models
 {
-    class Client
+    public class Client
     {
         [BsonId]
         public ObjectId Id { get; set; }
-        public string ClientId
-        {
-            get { return Id.ToString(); }
-        }
+        public string ClientId { get { return Id.ToString(); } }
         public string Name { get; set; }
         public List<string> Links { get; set; }
-        public List<Product> Products { get; set; }
         
-        Client()
+        public Client()
         {
             Id = ObjectId.GenerateNewId();
-            Products = new List<Product>();
         }
     }
 
-    class Product
+    public class Product
     {
         [BsonId]
         public ObjectId Id { get; set; }
-        public string ProductId
-        {
-            get { return Id.ToString(); }
-        }
+        public string ProductId { get { return Id.ToString(); } }
         public string Name { get; set; }
-        public List<ObjectId> Projects { get; set; }
+        public ObjectId ClientId { get; set; }
+        public string ClientName ()
+        {
+            return ClientRepository.GetClient(ClientId).Name;
+        }
 
-        Product()
+        public Product()
         {
             Id = ObjectId.GenerateNewId();
-            Projects = new List<ObjectId>();
         }
     }
 }

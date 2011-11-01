@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
 
 namespace DnTeamData.Models
 {
@@ -28,7 +27,7 @@ namespace DnTeamData.Models
             get
             {
                 return (PrimaryManager != ObjectId.Empty)
-                    ? UsersRepository.GetUserName(PrimaryManager) : "none";
+                    ? PersonsRepository.GetUserName(PrimaryManager) : "none";
             }
         }
         public List<ObjectId> OtherManagers { get; set; }
@@ -37,6 +36,7 @@ namespace DnTeamData.Models
         public List<ObjectId> DirectReports { get; set; }
         public List<ObjectId> LikesToWorkWith { get; set; }
         public List<string> Links { get; set; }
+        public ObjectId LocatedInSubsidary { get; set; }
 
         public Person()
         {

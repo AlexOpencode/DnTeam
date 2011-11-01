@@ -1,0 +1,28 @@
+﻿@using DnTeam.Models
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Clients</h2>
+@(Html.Telerik().Grid<EditableClientModel>()
+        .Name("Grid")
+            .DataKeys(keys => keys.Add(p => p.Id))
+            .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataBinding(dataBinding => dataBinding.Ajax()
+                                        .Select("Select", "Client")
+                                        .Insert("Insert", "Client")
+                                        .Update("Save", "Client")
+                                        .Delete("Delete", "Client"))
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Name);
+            //columns.Bound(p => p.Links).Encoded(false);
+            columns.Command(commands =>
+            {
+                commands.Edit().ButtonType(GridButtonType.ImageAndText);
+                commands.Delete().ButtonType(GridButtonType.ImageAndText);
+            }).Width(200).Title("Edit");
+        })
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Sortable()        
+)

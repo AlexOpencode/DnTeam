@@ -35,12 +35,19 @@ namespace DnTeamData.Models
     
     public class Assignment
     {
+        [BsonId]
+        public DateTime CreatedTime { get; set; }
         public ObjectId PersonId { get; set; }
         public string Role { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Commit { get; set; }
         public string FunctionalSpecialty { get; set; }
+
+        Assignment()
+        {
+            CreatedTime = DateTime.Now;
+        }
     }
 
     public class Milestone

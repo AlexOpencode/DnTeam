@@ -48,8 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientRepository.cs" />
     <Compile Include="Models\ClientModels.cs" />
+    <Compile Include="Models\DepartamentModels.cs" />
     <Compile Include="Mongo.cs" />
+    <Compile Include="ProductRepository.cs" />
     <Compile Include="ProjectRepository.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -57,7 +60,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="SettingsRepository.cs" />
-    <Compile Include="UsersRepository.cs" />
+    <Compile Include="PersonsRepository.cs" />
     <Compile Include="Models\ProjectModels.cs" />
     <Compile Include="Models\SettingsModels.cs" />
     <Compile Include="Models\PersonModels.cs" />
