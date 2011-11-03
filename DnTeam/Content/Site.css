@@ -12,11 +12,11 @@ body {
     color: #696969;
 }
 
-/*a:link {
-    color: #034af3;
+a:link {
+    color:#105CD6;
     text-decoration: underline;
 }
-
+/*
 a:visited {
     color: #505abc;
 }
@@ -334,4 +334,9 @@ input[data-val-required]
     /*background: url('link.png') center center no-repeat;*/
     vertical-align: middle;
     border: none;
+}
+
+#departamentsTree li
+{
+    padding: 2px;    
 }

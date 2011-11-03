@@ -25,7 +25,7 @@ namespace DnTeam.Controllers
         public ActionResult SelectUsers()
         {
 
-            return View(new GridModel(UsersRepository.GetAllUsers().Select(o=> new UsersGridModel()
+            return View(new GridModel(PersonsRepository.GetAllUsers().Select(o=> new UsersGridModel()
             {
                 UserId = o.PersonId,
                 Email = o.Email,
@@ -109,7 +109,7 @@ namespace DnTeam.Controllers
                 UserCreateStatus createStatus;
                 //Membership.CreateUser(model.UserName, model.Password, model.Email, null, null, true, null, out createStatus);
 
-                UsersRepository.CreateUser(model.UserName, model.Email, model.Location, "password", 
+                PersonsRepository.CreateUser(model.UserName, model.Email, model.Location, "password", 
                     model.PrimaryManager,model.Comments, null, model.DoB, 
                     false, out createStatus);
                 if (createStatus == UserCreateStatus.Success)
