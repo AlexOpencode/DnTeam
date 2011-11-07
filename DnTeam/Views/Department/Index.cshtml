@@ -1,0 +1,185 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Departments</h2>
+@{ Html.Telerik().Window()
+        .Name("AddDepartment")
+        .Title("Add Department")
+        .Draggable(true)
+        .Modal(true)
+        .Visible(false)
+        .Buttons(b => b.Close())
+        .Content(@<text> Name: @Html.TextBox("DepartmentName")
+    @Html.Hidden("DepartmentParentId")
+    <input id="AddDepartmentOk" type="button" value="Insert" class="t-button" /><input id="AddDepartmentCancel" type="button" value="Cancel" class="t-button" />
+    </text>)
+        .Width(300)
+        .Height(300)
+        .Render();
+}
+@{ Html.Telerik().Window()
+        .Name("UpdateDepartment")
+        .Title("Update Department")
+        .Draggable(true)
+        .Modal(true)
+        .Visible(false)
+        .Buttons(b => b.Close())
+        .Content(@<text> Name: @Html.TextBox("UpdateDepartmentName")
+        @Html.Hidden("UpdateDepartmentId")
+    <input id="UpdateDepartmentOk" type="button" value="Save" class="t-button" /><input id="UpdateDepartmentCancel" type="button" value="Cancel" class="t-button" />
+    </text>)
+        .Width(300)
+        .Height(300)
+        .Render();
+}
+
+@{ Html.Telerik().Window()
+        .Name("AddSubsidiary")
+        .Title("Add Location")
+        .Draggable(true)
+        .Modal(true)
+        .Visible(false)
+        .Buttons(b => b.Close())
+        .Content(@<text> Location: @Html.DropDownList("SubsidiaryLocation", new SelectList(ViewBag.Locations))
+    Base cost: @Html.TextBox("SubsidiaryBaseCost")
+    Base Rate: @Html.TextBox("SubsidiaryBaseRate")
+    @Html.Hidden("SubsidiaryParentId")
+    <input id="AddSubsidiaryOk" type="button" value="Insert" class="t-button" /><input id="AddSubsidiaryCancel" type="button" value="Cancel" class="t-button" />
+    </text>)
+        .Width(300)
+        .Height(300)
+        .Render();
+}
+@{ Html.Telerik().Window()
+        .Name("UpdateSubsidiary")
+        .Title("Update Location")
+        .Draggable(true)
+        .Modal(true)
+        .Visible(false)
+        .Buttons(b => b.Close())
+        .Content(@<text> Location: @Html.DropDownList("UpdateSubsidiaryLocation", new SelectList(ViewBag.Locations))
+    Base cost: @Html.TextBox("UpdateSubsidiaryBaseCost")
+    Base Rate: @Html.TextBox("UpdateSubsidiaryBaseRate")
+    @Html.Hidden("UpdateSubsidiaryParentId")
+    @Html.Hidden("UpdateSubsidiaryId")
+    <input id="UpdateSubsidiaryOk" type="button" value="Save" class="t-button" /><input id="UpdateSubsidiaryCancel" type="button" value="Cancel" class="t-button" />
+    </text>)
+        .Width(300)
+        .Height(300)
+        .Render();
+}
+
+
+<script type="text/javascript">
+
+    $("#UpdateDepartmentOk").click(function () {
+        var id = $("#UpdateDepartmentId").val();
+        var name = $("#UpdateDepartmentName").val();
+        $.post('@Url.Action("UpdateDapartament", "Department")', {id: id, name: name }, function (data) {
+            if (data == true) {
+                $('#UpdateDepartment').data('tWindow').close();
+                window.location.href = window.location.href;
+            }
+        }, "json");
+    });
+
+    $("#UpdateSubsidiaryOk").click(function () {
+        var id = $("#UpdateSubsidiaryId").val();
+        var parentId = $("#UpdateSubsidiaryParentId").val();
+        var location = $("#UpdateSubsidiaryLocation").val();
+        var baseCost = $("#UpdateSubsidiaryBaseCost").val();
+        var baseRate = $("#UpdateSubsidiaryBaseRate").val();
+        $.post('@Url.Action("UpdateSubsidiary", "Department")', { location: location, baseCost: baseCost, baseRate: baseRate, id: id, parentId: parentId }, function (data) {
+            if (data == true) {
+                $('#UpdateSubsidiary').data('tWindow').close();
+                window.location.href = window.location.href;
+            }
+        }, "json");
+    });
+
+
+    function updateDepartment(id, name) {
+        $("#UpdateDepartmentName").val(name);
+        $("#UpdateDepartmentId").val(id);
+        $('#UpdateDepartment').data('tWindow').center().open();
+    };
+
+    function updateSubsidiary(parentId, id, location, baseCost, baseRate) {
+        $("#UpdateSubsidiaryLocation").val(location);
+        $("#UpdateSubsidiaryBaseCost").val(baseCost);
+        $("#UpdateSubsidiaryBaseRate").val(baseRate);
+        $("#UpdateSubsidiaryParentId").val(parentId);
+        $("#UpdateSubsidiaryId").val(id);
+        $('#UpdateSubsidiary').data('tWindow').center().open();
+    };
+    
+    $("#UpdateDepartmentCancel").click(function () {
+        $('#UpdateDepartment').data('tWindow').close();
+    });
+
+    $("#UpdateSubsidiaryCancel").click(function () {
+        $('#UpdateSubsidiary').data('tWindow').close();
+    });
+
+    function deleteDepartment(id) {
+        $.post('@Url.Action("DeleteDapartament", "Department")', { id: id }, function (data) {
+            if (data == true) {
+                window.location.href = window.location.href;
+            }
+        }, "json");
+    };
+
+    function deleteSubsidiary(id, DepartmentId) {
+        $.post('@Url.Action("DeleteSubsidiary", "Department")', { id: id, DepartmentId: DepartmentId }, function (data) {
+            if (data == true) {
+                window.location.href = window.location.href;
+            }
+        }, "json");
+    };
+
+    function addDepartment(parentId) {
+        $("#DepartmentParentId").val(parentId);
+        $('#AddDepartment').data('tWindow').center().open();
+    };
+    
+    function addSubsidiary(parentId) {
+        $("#SubsidiaryParentId").val(parentId);
+        $('#AddSubsidiary').data('tWindow').center().open();
+    };
+
+    $("#AddDepartmentCancel").click(function () {
+        $('#AddDepartment').data('tWindow').close();
+    });
+
+    $("#AddSubsidiaryCancel").click(function () {
+        $('#AddSubsidiary').data('tWindow').close();
+    });
+
+    $("#AddDepartmentOk").click(function () {
+        var id = $("#DepartmentParentId").val();
+        var name = $("#DepartmentName").val();
+        $.post('@Url.Action("SaveDapartament", "Department")', { name: name, DepartmentOf: id }, function (data) {
+            if (data == true) {
+                $('#AddDepartment').data('tWindow').close();
+                window.location.href = window.location.href;
+            }
+        }, "json");
+    });
+
+    $("#AddSubsidiaryOk").click(function () {
+        var id = $("#SubsidiaryParentId").val();
+        var location = $("#SubsidiaryLocation").val();
+        var baseCost = $("#SubsidiaryBaseCost").val();
+        var baseRate = $("#SubsidiaryBaseRate").val();
+         $.post('@Url.Action("SaveSubsidiary", "Department")', { location: location, baseCost: baseCost, baseRate: baseRate,  DepartmentId: id }, function (data) {
+            if (data == true) {
+                $('#AddSubsidiary').data('tWindow').close();
+                window.location.href = window.location.href;
+            }
+        }, "json");
+    });
+    
+
+</script>
+@Html.Raw(ViewBag.DepartmentsTree)

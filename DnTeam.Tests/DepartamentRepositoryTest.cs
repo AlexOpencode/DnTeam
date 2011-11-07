@@ -9,99 +9,99 @@ namespace DnTeam.Tests
 {
     
     /// <summary>
-    ///This is a test class for DepartamentRepositoryTest and is intended
-    ///to contain all DepartamentRepositoryTest Unit Tests
+    ///This is a test class for DepartmentRepositoryTest and is intended
+    ///to contain all DepartmentRepositoryTest Unit Tests
     ///</summary>
     [TestClass]
-    public class DepartamentRepositoryTest
+    public class DepartmentRepositoryTest
     {
-        private const string CollectionName = "Departaments_Test";
+        private const string CollectionName = "Departments_Test";
 
         #region Additional test attributes
 
         [TestInitialize]
         public void MyTestInitialize()
         {
-            DepartamentRepository.SetTestCollection(CollectionName);
+            DepartmentRepository.SetTestCollection(CollectionName);
         }
 
         [TestCleanup]
         public void MyTestCleanup()
         {
             MongoDatabase db = Mongo.Init();
-            MongoCollection<Departament> coll = db.GetCollection<Departament>(CollectionName);
+            MongoCollection<Department> coll = db.GetCollection<Department>(CollectionName);
             coll.Drop();
         }
 
         #endregion
 
         /// <summary>
-        ///A test for CreateDepartament
+        ///A test for CreateDepartment
         ///</summary>
         [TestMethod]
-        public void CreateDepartamentTest()
+        public void CreateDepartmentTest()
         {
-            const string name = "Test_Departament"; 
-            string parentDepartamentId = string.Empty; 
-            DepartamentRepository.CreateDepartament(name, parentDepartamentId);
+            const string name = "Test_Department"; 
+            string parentDepartmentId = string.Empty; 
+            DepartmentRepository.CreateDepartment(name, parentDepartmentId);
         }
 
         /// <summary>
-        ///A test for GetAllDepartaments
+        ///A test for GetAllDepartments
         ///</summary>
         [TestMethod]
-        public void GetAllDepartamentsTest()
+        public void GetAllDepartmentsTest()
         {
             const int expectedCount = 10;
 
-            #region Create test departaments
+            #region Create test Departments
             for (int i = 0; i < expectedCount; i++)
             {
-                string name = "Test_Departament" + i;
-                string parentDepartamentId = string.Empty;
-                DepartamentRepository.CreateDepartament(name, parentDepartamentId);
+                string name = "Test_Department" + i;
+                string parentDepartmentId = string.Empty;
+                DepartmentRepository.CreateDepartment(name, parentDepartmentId);
 
 
             }
             #endregion
 
-            var actual = DepartamentRepository.GetAllDepartaments();
+            var actual = DepartmentRepository.GetAllDepartments();
             Assert.AreEqual(expectedCount, actual.Count());
         }
 
 
         /// <summary>
-        ///A test for GetDepartamentsTree
+        ///A test for GetDepartmentsTree
         ///</summary>
         [TestMethod]
-        public void GetDepartamentsTreeTest()
+        public void GetDepartmentsTreeTest()
         {
             const int expectedCount = 10;
 
-            #region Create test departaments
+            #region Create test Departments
             for (int i = 0; i < expectedCount; i++)
             {
-                string name = "Test_Departament" + i;
-                string parentDepartamentId = string.Empty;
-                DepartamentRepository.CreateDepartament(name, parentDepartamentId);
+                string name = "Test_Department" + i;
+                string parentDepartmentId = string.Empty;
+                DepartmentRepository.CreateDepartment(name, parentDepartmentId);
 
                 
             }
 
-            var created = DepartamentRepository.GetAllDepartaments();
+            var created = DepartmentRepository.GetAllDepartments();
 
-            foreach (Departament departament in created)
+            foreach (Department Department in created)
             {
                 for (int j = 0; j < 10; j++)
                 {
-                    string subName = "Test_SubDepartament" + j + "Of" + departament.Id;
-                    string subParentDepartamentId = departament.Id.ToString();
-                    DepartamentRepository.CreateDepartament(subName, subParentDepartamentId);
+                    string subName = "Test_SubDepartment" + j + "Of" + Department.Id;
+                    string subParentDepartmentId = Department.Id.ToString();
+                    DepartmentRepository.CreateDepartment(subName, subParentDepartmentId);
                 }
             }
             #endregion 
 
-            IEnumerable<TDepartament> actual = DepartamentRepository.GetDepartamentsTree();
+            IEnumerable<TDepartment> actual = DepartmentRepository.GetDepartmentsTree();
             Assert.AreEqual(expectedCount, actual.Count());
         }
 

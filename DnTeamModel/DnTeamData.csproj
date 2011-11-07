@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientRepository.cs" />
-    <Compile Include="DepartamentRepository.cs" />
+    <Compile Include="DepartmentRepository.cs" />
     <Compile Include="Models\ClientModels.cs" />
     <Compile Include="Models\DepartamentModels.cs" />
     <Compile Include="Mongo.cs" />

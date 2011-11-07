@@ -36,7 +36,7 @@ namespace DnTeamData.Models
         public List<ObjectId> DirectReports { get; set; }
         public List<ObjectId> LikesToWorkWith { get; set; }
         public List<string> Links { get; set; }
-        public ObjectId LocatedInSubsidary { get; set; }
+        public ObjectId LocatedIn { get; set; } //Linked to SubsidaryId
 
         public Person()
         {

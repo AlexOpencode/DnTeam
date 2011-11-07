@@ -4,47 +4,47 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DnTeamData.Models
 {
-    public class Departament
+    public class Department
     {
         [BsonId]
         public ObjectId Id { get; set; }
         public string Name { get; set; }
-        public List<Subsidary> Subsidaries { get; set; }
-        public ObjectId DepartamentOf { get; set; }
+        public List<Subsidiary> Subsidiaries { get; set; }
+        public ObjectId DepartmentOf { get; set; }
         public bool IsDeleted { get; set; }
 
-        public Departament()
+        public Department()
         {
             Id = ObjectId.GenerateNewId();
-            Subsidaries = new List<Subsidary>();
+            Subsidiaries = new List<Subsidiary>();
             IsDeleted = false;
         }
     }
 
-    public class TDepartament
+    public class TDepartment
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public List<Subsidary> Subsidaries { get; set; }
-        public List<TDepartament> SubDepartaments { get; set; }
+        public List<Subsidiary> Subsidiaries { get; set; }
+        public List<TDepartment> SubDepartments { get; set; }
         
-        public TDepartament()
+        public TDepartment()
         {
-            SubDepartaments = new List<TDepartament>();
+            SubDepartments = new List<TDepartment>();
         }
     }
 
-    public class Subsidary
+    public class Subsidiary
     {
         [BsonId]
         public ObjectId Id { get; set; }
-        public string SubsidaryId { get { return Id.ToString(); } }
+        public string SubsidiaryId { get { return Id.ToString(); } }
         public string Location { get; set; }
         public float BaseCost { get; set; }
         public float BaseRate { get; set; }
         public bool IsDeleted { get; set; }
 
-        public Subsidary()
+        public Subsidiary()
         {
             Id = ObjectId.GenerateNewId();
             IsDeleted = false;
