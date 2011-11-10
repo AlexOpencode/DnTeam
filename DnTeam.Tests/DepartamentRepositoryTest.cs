@@ -22,7 +22,7 @@ namespace DnTeam.Tests
         [TestInitialize]
         public void MyTestInitialize()
         {
-            DepartmentRepository.SetTestCollection(CollectionName);
+            DepartmentRepository.SetTestDepartmentCollection(CollectionName);
         }
 
         [TestCleanup]

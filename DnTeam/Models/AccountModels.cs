@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web.Mvc;
@@ -43,66 +44,95 @@ namespace DnTeam.Models
         public bool RememberMe { get; set; }
     }
 
-    public class RegisterModel
+    public class PersonModel
     {
-        [Required]
-        [Display(Name = "User name")]
-        public string UserName { get; set; }
+        [ReadOnly(true)]
+        public string Id { get; set; }
 
         [Required]
+        [Display(Name = "User name")]
+        public string Name { get; set; }
+        
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email address")]
         public string Email { get; set; }
 
-        [DataType(DataType.Date)]
-        [Display(Name = "Date of birth")]
-        public DateTime DoB { get; set; }
-
         [Required]
+        [UIHint("Locations")]
         [Display(Name = "Location")]
-        public string Location { get; set; }
-
-        public SelectList LocationsList { get; set; }
-
-        [DataType(DataType.Text)]
+        public string LocatedIn { get; set; }
+        
+        [DataType(DataType.MultilineText)]
         [Display(Name = "Comments")]
         public string Comments { get; set; }
-        
+
+        [UIHint("Persons")]
         [Display(Name = "Primary manager")]
         public string PrimaryManager { get; set; }
 
-        public SelectList UsersList { get; set; }
+        [Display(Name = "Other managers")]
+        public IEnumerable<KeyValuePair<string,string>> OtherManagers { get; set; }
+
+        [UIHint("Persons")]
+        [Display(Name = "Primary peer")]
+        public string PrimaryPeer { get; set; }
+
+        [Display(Name = "Other peers")]
+        public IEnumerable<KeyValuePair<string, string>> OtherPeers { get; set; }
+
+        [Display(Name = "Likes to work with")]
+        public IEnumerable<KeyValuePair<string, string>> LikesToWorkWith { get; set; }
+    
+        [Display(Name = "Technology Specialties")]
+        public List<Specialty> TechnologySpecialties { get; set; }
+
+        [Display(Name = "Direct Reports")]
+        public IEnumerable<KeyValuePair<string, string>> DirectReports { get; set; }
+
+        [Display(Name = "Links")]
+        public List<string> Links { get; set; }
+        
+        [UIHint("NullableDate")]
+        [Display(Name = "Date of birth")]
+        public DateTime? DoB { get; set; }
+
+        [DataType(DataType.ImageUrl)]
+        [Display(Name = "Photo URL")]
+        public string PhotoUrl { get; set; }
 
         //[Required]
         //[Display(Name = "Technology skills")]
         //[TechnologySkills(ErrorMessage = "At least one skill shoul be more then 0")]
         //public List<Specialty> TechnologySkills { get; set; }
 
-        public RegisterModel()
-        {
-          //  TechnologySkills = SettingsRepository.GetAllTechnologies().Select(o => new Specialty { Name = o, Value = 0 }).ToList(); 
-            UsersList = new SelectList(PersonsRepository.GetUsersList(), "key", "value");
-            LocationsList = new SelectList(SettingsRepository.GetAllLocations());
-        }
+        //public PersonModel()
+        //{
+        //    //  TechnologySkills = SettingsRepository.GetAllTechnologies().Select(o => new Specialty { Name = o, Value = 0 }).ToList(); 
+        //}
     }
 
-    public class UsersGridModel
+    public class PersonGridModel
     {
+        public string Details
+        {
+            get { return string.IsNullOrEmpty(UserId) ? "" : "<a href=\"/Account/Details/" + UserId + "\"><img class=\"link-button\" src=\"../../Content/link.png\" alt=\"View\"/></a>"; }
+        }
         public string UserId { get; set; }
 
-        [Display(Name = "User name")]
+        [Display(Name = "User name"), Required]
         public string UserName { get; set; }
 
+        [UIHint("Locations")]
         [Display(Name = "Location")]
         public string Location { get; set; }
 
+        [UIHint("Persons")]
         [Display(Name = "Primary manager")]
         public string PrimaryManager { get; set; }
 
-        [Display(Name = "Technology skills")]
+        [Display(Name = "Technology skills"), ReadOnly(true)]
         public string TechnologySkills { get; set; }
 
-        [Required]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email address")]
         public string Email { get; set; }

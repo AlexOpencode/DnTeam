@@ -1,28 +1,40 @@
-﻿@model IEnumerable<DnTeam.Models.UsersGridModel>
+﻿@model IEnumerable<DnTeam.Models.PersonGridModel>
 
 @{
     ViewBag.Title = "List";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Users List</h2>
+<h2>People Management</h2>
 
 @(Html.Telerik().Grid(Model)
         .Name("UsersGrid")
-            .ToolBar(commands => commands
-                .Custom()
-                    .Text("Add a new user")
-                    .Action("Register", "Account"))
+        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+            //.ToolBar(commands => commands
+            //    .Custom()
+            //        .Text("Add a new user")
+            //        .Action("Register", "Account"))
+         .DataKeys(keys => keys.Add(o => o.UserId))
+         .DataBinding(dataBinding => dataBinding.Ajax()
+                                                .Select("Select", "Account")
+                                                .Insert("Insert", "Account")
+                                                .Update("Save", "Account")
+                                                .Delete("Delete", "Account"))
         .Columns(columns =>
         {
             //columns.Bound(o => o.UserId).Width(100);
+            columns.Bound(o => o.Details).Width(45).Encoded(false).Title("");
             columns.Bound(o => o.UserName).Width(200);
             columns.Bound(o => o.Email);
             columns.Bound(o => o.Location);
             columns.Bound(o => o.TechnologySkills);
             columns.Bound(o => o.PrimaryManager);
-            
+            columns.Command(commands =>
+            {
+                commands.Edit().ButtonType(GridButtonType.ImageAndText);
+                commands.Delete().ButtonType(GridButtonType.ImageAndText);
+            }).Width(200).Title("Edit");
             //columns.Bound(o => o.).Format("{0:MM/dd/yyyy}").Width(120);
         })
-        .DataBinding(dataBinding => dataBinding.Ajax().Select("SelectUsers", "Account"))
+        //.DataBinding(dataBinding => dataBinding.Ajax().Select("SelectUsers", "Account"))
 ) 

@@ -14,28 +14,128 @@ namespace DnTeam.Controllers
 {
     public class AccountController : Controller
     {
+        [NonAction]
+        private PersonModel MapPersonToModel(Person person, Dictionary<string, string> personsList)
+        {
+            return (person == null) ? new PersonModel() : new PersonModel
+            {
+                Id = person.PersonId,
+                Name = person.Name,
+                DoB = person.DoB,
+                Comments = person.Comments,
+                Email = person.Email,
+                PhotoUrl = person.PhotoUrl,
+                LocatedIn = person.LocationId,
+                PrimaryManager = person.PrimaryManagerId,
+                PrimaryPeer = person.PrimaryPeerId,
+                OtherManagers = personsList.Where(o => person.OtherManagersList.Contains(o.Key)),
+                OtherPeers = personsList.Where(o => person.OtherPeersList.Contains(o.Key)),
+                LikesToWorkWith = personsList.Where(o => person.LikesToWorkWithList.Contains(o.Key)),
+                DirectReports = personsList.Where(o => person.DirectReportsList.Contains(o.Key)),
+                Links = person.Links,
+                TechnologySpecialties = person.TechnologySpecialties
+            };
+        }
 
+        [HttpGet]
+        public ActionResult Details(string id)
+        {
+            var personsList = PersonsRepository.GetPersonsList();
+            var model = MapPersonToModel(PersonsRepository.GetPerson(id), personsList);
+            model.PhotoUrl = string.IsNullOrEmpty(model.PhotoUrl) ? "../../Content/noImage.jpg" : model.PhotoUrl;
+            return View(model);
+        }
+
+
+        [HttpGet]
+        public ActionResult Edit(string id)
+        {
+            var personsList = PersonsRepository.GetPersonsList();
+            var model = MapPersonToModel(PersonsRepository.GetPerson(id), personsList);
+            ViewData["PersonsList"] = new SelectList(personsList, "key", "value");
+            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value");
+            ViewData["TechnologySpecialties"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialties)); 
+            return View(model);
+        }
+
+        #region Update Person Data
+        [HttpPost]
+        public ActionResult UpdatePersonProperty(string id, string name, string value)
+        {
+            return new JsonResult { Data = PersonsRepository.UpdateProperty(id, name, value) };
+        }
+        
+        [HttpPost]
+        public ActionResult AddElementToPersonProperty(string id, string name, string value)
+        {
+            return new JsonResult { Data = PersonsRepository.AddValueToPropertySet(id, name, value) };
+        }
+
+        [HttpPost]
+        public ActionResult DeleteElementFromPersonProperty(string id, string name, string value)
+        {
+            return new JsonResult { Data = PersonsRepository.DeleteValueFromPropertySet(id, name, value) };
+        }
+        
+        [HttpPost]
+        public ActionResult AddTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
+        {
+            return new JsonResult { Data = PersonsRepository.AddTechnologySpecialty(id, name, value, lastUsed, expSince, note) };
+        }
+        
+        [HttpPost]
+        public ActionResult UpdateTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
+        {
+            return new JsonResult { Data = PersonsRepository.UpdateTechnologySpecialty(id, name, value, lastUsed, expSince, note) };
+        }
+
+        [HttpPost]
+        public ActionResult DeleteTechnologySpecialty(string id, string name)
+        {
+            return new JsonResult { Data = PersonsRepository.DeleteTechnologySpecialty(id, name) };
+        }
+        #endregion
+
+        [HttpGet]
         public ActionResult List()
         {
+            ViewData["PersonsList"] = new SelectList(PersonsRepository.GetPersonsList(), "key", "value");
+            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value");
             return View();
         }
 
-        
-        [GridAction]
-        public ActionResult SelectUsers()
+        [NonAction]
+        private IEnumerable<PersonGridModel> Return()
         {
+            return PersonsRepository.GetAllPersons().Select(o => new PersonGridModel()
+                                                             {
+                                                                 UserId = o.PersonId,
+                                                                 Email = o.Email,
+                                                                 PrimaryManager = o.PrimaryManagerName,
+                                                                 UserName = o.Name,
+                                                                 Location = o.LocationName
+                                                                 //TechnologySkills = o.TechnologySpecialties.Where(s => s.Level > 0).Select(s => s.Name)
+                                                                 //    .Aggregate((workingSentence, next) =>next + ", " + workingSentence)
 
-            return View(new GridModel(PersonsRepository.GetAllUsers().Select(o=> new UsersGridModel()
+                                                             });
+        }
+
+        [GridAction]
+        public ActionResult Insert(PersonGridModel model)
+        {
+            if (TryUpdateModel(model))
             {
-                UserId = o.PersonId,
-                Email = o.Email,
-                PrimaryManager = o.PrimaryManagerName,
-                UserName = o.Name,
-                Location = o.Location,
-                TechnologySkills = o.TechnologySpecialties.Where(s=>s.Level > 0).Select(s => s.Name)
-                    .Aggregate((workingSentence, next) => next + ", " + workingSentence)
+                PersonsRepository.CreatePerson(model.UserName, model.Location, model.PrimaryManager, model.Email);
+            }
 
-            })));
+            return View(new GridModel(Return()));
+        }
+
+
+        [GridAction]
+        public ActionResult Select()
+        {
+            return View(new GridModel(Return()));
         }
 
         //
@@ -92,7 +192,7 @@ namespace DnTeam.Controllers
 
         public ActionResult Register()
         {
-            RegisterModel model = new RegisterModel();
+            PersonModel model = new PersonModel();
 
             return View(model);
         }
@@ -100,32 +200,32 @@ namespace DnTeam.Controllers
         //
         // POST: /Account/Register
 
-        [HttpPost]
-        public ActionResult Register(RegisterModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                // Attempt to register the user
-                UserCreateStatus createStatus;
-                //Membership.CreateUser(model.UserName, model.Password, model.Email, null, null, true, null, out createStatus);
+        //[HttpPost]
+        //public ActionResult Register(RegisterModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        // Attempt to register the user
+        //        UserCreateStatus createStatus;
+        //        //Membership.CreateUser(model.UserName, model.Password, model.Email, null, null, true, null, out createStatus);
 
-                PersonsRepository.CreateUser(model.UserName, model.Email, model.Location, "password", 
-                    model.PrimaryManager,model.Comments, null, model.DoB, 
-                    false, out createStatus);
-                if (createStatus == UserCreateStatus.Success)
-                {
-                    //FormsAuthentication.SetAuthCookie(model.UserName, false /* createPersistentCookie */);
-                    return RedirectToAction("List", "Account");
-                }
-                else
-                {
-                    ModelState.AddModelError("", ErrorCodeToString(createStatus));
-                }
-            }
+        //        PersonsRepository.CreateUser(model.Name, model.Email, model.Location, "password", 
+        //            model.PrimaryManager,model.Comments, null, model.DoB, 
+        //            false, out createStatus);
+        //        if (createStatus == UserCreateStatus.Success)
+        //        {
+        //            //FormsAuthentication.SetAuthCookie(model.UserName, false /* createPersistentCookie */);
+        //            return RedirectToAction("List", "Account");
+        //        }
+        //        else
+        //        {
+        //            ModelState.AddModelError("", ErrorCodeToString(createStatus));
+        //        }
+        //    }
 
-            // If we got this far, something failed, redisplay form
-            return View(model);
-        }
+        //    // If we got this far, something failed, redisplay form
+        //    return View(model);
+        //}
 
         //
         // GET: /Account/ChangePassword

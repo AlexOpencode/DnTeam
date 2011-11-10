@@ -4,13 +4,13 @@
 }
 
 <h2>Products</h2>
-  <script type="text/javascript">
+  @*<script type="text/javascript">
       function onEdit(e) {
           $(e.form).find('#Client').data('tDropDownList').select(function (dataItem) {
               return dataItem.Text == e.dataItem['Client'];
           });
       }
-    </script>
+    </script>*@
 @(Html.Telerik().Grid<EditableProductModel>()
         .Name("Grid")
             .DataKeys(keys => keys.Add(p => p.Id))

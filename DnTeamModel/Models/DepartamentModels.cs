@@ -42,12 +42,10 @@ namespace DnTeamData.Models
         public string Location { get; set; }
         public float BaseCost { get; set; }
         public float BaseRate { get; set; }
-        public bool IsDeleted { get; set; }
 
         public Subsidiary()
         {
             Id = ObjectId.GenerateNewId();
-            IsDeleted = false;
         }
     }
 }

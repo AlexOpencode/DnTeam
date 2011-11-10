@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using DnTeamData;
 using Telerik.Web.Mvc;
 using DnTeam.Models;
-using DnTeamData.Models;
+
 namespace DnTeam.Controllers
 {
     public class ProductController : Controller
@@ -19,15 +19,15 @@ namespace DnTeam.Controllers
         }
 
         [NonAction]
-        private IEnumerable<EditableProductModel> Return(List<Product> products)
+        private IEnumerable<EditableProductModel> Return()
         {
-            return products.Select(o => new EditableProductModel { Name = o.Name, Id = o.ProductId, Client = o.ClientName()});
+            return ProductRepository.GetAllProducts().Select(o => new EditableProductModel { Name = o.Name, Id = o.ProductId, Client = o.ClientName() });
         }
             
         [GridAction]
         public ActionResult Select()
         {
-            return View(new GridModel(Return(ProductRepository.GetAllProducts())));
+            return View(new GridModel(Return()));
         }
 
         [GridAction]
@@ -37,7 +37,7 @@ namespace DnTeam.Controllers
             {
                 ProductRepository.InsertProduct(model.Name, model.Client);
             }
-            return View(new GridModel(Return(ProductRepository.GetAllProducts())));
+            return View(new GridModel(Return()));
         }
 
         [GridAction]
@@ -47,14 +47,14 @@ namespace DnTeam.Controllers
             {
                 ProductRepository.UpdateProduct(id, model.Name, model.Client);
             }
-            return View(new GridModel(Return(ProductRepository.GetAllProducts())));
+            return View(new GridModel(Return()));
         }
 
         [GridAction]
         public ActionResult Delete(string id)
         {
             ProductRepository.DeleteProduct(id);
-            return View(new GridModel(Return(ProductRepository.GetAllProducts())));
+            return View(new GridModel(Return()));
         }
     }
 }

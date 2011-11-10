@@ -1,0 +1,376 @@
+﻿@model DnTeam.Models.PersonModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit</h2>
+
+@*<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>*@
+
+@using (Html.BeginForm()) {
+ 
+    <fieldset>
+        <legend>Person Data</legend>
+        @Html.HiddenFor(model => model.Id)
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Name)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Name)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Email)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Email)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.LocatedIn)
+        </div>
+        <div class="editor-field">
+            @(Html.Telerik().DropDownListFor(model => model.LocatedIn).BindTo(ViewData["LocationsList"] as SelectList).HtmlAttributes(new { style = "min-width:250px;" })
+                .ClientEvents(events => events.OnChange("onChangeLocatedIn")))           
+        </div>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.DoB)
+        </div>
+        <div class="editor-field">
+           @(Html.Telerik().DatePickerFor(model => model.DoB).ClientEvents(events => events.OnChange("onChangeDoB")))
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.PhotoUrl)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.PhotoUrl)
+        </div>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Comments)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Comments)            
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.PrimaryManager)
+        </div>
+        <div class="editor-field">
+           @(Html.Telerik().DropDownListFor(model => model.PrimaryManager).BindTo(ViewData["PersonsList"] as SelectList).ClientEvents(events => events.OnChange("onChangePrimaryManager")))            
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.OtherManagers)
+        </div>
+        <div class="editor-field">
+            <ul>
+            <li><input type="button" value="+ Add Other Managers" class="t-button" onclick="openPersonsWindow('OtherManagers')"  /></li>
+            @foreach (var man in Model.OtherManagers)
+            {
+                <li id="OtherManagers@(man.Key)">@(man.Value) <input class="t-button t-icon t-delete" type="button" Value="Delete" onclick="deletePerson('OtherManagers','@(man.Key)')"/></li>
+            }
+            </ul>         
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.PrimaryPeer)
+        </div>
+        <div class="editor-field">        
+            @(Html.Telerik().DropDownListFor(model => model.PrimaryPeer).BindTo(ViewData["PersonsList"] as SelectList).ClientEvents(events => events.OnChange("onChangePrimaryPeer")))        
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.OtherPeers)
+        </div>
+        <div class="editor-field">
+        <ul>
+            <li><input type="button" value="+ Add Other Peers" class="t-button" onclick="openPersonsWindow('OtherPeers')"  /></li>
+            @foreach (var man in Model.OtherPeers)
+            {
+                <li id="OtherPeers@(man.Key)">@(man.Value) <input class="t-button t-icon t-delete" type="button" Value="Delete" onclick="deletePerson('OtherPeers','@(man.Key)')"/></li>
+            }
+            </ul>
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.TechnologySpecialties)
+        </div>
+        <div class="editor-field">
+            <ul>
+                <li><input type="button" value="+ Add Specialties" class="t-button" onclick="openWindow('TechnologySpecialtiesWindow')" /></li>
+                @foreach (var spec in Model.TechnologySpecialties)
+                {
+                    <li id="TechnologySpecialties@(spec.Name)">@spec.Name /Level: @spec.Level, ExperienceSince: @spec.ExperienceSince.ToShortDateString(), Last used: @spec.LastUsed.ToShortDateString(), Last project notes: @spec.LastProjectNote/
+                    <input class="t-button t-icon t-edit" type="button" Value="Edit" onclick="openUTechnologySpecialty('@spec.Name', '@spec.Level','@spec.LastUsed','@spec.ExperienceSince', '@spec.LastProjectNote')"/> 
+                    <input class="t-button t-icon t-delete" type="button" Value="Delete" onclick="deleteTechnologySpecialty('@spec.Name')"/></li>
+                }
+            </ul>
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.LikesToWorkWith)
+        </div>
+        <div class="editor-field">
+        <ul>
+            <li><input type="button" value="+ Add the People Likes to Work With" class="t-button" onclick="openPersonsWindow('LikesToWorkWith')" /></li>
+            @foreach (var man in Model.LikesToWorkWith)
+            {
+                <li id="LikesToWorkWith@(man.Key)">@(man.Value) <input class="t-button t-icon t-delete" type="button" Value="Delete" onclick="deletePerson('LikesToWorkWith','@(man.Key)')"/></li>
+            }         
+            </ul>
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.DirectReports)
+        </div>
+        <div class="editor-field">
+        <ul>
+            <li><input type="button" value="+ Add Direct Reports" class="t-button" onclick="openPersonsWindow('DirectReports')" /></li>
+            @foreach (var man in Model.DirectReports)
+            {
+                <li id="DirectReports@(man.Key)">@(man.Value) <input class="t-button t-icon t-delete" type="button" Value="Delete" onclick="deletePerson('DirectReports','@(man.Key)')"/></li>
+            }            
+            </ul>
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Links)
+        </div>
+        <div class="editor-field">   
+            <ul>
+                <li><input type="button" value="+ Add Links" class="t-button" onclick="openWindow('LinksWindow')" /></li>
+                 @foreach (var link in Model.Links)
+                 {
+                     <li><a href="@link" target="_blank">@link</a>  <input class="t-button t-icon t-delete" type="button" Value="Delete" onclick="deleteLink('@(link)')"/></li>
+                 } 
+            </ul>
+        </div>        
+        
+    </fieldset>
+}
+
+@{ Html.Telerik().Window()
+        .Name("PersonsWindow")
+        .Draggable(true)
+        .Modal(true)
+        .Visible(false)
+        .Buttons(b => b.Close())
+        .Content(@<text>  @(Html.Telerik().DropDownList().Name("PersonsPropertyValue").BindTo(ViewData["PersonsList"] as SelectList))
+        @Html.Hidden("PersonsPropertyName")
+    <input type="button" value="Add" class="t-button" onclick="addPerson()" /><input type="button" value="Cancel" class="t-button" onclick="closeWindow('PersonsWindow')" />
+    </text>)
+        .Width(400)
+        .Height(300)
+        .Render();
+}
+
+@{ Html.Telerik().Window()
+        .Name("LinksWindow")
+        .Title("Add a New Link")
+        .Draggable(true)
+        .Modal(true)
+        .Visible(false)
+        .Buttons(b => b.Close())
+        .Content(@<text>  @(Html.TextBox("LinkValue","", new {@style="width:300px;"}))        
+        <input type="button" value="Add" class="t-button" onclick="addLink()" /><input type="button" value="Cancel" class="t-button" onclick="closeWindow('LinksWindow')" />
+    </text>)
+        .Width(400)
+        .Height(300)
+        .Render();
+}
+
+@{ Html.Telerik().Window()
+        .Name("TechnologySpecialtiesWindow")
+        .Title("Add a Technology Specialty")
+        .Draggable(true)
+        .Modal(true)
+        .Visible(false)
+        .Buttons(b => b.Close())
+        .Content(@<text>        
+          <ul>
+            <li>Name: @(Html.Telerik().DropDownList().Name("TechnologySpecialtyName").BindTo(ViewData["TechnologySpecialties"] as SelectList))</li>
+            <li>Level: @(Html.Telerik().Slider<int>().Name("TechnologySpecialtyValue").Value(1).Min(1).Max(10).TickPlacement(SliderTickPlacement.None))</li>     
+            <li>Last used: @(Html.Telerik().DatePicker().Name("TechnologySpecialtyLastUsed"))</li> 
+            <li>Experience since: @(Html.Telerik().DatePicker().Name("TechnologySpecialtyExperienceSince"))</li>
+            <li>Last project note: @Html.TextArea("TechnologySpecialtyNote")</li>
+          </ul>
+        <input type="button" value="Ok" class="t-button" onclick="addTechnologySpecialty()" /><input type="button" value="Cancel" class="t-button" onclick="closeWindow('TechnologySpecialtiesWindow')" />
+    </text>)
+        .Width(400)
+        .Height(300)
+        .Render();
+}
+
+@{ Html.Telerik().Window()
+        .Name("UTechnologySpecialtiesWindow")
+        .Title("Edit Technology Specialty")
+        .Draggable(true)
+        .Modal(true)
+        .Visible(false)
+        .Buttons(b => b.Close())
+        .Content(@<text>        
+          <ul>
+            <li>Name: @(Html.TextBox("UTechnologySpecialtyName","", new {@readonly=true}))</li>
+            <li>Level: @(Html.Telerik().Slider<int>().Name("UTechnologySpecialtyValue").Value(1).Min(1).Max(10).TickPlacement(SliderTickPlacement.None))</li>     
+            <li>Last used: @(Html.Telerik().DatePicker().Name("UTechnologySpecialtyLastUsed"))</li> 
+            <li>Experience since: @(Html.Telerik().DatePicker().Name("UTechnologySpecialtyExperienceSince"))</li>
+            <li>Last project note: @Html.TextArea("UTechnologySpecialtyNote")</li>
+          </ul>
+        <input type="button" value="Save" class="t-button" onclick="updateTechnologySpecialty()" /> <input type="button" value="Cancel" class="t-button" onclick="closeWindow('UTechnologySpecialtiesWindow')" />
+    </text>)
+        .Width(400)
+        .Height(300)
+        .Render();
+}
+
+
+<script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
+<script type="text/javascript">
+
+function addTechnologySpecialty() {
+    var name = $('#TechnologySpecialtyName').val();
+    var value = $('#TechnologySpecialtyValue').data("tSlider").value();
+    var lastUsed = $('#TechnologySpecialtyLastUsed').data("tDatePicker").value().toDateString();
+    var expSince = $('#TechnologySpecialtyExperienceSince').data("tDatePicker").value().toDateString();
+    var note = $('#TechnologySpecialtyNote').val();
+    $.post('@Url.Action("AddTechnologySpecialty", "Account")', { id: $('#Id').val(), name: name, value: value, lastUsed: lastUsed, expSince: expSince, note: note }, function (data) {
+        if (data == '') {
+            closeWindow('TechnologySpecialtiesWindow');
+        } else {
+
+        }
+    }, 'json');
+}
+
+function updateTechnologySpecialty() {
+    var name = $('#UTechnologySpecialtyName').val();
+    var value = $('#UTechnologySpecialtyValue').data("tSlider").value();
+    var lastUsed = $('#UTechnologySpecialtyLastUsed').data("tDatePicker").value().toDateString();
+    var expSince = $('#UTechnologySpecialtyExperienceSince').data("tDatePicker").value().toDateString();
+    var note = $('#UTechnologySpecialtyNote').val();
+    $.post('@Url.Action("UpdateTechnologySpecialty", "Account")', { id: $('#Id').val(), name: name, value: value, lastUsed: lastUsed, expSince: expSince, note: note }, function (data) {
+        if (data == '') {
+            closeWindow('UTechnologySpecialtiesWindow');
+        } else {
+
+        }
+    }, 'json');
+}
+
+function openUTechnologySpecialty(name, value, lastUsed, expSince, note) {
+    $('#UTechnologySpecialtyName').val(name);
+    $('#UTechnologySpecialtyValue').data("tSlider").value(value);
+    $('#UTechnologySpecialtyLastUsed').data("tDatePicker").value(lastUsed);
+    $('#UTechnologySpecialtyExperienceSince').data("tDatePicker").value(expSince);
+    $('#UTechnologySpecialtyNote').val(note);
+    openWindow('UTechnologySpecialtiesWindow');
+}
+
+function deleteTechnologySpecialty(name) {
+    $.post('@Url.Action("DeleteTechnologySpecialty", "Account")', { id: $('#Id').val(), name: name}, function (data) {
+        if (data == '') {
+            //TODO: remove element from the html
+        } else {
+            //TODO: show error
+        }
+    }, 'json');
+}
+
+function postUpdate(id, val) {
+    $.post('@Url.Action("UpdatePersonProperty", "Account")', { id: $('#Id').val(), name: id, value: val }, function (data) {
+        if (data == '') {
+            showOk(id);
+        } else {
+            showError(id, data);
+        }
+    }, 'json');
+}
+
+function openPersonsWindow(name) {
+    $('#PersonsPropertyName').val(name);
+    $('#PersonsWindow').data('tWindow').title("Add").center().open();
+}
+
+function openWindow(name) {
+    $('#'+name).data('tWindow').center().open();
+}
+
+function closeWindow(name) {
+    $('#' + name).data('tWindow').close();
+}
+
+
+function addPerson() {
+    var name = $('#PersonsPropertyName').val();
+    var value = $('#PersonsPropertyValue').val();
+    $.post('@Url.Action("AddElementToPersonProperty", "Account")', { id: $('#Id').val(), name: name, value: value }, function (data) {
+        if (data == '') {
+            //TODO: insert element to the html
+            $('#PersonsWindow').data('tWindow').close();
+        } else {
+            //TODO: show error in the window
+        }
+        
+    }, 'json');
+}
+
+function deletePerson(name, value) {
+    $.post('@Url.Action("DeleteElementFromPersonProperty", "Account")', { id: $('#Id').val(), name: name, value: value }, function (data) {
+        if (data == '') {
+            //TODO: remove element from the html
+        } else {
+            //TODO: show error
+        }
+    }, 'json');
+}
+
+function addLink() {
+    var value = $('#LinkValue').val();
+    $.post('@Url.Action("AddElementToPersonProperty", "Account")', { id: $('#Id').val(), name: 'Links', value: value }, function (data) {
+        if (data == '') {
+            //TODO: insert element to the html
+            $('#LinksWindow').data('tWindow').close();
+        } else {
+            //TODO: show error in the window
+        }
+
+    }, 'json');
+}
+
+function deleteLink(value) {
+    $.post('@Url.Action("DeleteElementFromPersonProperty", "Account")', { id: $('#Id').val(), name: 'Links', value: value }, function (data) {
+        if (data == '') {
+            //TODO: remove element from the html
+        } else {
+            //TODO: show error
+        }
+    }, 'json');
+}
+
+function onChangeDoB(e) {
+    postUpdate('DoB', e.value.toDateString());
+}
+function onChangeLocatedIn(e) {
+    postUpdate('LocatedIn', e.value);
+}
+function onChangePrimaryManager(e) {
+    postUpdate('PrimaryManager', e.value);
+}
+function onChangePrimaryPeer(e) {
+    postUpdate('PrimaryPeer', e.value);
+}
+
+$().ready(function () {
+    $('.editor-field input[type="text"]').change(function () { postUpdate($(this).attr('id'), $(this).val()); });
+    $("#Comments").change(function () { postUpdate($(this).attr('id'), $(this).val()); });
+});
+
+</script>
+
+<p>
+    @Html.ActionLink("To Details »", "Details", new { id = Model.Id }, new { @class = "t-button" })
+</p>

@@ -340,3 +340,15 @@ input[data-val-required]
 {
     padding: 2px;    
 }
+
+.resultOk
+{
+    padding-left: 10px;
+    color: green;
+}
+
+.resultError
+{
+    padding-left: 10px;
+    color: red;
+}

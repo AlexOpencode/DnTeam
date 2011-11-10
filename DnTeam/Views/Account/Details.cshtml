@@ -1,0 +1,45 @@
+﻿@model DnTeam.Models.PersonModel
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Html.DisplayFor(model => model.Name)</h2>
+
+    <div class="personUrl">   
+        <img src="@Model.PhotoUrl" alt="photo"/>        
+    </div>
+    <div class="display-label">Email</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Email)
+    </div>
+
+    <div class="display-label">LocatedIn</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.LocatedIn)
+    </div>
+
+    <div class="display-label">Comments</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Comments)
+    </div>
+
+    <div class="display-label">PrimaryManager</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.PrimaryManager)
+    </div>
+
+    <div class="display-label">PrimaryPeer</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.PrimaryPeer)
+    </div>
+
+    <div class="display-label">DoB</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.DoB)
+    </div>
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id}, new { @class="t-button"})
+</p>

@@ -16,7 +16,7 @@
         .Name("Grid")
         .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
         .DataKeys(keys => keys.Add(o => o.Id))
-            .DataBinding(dataBinding => dataBinding.Ajax()
+        .DataBinding(dataBinding => dataBinding.Ajax()
                                             .Select("Select", "Project")
                                             .Insert("Insert", "Project")
                                             .Update("Save", "Project")
