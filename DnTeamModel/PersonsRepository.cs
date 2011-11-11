@@ -16,7 +16,8 @@ namespace DnTeamData
 
         public static List<Person> GetAllPersons()
         {
-            return Coll.FindAll().ToList();
+            var query = Query.EQ("IsDeleted", false);
+            return Coll.Find(query).ToList();
         }
 
         public static Dictionary<string, string> GetPersonsList()
@@ -24,32 +25,12 @@ namespace DnTeamData
             return GetAllPersons().ToDictionary(o => o.Id.ToString(), x => x.Name);
         }
 
-
         public static UserCreateStatus CreatePerson(string userName, string locatedIn, string primaryManager, string email)
         {
-            var query = Query.EQ("Name", userName);
-            if (Coll.Find(query).Any())
-                return UserCreateStatus.DuplicateUserName;
-
-            query = Query.EQ("Email", email);
-            if (Coll.Find(query).Any())
-                return UserCreateStatus.DuplicateEmail;
-
-            ObjectId managerId = string.IsNullOrEmpty(primaryManager) ? ObjectId.Empty : ObjectId.Parse(primaryManager);
-            if (managerId != ObjectId.Empty)
-            {
-                query = Query.EQ("_id", managerId);
-                if (!Coll.Find(query).Any())
-                    return UserCreateStatus.InvalidPrimaryManager;
-            }
-
-            ObjectId locationId = string.IsNullOrEmpty(locatedIn) ? ObjectId.Empty : ObjectId.Parse(locatedIn);
-            if (locationId != ObjectId.Empty)
-            {
-                query = Query.EQ("Subsidiaries._id", locationId);
-                if (!Dpt.Find(query).Any())
-                    return UserCreateStatus.InvalidLocation;
-            }
+            ObjectId locationId;
+            ObjectId managerId;
+            var status = VerifyPerson(userName, locatedIn, primaryManager, email, out locationId, out managerId);
+            if (status != UserCreateStatus.Success) return status;
 
             var p = new Person
                         {
@@ -64,66 +45,44 @@ namespace DnTeamData
             return res.Ok ? UserCreateStatus.Success : UserCreateStatus.ProviderError;
         }
 
+        private static UserCreateStatus VerifyPerson(string userName, string locatedIn, string primaryManager, string email, out ObjectId locationId, out ObjectId managerId)
+        {
+            locationId = ObjectId.Empty;
+            managerId = ObjectId.Empty;
+
+            var query = Query.EQ("Name", userName);
+            if (Coll.Find(query).Any())
+                return UserCreateStatus.DuplicateUserName;
+
+            query = Query.EQ("Email", email);
+            if (Coll.Find(query).Any())
+                return UserCreateStatus.DuplicateEmail;
+
+            managerId = string.IsNullOrEmpty(primaryManager) ? ObjectId.Empty : ObjectId.Parse(primaryManager);
+            if (managerId != ObjectId.Empty)
+            {
+                query = Query.EQ("_id", managerId);
+                if (!Coll.Find(query).Any())
+                    return UserCreateStatus.InvalidPrimaryManager;
+            }
+
+            locationId = string.IsNullOrEmpty(locatedIn) ? ObjectId.Empty : ObjectId.Parse(locatedIn);
+            if (locationId != ObjectId.Empty)
+            {
+                query = Query.EQ("Subsidiaries._id", locationId);
+                if (!Dpt.Find(query).Any())
+                    return UserCreateStatus.InvalidLocation;
+            }
+
+            return UserCreateStatus.Success;
+        }
+
         public static string GetUserName(ObjectId id)
         {
             var query = Query.EQ("_id", id);
 
             return Coll.FindOne(query).Name;
         }
-
-        //public static void CreateUser(string userName, string email, string location, string password, 
-        //    string primaryManager, string comments,  List<Specialty> technologySklills, DateTime DoB, 
-        //    bool isLocked, out UserCreateStatus createStatus)
-        //{
-        //   
-
-        //    var query = Query.EQ("Name", userName);
-        //    if(coll.Find(query).Count() > 0)
-        //    {
-        //        createStatus = UserCreateStatus.DuplicateUserName;
-        //        return;
-        //    }
-
-        //    query = Query.EQ("Email", email);
-        //    if (coll.Find(query).Count() > 0)
-        //    {
-        //        createStatus = UserCreateStatus.DuplicateEmail;
-        //        return;
-        //    }
-
-        //    ObjectId managerId;
-        //    if (ObjectId.TryParse(primaryManager, out managerId))
-        //    {
-        //        query = Query.EQ("_id", managerId);
-        //        if (coll.Find(query).Count() != 1)
-        //        {
-        //            createStatus = UserCreateStatus.InvalidPrimaryManager;
-        //            return;
-        //        }
-        //    }
-
-        //    var res = coll.Insert(new Person ()
-        //                   {
-        //                       Comments = comments, 
-        //                       DoB = DoB, 
-        //                       Email = email, 
-        //                       IsLocked = isLocked, 
-        //                       Name = userName,
-        //                       Password = password,
-        //                       PrimaryManager = managerId,
-        //                       TechnologySpecialties = technologySklills,
-        //                       Location = location
-        //                   }, SafeMode.True);
-        //    if (res.Ok)
-        //    {
-        //        createStatus = UserCreateStatus.Success;
-        //        return;
-        //    }
-
-        //    createStatus = UserCreateStatus.UserRejected;
-        //}
-
-
 
         public static Person GetPerson(string id)
         {
@@ -246,6 +205,29 @@ namespace DnTeamData
             var res = Coll.Update(query, update, SafeMode.True);
 
             return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
+        }
+
+        public static void DeletePerson(string id)
+        {
+            var query = Query.EQ("_id", ObjectId.Parse(id));
+            var update = Update.Set("IsDeleted", true);
+
+            Coll.Update(query, update, SafeMode.True);
+        }
+
+        public static UserCreateStatus UpdatePerson(string id, string userName, string locatedIn, string primaryManager, string email)
+        {
+            ObjectId locationId;
+            ObjectId managerId;
+            var status = VerifyPerson(userName, locatedIn, primaryManager, email, out locationId, out managerId);
+            if (status != UserCreateStatus.Success) return status;
+
+            var query = Query.EQ("_id", ObjectId.Parse(id));
+            var update = Update.Set("Name", userName).Set("PrimaryManager", managerId).Set("Email", email).Set("LocatedIn", locationId);
+
+            var res = Coll.Update(query, update, SafeMode.True);
+
+            return res.Ok ? UserCreateStatus.Success : UserCreateStatus.ProviderError;
         }
     }
 }

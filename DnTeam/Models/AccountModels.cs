@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Web.Mvc;
-using DnTeamData;
 using DnTeamData.Models;
 
 namespace DnTeam.Models
@@ -99,16 +97,6 @@ namespace DnTeam.Models
         [DataType(DataType.ImageUrl)]
         [Display(Name = "Photo URL")]
         public string PhotoUrl { get; set; }
-
-        //[Required]
-        //[Display(Name = "Technology skills")]
-        //[TechnologySkills(ErrorMessage = "At least one skill shoul be more then 0")]
-        //public List<Specialty> TechnologySkills { get; set; }
-
-        //public PersonModel()
-        //{
-        //    //  TechnologySkills = SettingsRepository.GetAllTechnologies().Select(o => new Specialty { Name = o, Value = 0 }).ToList(); 
-        //}
     }
 
     public class PersonGridModel
@@ -136,5 +124,6 @@ namespace DnTeam.Models
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email address")]
         public string Email { get; set; }
+        
     }
 }

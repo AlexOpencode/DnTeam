@@ -37,6 +37,22 @@ namespace DnTeam.Controllers
             };
         }
 
+        [NonAction]
+        private IEnumerable<PersonGridModel> Return()
+        {
+            return PersonsRepository.GetAllPersons().Select(o => new PersonGridModel()
+            {
+                UserId = o.PersonId,
+                Email = o.Email,
+                PrimaryManager = o.PrimaryManagerName,
+                UserName = o.Name,
+                Location = o.LocationName,
+               
+                //TechnologySkills = o.TechnologySpecialties.Where(s => s.Level > 0).Select(s => s.Name)
+                //    .Aggregate((workingSentence, next) => next + ", " + workingSentence)
+            });
+        }
+
         [HttpGet]
         public ActionResult Details(string id)
         {
@@ -46,7 +62,6 @@ namespace DnTeam.Controllers
             return View(model);
         }
 
-
         [HttpGet]
         public ActionResult Edit(string id)
         {
@@ -54,47 +69,9 @@ namespace DnTeam.Controllers
             var model = MapPersonToModel(PersonsRepository.GetPerson(id), personsList);
             ViewData["PersonsList"] = new SelectList(personsList, "key", "value");
             ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value");
-            ViewData["TechnologySpecialties"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialties)); 
+            ViewData["TechnologySpecialties"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialties));
             return View(model);
         }
-
-        #region Update Person Data
-        [HttpPost]
-        public ActionResult UpdatePersonProperty(string id, string name, string value)
-        {
-            return new JsonResult { Data = PersonsRepository.UpdateProperty(id, name, value) };
-        }
-        
-        [HttpPost]
-        public ActionResult AddElementToPersonProperty(string id, string name, string value)
-        {
-            return new JsonResult { Data = PersonsRepository.AddValueToPropertySet(id, name, value) };
-        }
-
-        [HttpPost]
-        public ActionResult DeleteElementFromPersonProperty(string id, string name, string value)
-        {
-            return new JsonResult { Data = PersonsRepository.DeleteValueFromPropertySet(id, name, value) };
-        }
-        
-        [HttpPost]
-        public ActionResult AddTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
-        {
-            return new JsonResult { Data = PersonsRepository.AddTechnologySpecialty(id, name, value, lastUsed, expSince, note) };
-        }
-        
-        [HttpPost]
-        public ActionResult UpdateTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
-        {
-            return new JsonResult { Data = PersonsRepository.UpdateTechnologySpecialty(id, name, value, lastUsed, expSince, note) };
-        }
-
-        [HttpPost]
-        public ActionResult DeleteTechnologySpecialty(string id, string name)
-        {
-            return new JsonResult { Data = PersonsRepository.DeleteTechnologySpecialty(id, name) };
-        }
-        #endregion
 
         [HttpGet]
         public ActionResult List()
@@ -102,22 +79,6 @@ namespace DnTeam.Controllers
             ViewData["PersonsList"] = new SelectList(PersonsRepository.GetPersonsList(), "key", "value");
             ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value");
             return View();
-        }
-
-        [NonAction]
-        private IEnumerable<PersonGridModel> Return()
-        {
-            return PersonsRepository.GetAllPersons().Select(o => new PersonGridModel()
-                                                             {
-                                                                 UserId = o.PersonId,
-                                                                 Email = o.Email,
-                                                                 PrimaryManager = o.PrimaryManagerName,
-                                                                 UserName = o.Name,
-                                                                 Location = o.LocationName
-                                                                 //TechnologySkills = o.TechnologySpecialties.Where(s => s.Level > 0).Select(s => s.Name)
-                                                                 //    .Aggregate((workingSentence, next) =>next + ", " + workingSentence)
-
-                                                             });
         }
 
         [GridAction]
@@ -131,12 +92,67 @@ namespace DnTeam.Controllers
             return View(new GridModel(Return()));
         }
 
+        [GridAction]
+        public ActionResult Save(string id, PersonGridModel model)
+        {
+            if (TryUpdateModel(model))
+            {
+                PersonsRepository.UpdatePerson(id, model.UserName, model.Location, model.PrimaryManager, model.Email);
+            }
+
+            return View(new GridModel(Return()));
+        }
+
+        [GridAction]
+        public ActionResult Delete(string id)
+        {
+            PersonsRepository.DeletePerson(id);
+            return View(new GridModel(Return()));
+        }
 
         [GridAction]
         public ActionResult Select()
         {
             return View(new GridModel(Return()));
         }
+
+        #region Update Person Data
+        [HttpPost]
+        public ActionResult UpdatePersonProperty(string id, string name, string value)
+        {
+            return new JsonResult { Data = PersonsRepository.UpdateProperty(id, name, value) };
+        }
+
+        [HttpPost]
+        public ActionResult AddElementToPersonProperty(string id, string name, string value)
+        {
+            return new JsonResult { Data = PersonsRepository.AddValueToPropertySet(id, name, value) };
+        }
+
+        [HttpPost]
+        public ActionResult DeleteElementFromPersonProperty(string id, string name, string value)
+        {
+            return new JsonResult { Data = PersonsRepository.DeleteValueFromPropertySet(id, name, value) };
+        }
+
+        [HttpPost]
+        public ActionResult AddTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
+        {
+            return new JsonResult { Data = PersonsRepository.AddTechnologySpecialty(id, name, value, lastUsed, expSince, note) };
+        }
+
+        [HttpPost]
+        public ActionResult UpdateTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
+        {
+            return new JsonResult { Data = PersonsRepository.UpdateTechnologySpecialty(id, name, value, lastUsed, expSince, note) };
+        }
+
+        [HttpPost]
+        public ActionResult DeleteTechnologySpecialty(string id, string name)
+        {
+            return new JsonResult { Data = PersonsRepository.DeleteTechnologySpecialty(id, name) };
+        }
+        #endregion
 
         //
         // GET: /Account/LogOn

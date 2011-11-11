@@ -10,10 +10,6 @@
 @(Html.Telerik().Grid(Model)
         .Name("UsersGrid")
         .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
-            //.ToolBar(commands => commands
-            //    .Custom()
-            //        .Text("Add a new user")
-            //        .Action("Register", "Account"))
          .DataKeys(keys => keys.Add(o => o.UserId))
          .DataBinding(dataBinding => dataBinding.Ajax()
                                                 .Select("Select", "Account")
@@ -22,7 +18,6 @@
                                                 .Delete("Delete", "Account"))
         .Columns(columns =>
         {
-            //columns.Bound(o => o.UserId).Width(100);
             columns.Bound(o => o.Details).Width(45).Encoded(false).Title("");
             columns.Bound(o => o.UserName).Width(200);
             columns.Bound(o => o.Email);
@@ -34,7 +29,6 @@
                 commands.Edit().ButtonType(GridButtonType.ImageAndText);
                 commands.Delete().ButtonType(GridButtonType.ImageAndText);
             }).Width(200).Title("Edit");
-            //columns.Bound(o => o.).Format("{0:MM/dd/yyyy}").Width(120);
         })
-        //.DataBinding(dataBinding => dataBinding.Ajax().Select("SelectUsers", "Account"))
-) 
+       //     .ClientEvents(events => events.OnDataBinding("onDataBinding").OnRowDataBound("OnRowDataBound "))
+        )
