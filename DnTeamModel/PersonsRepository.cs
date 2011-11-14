@@ -77,7 +77,7 @@ namespace DnTeamData
             return UserCreateStatus.Success;
         }
 
-        public static string GetUserName(ObjectId id)
+        public static string GetPersonName(ObjectId id)
         {
             var query = Query.EQ("_id", id);
 

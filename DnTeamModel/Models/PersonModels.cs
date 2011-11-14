@@ -33,7 +33,7 @@ namespace DnTeamData.Models
             get
             {
                 return (PrimaryManager != ObjectId.Empty)
-                    ? PersonsRepository.GetUserName(PrimaryManager) : "none";
+                    ? PersonsRepository.GetPersonName(PrimaryManager) : "none";
             }
         }
         public List<ObjectId> OtherManagers { get; set; }

@@ -24,9 +24,12 @@
         .Columns(columns =>
         {
             columns.Bound(o => o.Details).Width(45).Encoded(false).Title("");
-            columns.Bound(o => o.Priority);
+            columns.Bound(o => o.Priority).Width(45);
+            columns.Bound(o => o.Product);
             columns.Bound(o => o.Name);
             columns.Bound(o => o.ProjectStatus);
+            columns.Bound(o => o.ProjectType);
+            columns.Bound(o => o.Noise);
             columns.Bound(o => o.CreatedDate).Width(200);
             columns.Command(commands =>
             {

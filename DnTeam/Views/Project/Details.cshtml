@@ -1,6 +1,33 @@
-﻿@{
+﻿@using DnTeam.Models
+@{
     ViewBag.Title = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>Project Details</h2>
+
+<h3>Manage Assignments</h3>
+@(Html.Telerik().Grid<AssignmentModel>()
+        .Name("AssignmentGrid")
+        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataKeys(keys => keys.Add(o => o.AssignmentId))
+        .DataBinding(dataBinding => dataBinding.Ajax()
+                                            .Select("Select", "Assignment", new { projectId = ViewBag.ProjectId})
+                                            .Insert("Insert", "Assignment", new { projectId = ViewBag.ProjectId})
+                                            .Update("Save", "Assignment", new { projectId = ViewBag.ProjectId})
+                                            .Delete("Delete", "Assignment", new { projectId = ViewBag.ProjectId}))
+        .Columns(columns =>
+        {
+            columns.Bound(o => o.Role);
+            columns.Bound(o => o.Person);
+            columns.Bound(o => o.Note);
+            columns.Bound(o => o.StartDate).Width(200);
+            columns.Bound(o => o.EndDate).Width(200);
+            columns.Bound(o => o.Commitment).Width(50);
+            columns.Command(commands =>
+            {
+                commands.Edit().ButtonType(GridButtonType.ImageAndText);
+                commands.Delete().ButtonType(GridButtonType.ImageAndText);
+            }).Width(200).Title("Edit");
+        })
+)

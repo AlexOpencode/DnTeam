@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
 namespace DnTeam.Models
 {
@@ -23,9 +24,19 @@ namespace DnTeam.Models
         [DisplayName("Project Status")]
         public string ProjectStatus { get; set; }
 
-        //[ReadOnly(true)]
-        //[DisplayName("Staff")]
-        //public string HumanResources { get; set; }
+        [Required]
+        [UIHint("ProjectTypes")]
+        [DisplayName("Project Type")]
+        public string ProjectType { get; set; }
+        
+        [DataType("Integer")]
+        [DisplayName("Noise")]
+        public int Noise { get; set; }
+
+        [Required]
+        [UIHint("Products")]
+        [DisplayName("Product Line")]
+        public string Product { get; set; }
 
         [Required]
         [DataType("Integer")]
@@ -42,21 +53,40 @@ namespace DnTeam.Models
             CreatedDate = DateTime.Now;
         }
     }
+}
 
-    //public class CreateProjectModel
-    //{
-        
-    //    [Required]
-    //    [DisplayName("Project Name")]
-    //    public string Name { get; set; }
+public class AssignmentModel
+{
+    
+    [UIHint("ProjectRoles")]
+    [DisplayName("Role")]
+    public string Role { get; set; }
 
-    //    [Required]
-    //    [DisplayName("Project Status")]
-    //    public string ProjectStatus { get; set; }
+    [UIHint("Persons")]
+    [DisplayName("Person")]
+    public string Person { get; set; }
 
-    //    public List<string> ProjectStatuses { get; set; }
+    [DisplayName("Assignment")]
+    public string Note { get; set; }
 
-    //    [DisplayName("Priority")]
-    //    public int Priority { get; set; }
-    //}
+    [DisplayName("Commitment %")]
+    [Range(1, 100)]
+    [DataType("Integer")]
+    public int Commitment { get; set; }
+
+    [DisplayName("Satart Date")]
+    [DataType(DataType.Date)]
+    public DateTime StartDate { get; set; }
+
+    [DisplayName("End Date")]
+    [DataType(DataType.Date)]
+    public DateTime EndDate { get; set; }
+
+    [ReadOnly(true)]
+    public string AssignmentId { get; set; }
+
+    public AssignmentModel()
+    {
+        Commitment = 100;
+    }
 }

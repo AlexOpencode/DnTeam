@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.Routing;
 using System.Web.Security;
 using DnTeam.Models;
 using DnTeamData;
@@ -40,16 +38,16 @@ namespace DnTeam.Controllers
         [NonAction]
         private IEnumerable<PersonGridModel> Return()
         {
-            return PersonsRepository.GetAllPersons().Select(o => new PersonGridModel()
-            {
+            return PersonsRepository.GetAllPersons().Select(o => new PersonGridModel
+                                                                     {
                 UserId = o.PersonId,
                 Email = o.Email,
                 PrimaryManager = o.PrimaryManagerName,
                 UserName = o.Name,
                 Location = o.LocationName,
-               
-                //TechnologySkills = o.TechnologySpecialties.Where(s => s.Level > 0).Select(s => s.Name)
-                //    .Aggregate((workingSentence, next) => next + ", " + workingSentence)
+                TechnologySkills = (o.TechnologySpecialties.Count > 0) 
+                    ? o.TechnologySpecialties.Where(s => s.Level > 0).Select(s => s.Name).Aggregate((workingSentence, next) => next + ", " + workingSentence)
+                    : string.Empty
             });
         }
 
@@ -178,15 +176,9 @@ namespace DnTeam.Controllers
                     {
                         return Redirect(returnUrl);
                     }
-                    else
-                    {
-                        return RedirectToAction("Index", "Home");
-                    }
+                    return RedirectToAction("Index", "Home");
                 }
-                else
-                {
-                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
-                }
+                ModelState.AddModelError("", "The user name or password provided is incorrect.");
             }
 
             // If we got this far, something failed, redisplay form

@@ -35,10 +35,22 @@ namespace DnTeamData
             Coll.Update(query, update);
         }
 
+        //TODO: update references to the product
         public static void DeleteProduct(string id)
         {
             var query = Query.EQ("_id", ObjectId.Parse(id));
             Coll.Remove(query);
+        }
+
+        internal static string GetName(ObjectId id)
+        {
+            var query = Query.EQ("_id", id);
+            return Coll.FindOne(query).Name;
+        }
+
+        public static Dictionary<string,string> GetAllProductsList()
+        {
+            return GetAllProducts().ToDictionary(o => o.Id.ToString(), x => x.Name);
         }
     }
 }

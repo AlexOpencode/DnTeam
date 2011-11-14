@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Linq;
 using System.Web.Mvc;
 using DnTeam.Models;
 using DnTeamData;
@@ -14,18 +11,26 @@ namespace DnTeam.Controllers
         public ActionResult Index()
         {
             ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetAllProjectStatuses());
+            ViewData["ProjectTypes"] = new SelectList(SettingsRepository.GetAllProjectTypes());
+            ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsList(), "key", "value");
             return View();
         }
 
         public ActionResult Details(string id)
         {
+            ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetAllProjectStatuses());
+            ViewData["ProjectTypes"] = new SelectList(SettingsRepository.GetAllProjectTypes());
+            ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsList(), "key", "value");
+            ViewData["PersonsList"] = new SelectList(PersonsRepository.GetPersonsList(), "key", "value");
+            ViewData["ProjectRoles"] = new SelectList(SettingsRepository.GetAllProjectRoles());
+            ViewBag.ProjectId = id;
             return View();
         }
 
         [GridAction]
         public ActionResult Select()
         {
-            return View(GetAllProjectsModel());
+            return View(Return());
         }
 
 
@@ -35,15 +40,33 @@ namespace DnTeam.Controllers
             var product = new ProjectEditableModel();
             if (TryUpdateModel(product))
             {
-                ProjectRepository.Insert(product.Name, product.Priority, product.CreatedDate,
-                    product.ProjectStatus);
+                ProjectRepository.Insert(product.Name, product.Priority, product.CreatedDate, product.ProjectStatus, product.Noise, product.Product, product.ProjectType);
             }
 
-            return View(GetAllProjectsModel());
+            return View(Return());
+        }
+
+        [GridAction]
+        public ActionResult Save(string id)
+        {
+            var product = new ProjectEditableModel();
+            if (TryUpdateModel(product))
+            {
+                ProjectRepository.Save(id, product.Name, product.Priority, product.ProjectStatus, product.Noise, product.Product, product.ProjectType);
+            }
+
+            return View(Return());
+        }
+
+        [GridAction]
+        public ActionResult Delete(string id)
+        {
+            ProjectRepository.Delete(id);
+            return View(Return());
         }
 
         [NonAction]
-        private static GridModel GetAllProjectsModel()
+        private static GridModel Return()
         {
             return new GridModel(ProjectRepository.GetAllProjects()
                                      .Select(o => new ProjectEditableModel()
@@ -52,7 +75,10 @@ namespace DnTeam.Controllers
                                                           CreatedDate = o.CreatedDate,
                                                           Name = o.Name,
                                                           Priority = o.Priority,
-                                                          ProjectStatus = o.Status
+                                                          ProjectStatus = o.Status,
+                                                          Noise = o.Noise,
+                                                          ProjectType = o.Type,
+                                                          Product = o.ProductName
                                                       }).OrderByDescending(o=>o.Priority));
         }
     }

@@ -27,11 +27,16 @@
                 .Text("Settings")
                 .Items(item =>
                 {
-                    item.Add().Text("Locations").Action("Index", "Settings", new { type = "Locations" });
-                    item.Add().Text("Project Roles").Action("Index", "Settings", new { type = "Project Roles" });
-                    item.Add().Text("Project Statuses").Action("Index", "Settings", new { type = "Project Statuses" });
-                    item.Add().Text("Project Types").Action("Index", "Settings", new { type = "Project Types" });
+                    item.Add().Text("Locations").Action("Index", "Settings", new { type = "Locations" });                  
                     item.Add().Text("Technology Specialties").Action("Index", "Settings", new { type = "Technology Specialties" });
+                    item.Add().Text("Project").Items(subItem =>
+                                                         {
+                                                             subItem.Add().Text("Roles").Action("Index", "Settings", new {type = "Project Roles"});
+                                                             subItem.Add().Text("Statuses").Action("Index", "Settings", new {type = "Project Statuses"});
+                                                             subItem.Add().Text("Types").Action("Index", "Settings", new {type = "Project Types"});
+                                                             subItem.Add().Text("Milestones").Action("Index", "Settings", new {type = "Project Milestones"});
+                                                            // subItem.Add().Text("Noise Types").Action("Index", "Settings", new {type = "Project Noise Types"});
+                                                         });
                 });        
         })
         .Render();

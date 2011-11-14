@@ -10,10 +10,10 @@ namespace DnTeamData
     {
         private static readonly MongoDatabase Db = Mongo.Init();
 
-        public static  EnumName GetEnumName (string value)
+        public static EnumName GetEnumName(string value)
         {
             EnumName res;
-            if(Enum.TryParse(value.Replace(" ",string.Empty), true, out res))
+            if (Enum.TryParse(value.Replace(" ", string.Empty), true, out res))
                 return res;
 
             return EnumName.Undefined;
@@ -25,7 +25,7 @@ namespace DnTeamData
             var query = Query.EQ("Name", name.ToString());
             var collection = coll.FindOne(query);
             var res = (collection == null) ? new List<string>() : collection.Values;
-            
+
             return res;
         }
 
@@ -45,79 +45,24 @@ namespace DnTeamData
             coll.Update(query, update);
         }
 
-        //public static List<string> GetAllUserRoles()
-        //{
-        //    return GetSettingValues(EnumName.ProjectRoles);
-        //}
-
-        //public static void InsertRole(string value)
-        //{
-        //    UpdateSetting(EnumName.ProjectRoles, value);
-        //}
-
-        //public static void DeleteRole(string value)
-        //{
-        //    DeleteSetting(EnumName.ProjectRoles, value);
-        //}
-
         public static List<string> GetAllLocations()
         {
             return GetSettingValues(EnumName.Locations);
         }
-
-        //public static void InsertLocation(string location)
-        //{
-        //   UpdateSetting(EnumName.Locations, location);
-        //}
-
-        //public static void DeleteLocation(string value)
-        //{
-        //    DeleteSetting(EnumName.Locations, value);
-        //}
-
-        //public static List<string> GetAllTechnologies()
-        //{
-        //    return GetSettingValues(EnumName.TechnologySpecialties);
-        //}
-
-        //public static void InsertTechnology(string value)
-        //{
-        //    UpdateSetting(EnumName.TechnologySpecialties, value);
-        //}
-
-        //public static void DeleteTechnology(string value)
-        //{
-        //    DeleteSetting(EnumName.TechnologySpecialties, value);
-        //}
 
         public static List<string> GetAllProjectStatuses()
         {
             return GetSettingValues(EnumName.ProjectStatuses);
         }
 
-        //public static void InsertProjectStatus(string value)
-        //{
-        //    UpdateSetting(EnumName.ProjectStatuses, value);
-        //}
+        public static List<string> GetAllProjectTypes()
+        {
+            return GetSettingValues(EnumName.ProjectTypes);
+        }
 
-        //public static void DeleteProjectStatus(string value)
-        //{
-        //    DeleteSetting(EnumName.ProjectStatuses, value);
-        //}
-
-        //public static void InsertFunctionalSpecialty(string value)
-        //{
-        //    UpdateSetting(EnumName.FunctionalSpecialties, value);
-        //}
-
-        //public static List<string> GetAllFunctionalSpecialties()
-        //{
-        //    return GetSettingValues(EnumName.FunctionalSpecialties);
-        //}
-
-        //public static void DeleteFunctionalSpecialty(string value)
-        //{
-        //    DeleteSetting(EnumName.FunctionalSpecialties, value);
-        //}
+        public static List<string> GetAllProjectRoles()
+        {
+            return GetSettingValues(EnumName.ProjectRoles);
+        }
     }
 }
