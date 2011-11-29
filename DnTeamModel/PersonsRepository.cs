@@ -8,62 +8,78 @@ using MongoDB.Driver.Builders;
 
 namespace DnTeamData
 {
+    /// <summary>
+    /// Manages Persons entity manipulation
+    /// </summary>
     public static class PersonsRepository
     {
         private static readonly MongoDatabase Db = Mongo.Init();
         private static readonly MongoCollection<Person> Coll = Db.GetCollection<Person>("Persons");
         private static readonly MongoCollection<Department> Dpt = Db.GetCollection<Department>("Departments");
 
-        public static List<Person> GetAllPersons()
+        /// <summary>
+        /// Returns the list of persons
+        /// </summary>
+        /// <param name="isActive">true - returns active persons, false - inActive persons</param>
+        /// <returns>The list of Persons</returns>
+        public static List<Person> GetAllPersons(bool isActive)
         {
-            var query = Query.EQ("IsDeleted", false);
+            var query = Query.EQ("IsActive", isActive);
             return Coll.Find(query).ToList();
         }
 
-        public static Dictionary<string, string> GetPersonsList()
+        /// <summary>
+        /// Returns Dictioonary of persons with the first "wanted" person
+        /// </summary>
+        /// <returns>The dictionary of persons with the first "wanted" person</returns>
+        public static Dictionary<string, string> GetActivePersonsList()
         {
-            return GetAllPersons().ToDictionary(o => o.Id.ToString(), x => x.Name);
+            return new Dictionary<string, string> { {ObjectId.Empty.ToString(), "wanted"}}.Concat(
+                GetAllPersons(true).ToDictionary(o => o.Id.ToString(), o => o.Name)).ToDictionary(x => x.Key, x => x.Value);
+            
         }
 
-        public static UserCreateStatus CreatePerson(string userName, string locatedIn, string primaryManager, string email)
+        /// <summary>
+        /// Create a new person
+        /// </summary>
+        /// <param name="userName">User name</param>
+        /// <param name="locatedIn">Location id</param>
+        /// <param name="primaryManager">Primary manager id</param>
+        /// <returns>Creation status of type PersonCreateStatus</returns>
+        public static PersonCreateStatus CreatePerson(string userName, string locatedIn, string primaryManager)
         {
             ObjectId locationId;
             ObjectId managerId;
-            var status = VerifyPerson(userName, locatedIn, primaryManager, email, out locationId, out managerId);
-            if (status != UserCreateStatus.Success) return status;
+            var status = VerifyPerson(userName, locatedIn, primaryManager, out locationId, out managerId);
+            if (status != PersonCreateStatus.Success) return status;
 
             var p = new Person
                         {
                             Name = userName,
                             LocatedIn = locationId,
-                            PrimaryManager = managerId,
-                            Email = email
+                            PrimaryManager = managerId
                         };
 
             var res = Coll.Insert(p, SafeMode.True);
 
-            return res.Ok ? UserCreateStatus.Success : UserCreateStatus.ProviderError;
+            return res.Ok ? PersonCreateStatus.Success : PersonCreateStatus.ProviderError;
         }
 
-        private static UserCreateStatus VerifyPerson(string userName, string locatedIn, string primaryManager, string email, out ObjectId locationId, out ObjectId managerId)
+        private static PersonCreateStatus VerifyPerson(string userName, string locatedIn, string primaryManager, out ObjectId locationId, out ObjectId managerId)
         {
             locationId = ObjectId.Empty;
             managerId = ObjectId.Empty;
 
             var query = Query.EQ("Name", userName);
             if (Coll.Find(query).Any())
-                return UserCreateStatus.DuplicateUserName;
-
-            query = Query.EQ("Email", email);
-            if (Coll.Find(query).Any())
-                return UserCreateStatus.DuplicateEmail;
+                return PersonCreateStatus.DuplicateUserName;
 
             managerId = string.IsNullOrEmpty(primaryManager) ? ObjectId.Empty : ObjectId.Parse(primaryManager);
             if (managerId != ObjectId.Empty)
             {
                 query = Query.EQ("_id", managerId);
                 if (!Coll.Find(query).Any())
-                    return UserCreateStatus.InvalidPrimaryManager;
+                    return PersonCreateStatus.InvalidPrimaryManager;
             }
 
             locationId = string.IsNullOrEmpty(locatedIn) ? ObjectId.Empty : ObjectId.Parse(locatedIn);
@@ -71,14 +87,21 @@ namespace DnTeamData
             {
                 query = Query.EQ("Subsidiaries._id", locationId);
                 if (!Dpt.Find(query).Any())
-                    return UserCreateStatus.InvalidLocation;
+                    return PersonCreateStatus.InvalidLocation;
             }
 
-            return UserCreateStatus.Success;
+            return PersonCreateStatus.Success;
         }
 
+        /// <summary>
+        /// Returns the name of the specified person
+        /// </summary>
+        /// <param name="id">Person id</param>
+        /// <returns>Person name</returns>
         public static string GetPersonName(ObjectId id)
         {
+            if (id == ObjectId.Empty) return "wanted";
+
             var query = Query.EQ("_id", id);
 
             return Coll.FindOne(query).Name;
@@ -142,7 +165,7 @@ namespace DnTeamData
 
             var res = Coll.Update(query, update, SafeMode.True);
 
-            return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
+            return res.Ok ? string.Empty : "error"; //TODO: return user-friendly error
         }
 
         public static string DeleteValueFromPropertySet(string id, string name, string value)
@@ -210,24 +233,46 @@ namespace DnTeamData
         public static void DeletePerson(string id)
         {
             var query = Query.EQ("_id", ObjectId.Parse(id));
-            var update = Update.Set("IsDeleted", true);
+            var update = Update.Set("IsActive", false);
 
             Coll.Update(query, update, SafeMode.True);
         }
 
-        public static UserCreateStatus UpdatePerson(string id, string userName, string locatedIn, string primaryManager, string email)
+        public static PersonCreateStatus UpdatePerson(string id, string userName, string locatedIn, string primaryManager)
         {
             ObjectId locationId;
             ObjectId managerId;
-            var status = VerifyPerson(userName, locatedIn, primaryManager, email, out locationId, out managerId);
-            if (status != UserCreateStatus.Success) return status;
+            var status = VerifyPerson(userName, locatedIn, primaryManager, out locationId, out managerId);
+            if (status != PersonCreateStatus.Success) return status;
 
             var query = Query.EQ("_id", ObjectId.Parse(id));
-            var update = Update.Set("Name", userName).Set("PrimaryManager", managerId).Set("Email", email).Set("LocatedIn", locationId);
+            var update = Update.Set("Name", userName).Set("PrimaryManager", managerId).Set("LocatedIn", locationId);
 
             var res = Coll.Update(query, update, SafeMode.True);
 
-            return res.Ok ? UserCreateStatus.Success : UserCreateStatus.ProviderError;
+            return res.Ok ? PersonCreateStatus.Success : PersonCreateStatus.ProviderError;
+        }
+
+        /// <summary>
+        /// Validates if the OpenId is assigned to a user
+        /// </summary>
+        /// <param name="id">OpenId (is "http" or "https" URI, or an XRI)</param>
+        /// <returns>User name</returns>
+        public static string ValidateIdentifier(string id)
+        {
+            var query = Query.And(new [] {Query.EQ("OpenId", id), Query.EQ("IsActive", true)});
+            var res = Coll.FindOne(query);
+
+            return (res == null) ? string.Empty : res.Name;
+        }
+
+        internal static IEnumerable<ObjectId> GetUsedDepartments(IEnumerable<ObjectId> departments)
+        {
+            var query = Query.In("LocatedIn", new BsonArray(departments));
+            var result = Coll.Find(query);
+            result.Fields = Fields.Include(new[] { "LocatedIn" });
+
+            return result.Select(o => o.LocatedIn);
         }
     }
 }

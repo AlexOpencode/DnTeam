@@ -14,7 +14,7 @@
 @(Html.Telerik().Grid<EditableProductModel>()
         .Name("Grid")
             .DataKeys(keys => keys.Add(p => p.Id))
-            .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+            .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
         .DataBinding(dataBinding => dataBinding.Ajax()
                                         .Select("Select", "Product")
                                         .Insert("Insert", "Product")

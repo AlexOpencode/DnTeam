@@ -1,0 +1,20 @@
+﻿@model IEnumerable<DnTeam.Models.PersonGridModel>
+
+@{
+    ViewBag.Title = "List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>People Management</h2>
+
+@(Html.Telerik().Grid(Model)
+        .Name("UsersGrid")
+        .DataBinding(dataBinding => dataBinding.Ajax().Select("SelectInActive", "Account"))
+        .Columns(columns =>
+        {
+            columns.Bound(o => o.Details).Width(45).Encoded(false).Title("").HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(o => o.UserName).Width(200);
+            columns.Bound(o => o.Location);
+            columns.Bound(o => o.PrimaryManager);
+            columns.Bound(o => o.TechnologySkills);           
+        }))

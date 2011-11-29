@@ -14,7 +14,7 @@ namespace DnTeamData.Models
         
         public Client()
         {
-            Id = ObjectId.GenerateNewId();
+            //Id = ObjectId.GenerateNewId();
         }
     }
 

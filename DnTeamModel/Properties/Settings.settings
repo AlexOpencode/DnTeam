@@ -6,7 +6,7 @@
       <Value Profile="(Default)">dndata</Value>
     </Setting>
     <Setting Name="ConnectionString" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">mongodb://192.168.69.50</Value>
+      <Value Profile="(Default)">mongodb://localhost</Value>
     </Setting>
   </Settings>
 </SettingsFile>

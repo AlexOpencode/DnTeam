@@ -2,6 +2,7 @@
 using System.Web.Mvc;
 using DnTeamData;
 using Telerik.Web.Mvc;
+using DnTeam.Models;
 
 namespace DnTeam.Controllers
 {

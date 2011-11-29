@@ -28,11 +28,12 @@ namespace DnTeamData.Models
         Locations,
         ProjectRoles,
         ProjectStatuses,
-        TechnologySpecialties,
-        FunctionalSpecialties,
+        TechnologySpecialtyNames,
         ProjectTypes,
         ProjectMilestones,
-        //ProjectNoiseTypes,
+        ProjectNoiseTypes,
+        ProjectPriorityTypes,
+        TechnologySpecialtyLevels,
         Undefined
     }
 }

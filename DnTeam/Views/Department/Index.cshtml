@@ -1,185 +1,196 @@
-﻿@{
-    ViewBag.Title = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+﻿@using DnTeam.Models
 <h2>Departments</h2>
-@{ Html.Telerik().Window()
-        .Name("AddDepartment")
-        .Title("Add Department")
-        .Draggable(true)
-        .Modal(true)
-        .Visible(false)
-        .Buttons(b => b.Close())
-        .Content(@<text> Name: @Html.TextBox("DepartmentName")
-    @Html.Hidden("DepartmentParentId")
-    <input id="AddDepartmentOk" type="button" value="Insert" class="t-button" /><input id="AddDepartmentCancel" type="button" value="Cancel" class="t-button" />
-    </text>)
-        .Width(300)
-        .Height(300)
-        .Render();
-}
-@{ Html.Telerik().Window()
-        .Name("UpdateDepartment")
-        .Title("Update Department")
-        .Draggable(true)
-        .Modal(true)
-        .Visible(false)
-        .Buttons(b => b.Close())
-        .Content(@<text> Name: @Html.TextBox("UpdateDepartmentName")
-        @Html.Hidden("UpdateDepartmentId")
-    <input id="UpdateDepartmentOk" type="button" value="Save" class="t-button" /><input id="UpdateDepartmentCancel" type="button" value="Cancel" class="t-button" />
-    </text>)
-        .Width(300)
-        .Height(300)
-        .Render();
-}
-
-@{ Html.Telerik().Window()
-        .Name("AddSubsidiary")
-        .Title("Add Location")
-        .Draggable(true)
-        .Modal(true)
-        .Visible(false)
-        .Buttons(b => b.Close())
-        .Content(@<text> Location: @Html.DropDownList("SubsidiaryLocation", new SelectList(ViewBag.Locations))
-    Base cost: @Html.TextBox("SubsidiaryBaseCost")
-    Base Rate: @Html.TextBox("SubsidiaryBaseRate")
-    @Html.Hidden("SubsidiaryParentId")
-    <input id="AddSubsidiaryOk" type="button" value="Insert" class="t-button" /><input id="AddSubsidiaryCancel" type="button" value="Cancel" class="t-button" />
-    </text>)
-        .Width(300)
-        .Height(300)
-        .Render();
-}
-@{ Html.Telerik().Window()
-        .Name("UpdateSubsidiary")
-        .Title("Update Location")
-        .Draggable(true)
-        .Modal(true)
-        .Visible(false)
-        .Buttons(b => b.Close())
-        .Content(@<text> Location: @Html.DropDownList("UpdateSubsidiaryLocation", new SelectList(ViewBag.Locations))
-    Base cost: @Html.TextBox("UpdateSubsidiaryBaseCost")
-    Base Rate: @Html.TextBox("UpdateSubsidiaryBaseRate")
-    @Html.Hidden("UpdateSubsidiaryParentId")
-    @Html.Hidden("UpdateSubsidiaryId")
-    <input id="UpdateSubsidiaryOk" type="button" value="Save" class="t-button" /><input id="UpdateSubsidiaryCancel" type="button" value="Cancel" class="t-button" />
-    </text>)
-        .Width(300)
-        .Height(300)
-        .Render();
-}
-
 
 <script type="text/javascript">
-
-    $("#UpdateDepartmentOk").click(function () {
-        var id = $("#UpdateDepartmentId").val();
-        var name = $("#UpdateDepartmentName").val();
-        $.post('@Url.Action("UpdateDapartament", "Department")', {id: id, name: name }, function (data) {
-            if (data == true) {
-                $('#UpdateDepartment').data('tWindow').close();
-                window.location.href = window.location.href;
-            }
-        }, "json");
-    });
-
-    $("#UpdateSubsidiaryOk").click(function () {
-        var id = $("#UpdateSubsidiaryId").val();
-        var parentId = $("#UpdateSubsidiaryParentId").val();
-        var location = $("#UpdateSubsidiaryLocation").val();
-        var baseCost = $("#UpdateSubsidiaryBaseCost").val();
-        var baseRate = $("#UpdateSubsidiaryBaseRate").val();
-        $.post('@Url.Action("UpdateSubsidiary", "Department")', { location: location, baseCost: baseCost, baseRate: baseRate, id: id, parentId: parentId }, function (data) {
-            if (data == true) {
-                $('#UpdateSubsidiary').data('tWindow').close();
-                window.location.href = window.location.href;
-            }
-        }, "json");
-    });
-
-
-    function updateDepartment(id, name) {
-        $("#UpdateDepartmentName").val(name);
-        $("#UpdateDepartmentId").val(id);
-        $('#UpdateDepartment').data('tWindow').center().open();
-    };
-
-    function updateSubsidiary(parentId, id, location, baseCost, baseRate) {
-        $("#UpdateSubsidiaryLocation").val(location);
-        $("#UpdateSubsidiaryBaseCost").val(baseCost);
-        $("#UpdateSubsidiaryBaseRate").val(baseRate);
-        $("#UpdateSubsidiaryParentId").val(parentId);
-        $("#UpdateSubsidiaryId").val(id);
-        $('#UpdateSubsidiary').data('tWindow').center().open();
-    };
     
-    $("#UpdateDepartmentCancel").click(function () {
-        $('#UpdateDepartment').data('tWindow').close();
-    });
+    $().ready(function () {
 
-    $("#UpdateSubsidiaryCancel").click(function () {
-        $('#UpdateSubsidiary').data('tWindow').close();
-    });
 
-    function deleteDepartment(id) {
-        $.post('@Url.Action("DeleteDapartament", "Department")', { id: id }, function (data) {
-            if (data == true) {
-                window.location.href = window.location.href;
+        //Open creation dialog
+        $("#addNewDepartment").click(function (e) {
+            e.preventDefault();
+            openWindow('DepartmentWindow', 'Insert', 'Insert', 'addDepartment()');
+        });
+
+        //Delete selected departments
+        $("#deleteDepartments").click(function (e) {
+            e.preventDefault();
+
+            var values = new Array();
+            $("input:checkbox[name=checkedRecords]:checked").each(function () {
+                values.push($(this).val());
+            });
+
+            if (values.length <= 0) {
+                alert("Please, check departments to be deleted.");
+            } else {
+                if (confirm("Are you sure you want to delete these departments?")) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@(Url.Action("DeleteDepartments", "Department"))',
+                        dataType: 'json',
+                        traditional: true,
+                        data: { values: values },
+                        success: function () {
+                            fillDepartments(); //rebind combobox
+                            $("#DepartmentsGrid").data("tGrid").ajaxRequest();
+                        }
+                    });
+                }
             }
-        }, "json");
-    };
+        });
 
-    function deleteSubsidiary(id, DepartmentId) {
-        $.post('@Url.Action("DeleteSubsidiary", "Department")', { id: id, DepartmentId: DepartmentId }, function (data) {
-            if (data == true) {
-                window.location.href = window.location.href;
+
+        //Open edit window
+        $("#editDepartment").click(function () {
+            var values = new Array();
+            $("input:checkbox[name=checkedRecords]:checked").each(function () {
+                values.push($(this));
+            });
+
+            if (values.length != 1) {
+                alert("Please, check one department to be edited.");
+            } else {
+                //get cell values
+                var ths = values[0].closest('tr').children('td');
+                //open edit departments window
+                openEditDepartments(values[0].val(), ths[1].innerHTML, ths[2].innerHTML, ths[3].innerHTML, ths[4].innerHTML, ths[5].innerHTML);
             }
-        }, "json");
-    };
-
-    function addDepartment(parentId) {
-        $("#DepartmentParentId").val(parentId);
-        $('#AddDepartment').data('tWindow').center().open();
-    };
-    
-    function addSubsidiary(parentId) {
-        $("#SubsidiaryParentId").val(parentId);
-        $('#AddSubsidiary').data('tWindow').center().open();
-    };
-
-    $("#AddDepartmentCancel").click(function () {
-        $('#AddDepartment').data('tWindow').close();
-    });
-
-    $("#AddSubsidiaryCancel").click(function () {
-        $('#AddSubsidiary').data('tWindow').close();
-    });
-
-    $("#AddDepartmentOk").click(function () {
-        var id = $("#DepartmentParentId").val();
-        var name = $("#DepartmentName").val();
-        $.post('@Url.Action("SaveDapartament", "Department")', { name: name, DepartmentOf: id }, function (data) {
-            if (data == true) {
-                $('#AddDepartment').data('tWindow').close();
-                window.location.href = window.location.href;
-            }
-        }, "json");
-    });
-
-    $("#AddSubsidiaryOk").click(function () {
-        var id = $("#SubsidiaryParentId").val();
-        var location = $("#SubsidiaryLocation").val();
-        var baseCost = $("#SubsidiaryBaseCost").val();
-        var baseRate = $("#SubsidiaryBaseRate").val();
-         $.post('@Url.Action("SaveSubsidiary", "Department")', { location: location, baseCost: baseCost, baseRate: baseRate,  DepartmentId: id }, function (data) {
-            if (data == true) {
-                $('#AddSubsidiary').data('tWindow').close();
-                window.location.href = window.location.href;
-            }
-        }, "json");
+        });
     });
     
+        function openEditDepartments(id, location, name, parent, rate, cost) {
+            $("#DepartmentId").val(id);
+            $("#Location").data("tComboBox").value(location);
+            $("#Name").val(name);
+            $("#ParentDepartment").data("tComboBox").value(parent);
+            $("#Rate").data("tTextBox").value(rate);
+            $("#Cost").data("tTextBox").value(cost);
 
+            openWindow('DepartmentWindow', 'Edit', 'Save', 'updateDepartment()');
+        };
+
+        function addDepartment() {
+            saveDepartment("");
+        }
+
+        function updateDepartment() {
+            saveDepartment($("#DepartmentId").val());
+        }
+
+        function saveDepartment(id) {
+            var name = $("#Name").val();
+            var parent = $("#ParentDepartment").data("tComboBox");
+            $.post('@(Url.Action("Save", "Department"))', {
+                id: id,
+                location: $("#Location").data("tComboBox").value(),
+                name: name,
+                parentId: parent.value(),
+                parentName: parent.text(),
+                rate: $("#Rate").data("tTextBox").value(),
+                cost: $("#Cost").data("tTextBox").value()
+            }, function(data) {
+
+                if (data[0] == 0) {
+                    closeWindow('DepartmentWindow');
+                    $("#DepartmentsGrid").data("tGrid").ajaxRequest();
+                    fillDepartments(); //rebind combobox
+                } else {
+                    //TODO: show error
+                }
+            });
+        }
+
+        function fillDepartments() {
+            $.post('@(Url.Action("GetDepartmentsList", "Department"))', function(data) {
+                $("#ParentDepartment").data('tComboBox').dataBind(data);
+            }, "json");
+        }
+   
+    
 </script>
-@Html.Raw(ViewBag.DepartmentsTree)
+@{Html.Telerik().Window().Name("DepartmentWindow").Title("Insert").Content(
+      @<text>
+
+                @Html.Hidden("DepartmentId")
+                <div class="editLine">
+                    <div class="editElement">
+                        <div class="editor-label">
+                            Location
+                        </div>
+                        <div class="editor-field">
+                        
+                            @(Html.Telerik().ComboBox().Name("Location").BindTo(ViewData["LocationsList"] as SelectList)
+                                .Filterable(filtering => filtering.FilterMode(AutoCompleteFilterMode.StartsWith)).HighlightFirstMatch(true))
+                        </div>
+                    </div>
+                    <div class="editElement">
+                        <div class="editor-label">
+                            Name
+                        </div>
+                        <div class="editor-field">
+                            @Html.TextBox("Name")                      
+                        </div>
+                    </div>
+                    <div class="editElement">
+                        <div class="editor-label">
+                            Parent Department
+                        </div>
+                        <div class="editor-field">
+                            @(Html.Telerik().ComboBox().Name("ParentDepartment").BindTo(ViewData["DepartmentsList"] as SelectList)
+                                    .Filterable(filtering => filtering.FilterMode(AutoCompleteFilterMode.StartsWith)).HighlightFirstMatch(true))
+                        </div>
+                    </div>
+                    <div class="editElement">
+                        <div class="editor-label">
+                            Cost
+                        </div>
+                        <div class="editor-field">
+                           @(Html.Telerik().CurrencyTextBox().Name("Cost").InputHtmlAttributes(new {style="width:100px"}).MinValue(0).Value(10).CurrencySymbol(" "))
+                        </div>
+                    </div>
+                    <div class="editElement">
+                        <div class="editor-label">
+                            Rate
+                        </div>
+                        <div class="editor-field">
+                            @(Html.Telerik().CurrencyTextBox().Name("Rate").InputHtmlAttributes(new { style = "width:100px" })
+                                            .MinValue(0).Value(10).CurrencySymbol(" "))
+                        </div>
+                    </div>
+                </div>
+                <div id="addNewDepartmentError" class="editLine"> </div>
+                <div class="editLine" style="padding-top: 20px;">
+                    <a class="t-button t-button-icontext yesButton" onclick="addDepartment()"><span class="t-icon t-insert"></span><label>Insert</label></a>
+                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('DepartmentWindow')"><span class="t-icon t-cancel"></span><label>Cancel</label></a>
+                </div>
+      </text>).Visible(false).Draggable(true).Scrollable(false).Modal(true).Width(800).Render();}
+<p>
+    <a id="addNewDepartment" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Department</a>
+    <a id="editDepartment" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Department</a>
+    <a id="deleteDepartments" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Departments</a>
+</p>
+@(Html.Telerik().Grid<DepartmentModel>()
+        .Name("DepartmentsGrid")
+        .DataKeys(keys => keys.Add(o => o.Id))
+        .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Department"))
+        .Columns(columns =>
+        {
+            columns.Bound(o => o.Id).Filterable(false).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Id #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(o => o.Location);
+            columns.Bound(o => o.Name);
+            columns.Bound(o => o.ParentDepartment);
+            columns.Bound(o => o.Cost).Width(70);
+            columns.Bound(o => o.Rate).Width(70);
+        })
+        .Sortable()
+        .Pageable()     
+    )
+
+<script src="@(Url.Content("~/Scripts/customTelerikGridFilter.js"))" type="text/javascript"></script>
+<script type="text/javascript">
+    var getGrid = function getGridInstance() {
+        return $("#DepartmentsGrid").data("tGrid");
+    };
+   $("#DepartmentsGrid").customTelerikGridFilter({ postUrl: '@(Url.Action("GetTopSearchOffers", "Department"))', getGridInstance: getGrid });
+</script>

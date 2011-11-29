@@ -34,7 +34,7 @@ namespace DnTeamData.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("mongodb://192.168.69.50")]
+        [global::System.Configuration.DefaultSettingValueAttribute("mongodb://localhost")]
         public string ConnectionString {
             get {
                 return ((string)(this["ConnectionString"]));

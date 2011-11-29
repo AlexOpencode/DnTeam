@@ -1,23 +1,101 @@
 ﻿@using DnTeam.Models
+@model ProjectModel
+
 @{
     ViewBag.Title = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <h2>Project Details</h2>
+
+@using (Html.BeginForm())
+ {
+     
+         @Html.HiddenFor(model => model.Id)
+<div class="editLine" style="padding-bottom: 30px;">
+         <div class="editElement">
+             <div class="editor-label">
+                 @Html.LabelFor(model => model.Name)
+             </div>
+             <div class="editor-field">
+                 @Html.EditorFor(model => model.Name)
+             </div>
+         </div>
+         <div class="editElement">
+             <div class="editor-label">
+                 @Html.LabelFor(model => model.ProjectStatus)
+             </div>
+             <div class="editor-field">
+                 @Html.EditorFor(model => model.ProjectStatus)
+             </div>
+         </div>
+         <div class="editElement">
+         <div class="editor-label">
+             @Html.LabelFor(model => model.ProjectType)
+         </div>
+         <div class="editor-field">
+             @Html.EditorFor(model => model.ProjectType)
+         </div>
+         </div>
+         <div class="editElement"> 
+         <div class="editor-label">
+             @Html.LabelFor(model => model.Noise)
+         </div>
+         <div class="editor-field">
+             @Html.EditorFor(model => model.Noise)
+         </div>      
+         </div>
+         <div class="editElement">    
+         <div class="editor-label">
+             @Html.LabelFor(model => model.Product)
+         </div>
+         <div class="editor-field">
+             @Html.EditorFor(model => model.Product)
+         </div>   
+         </div>         
+         </div>
+   
+ }
+    
+<div id="milestonesDiv">
+    <h3>Milestones</h3>
+    @(Html.Telerik().Grid<MilestoneModel>()
+        .Name("MilestoneGrid")
+        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
+        .DataKeys(keys => keys.Add(o => o.MilestoneId))
+        .DataBinding(dataBinding => dataBinding.Ajax()
+                                            .Select("Select", "Milestone", new { projectId = Model.Id })
+                                            .Insert("Insert", "Milestone", new { projectId = Model.Id })
+                                            .Update("Save", "Milestone", new { projectId = Model.Id })
+                                            .Delete("Delete", "Milestone", new { projectId = Model.Id }))
+        .Columns(columns =>
+        {
+            columns.Bound(o => o.Index).Width(50);
+            columns.Bound(o => o.Name);
+            columns.Bound(o => o.TargetDate).Width(120);
+            columns.Bound(o => o.ActualDate).Width(120);
+            columns.Bound(o => o.Status).Width(50).Encoded(false).HtmlAttributes(new { style = "text-align:center" });
+            columns.Command(commands =>
+            {
+                commands.Edit().ButtonType(GridButtonType.ImageAndText);
+                commands.Delete().ButtonType(GridButtonType.ImageAndText);
+            }).Width(200).Title("Edit");
+        }))
+</div>
+
 
 <h3>Manage Assignments</h3>
 @(Html.Telerik().Grid<AssignmentModel>()
         .Name("AssignmentGrid")
-        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
         .DataKeys(keys => keys.Add(o => o.AssignmentId))
         .DataBinding(dataBinding => dataBinding.Ajax()
-                                            .Select("Select", "Assignment", new { projectId = ViewBag.ProjectId})
-                                            .Insert("Insert", "Assignment", new { projectId = ViewBag.ProjectId})
-                                            .Update("Save", "Assignment", new { projectId = ViewBag.ProjectId})
-                                            .Delete("Delete", "Assignment", new { projectId = ViewBag.ProjectId}))
+                                            .Select("Select", "Assignment", new { projectId = Model.Id})
+                                            .Insert("Insert", "Assignment", new { projectId = Model.Id})
+                                            .Update("Save", "Assignment", new { projectId = Model.Id})
+                                            .Delete("Delete", "Assignment", new { projectId = Model.Id}))
         .Columns(columns =>
         {
+            //columns.Bound(o => o.Location);
             columns.Bound(o => o.Role);
             columns.Bound(o => o.Person);
             columns.Bound(o => o.Note);

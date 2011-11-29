@@ -7,11 +7,16 @@ using DnTeam.Models;
 using DnTeamData;
 using DnTeamData.Models;
 using Telerik.Web.Mvc;
+using DotNetOpenAuth.OpenId.RelyingParty;
+using DotNetOpenAuth.OpenId;
+using DotNetOpenAuth.Messaging;
 
 namespace DnTeam.Controllers
 {
     public class AccountController : Controller
     {
+        private static readonly OpenIdRelyingParty openid = new OpenIdRelyingParty();
+
         [NonAction]
         private PersonModel MapPersonToModel(Person person, Dictionary<string, string> personsList)
         {
@@ -21,7 +26,7 @@ namespace DnTeam.Controllers
                 Name = person.Name,
                 DoB = person.DoB,
                 Comments = person.Comments,
-                Email = person.Email,
+                Phone = person.Phone,
                 PhotoUrl = person.PhotoUrl,
                 LocatedIn = person.LocationId,
                 PrimaryManager = person.PrimaryManagerId,
@@ -31,17 +36,17 @@ namespace DnTeam.Controllers
                 LikesToWorkWith = personsList.Where(o => person.LikesToWorkWithList.Contains(o.Key)),
                 DirectReports = personsList.Where(o => person.DirectReportsList.Contains(o.Key)),
                 Links = person.Links,
-                TechnologySpecialties = person.TechnologySpecialties
+                TechnologySpecialties = person.TechnologySpecialties,
+                OpenId = person.OpenId
             };
         }
 
         [NonAction]
-        private IEnumerable<PersonGridModel> Return()
+        private IEnumerable<PersonGridModel> Return(bool isActive = true)
         {
-            return PersonsRepository.GetAllPersons().Select(o => new PersonGridModel
+            return PersonsRepository.GetAllPersons(isActive).Select(o => new PersonGridModel
                                                                      {
                 UserId = o.PersonId,
-                Email = o.Email,
                 PrimaryManager = o.PrimaryManagerName,
                 UserName = o.Name,
                 Location = o.LocationName,
@@ -51,10 +56,83 @@ namespace DnTeam.Controllers
             });
         }
 
+        public ActionResult LogIn ()
+        {
+            Response.AppendHeader("X-XRDS-Location", new Uri(Request.Url, Response.ApplyAppPathModifier("~/Home/xrds")).AbsoluteUri);
+            return View();
+        }
+
+        public ActionResult LogOut()
+        {
+            FormsAuthentication.SignOut();
+            return RedirectToAction("LogIn");
+        }
+
+        [ValidateInput(false)]
+        public ActionResult Authenticate(string returnUrl)
+        {
+            var response = openid.GetResponse();
+
+            if (response == null)
+            {
+                //user submitting Identifier
+                Identifier id;
+                if (Identifier.TryParse(Request.Form["openid_identifier"], out id))
+                {
+                    //Validate Identifier is assigned to an active user in the database
+                    
+
+                    if (string.IsNullOrEmpty(PersonsRepository.ValidateIdentifier(id.ToString())))
+                    {
+                        ViewData["Message"] = "User with such OpenId is not registered or is not active.";
+                        return View("LogIn");
+                    }
+
+                    try
+                    {
+                        return openid.CreateRequest(Request.Form["openid_identifier"]).RedirectingResponse.AsActionResult();
+                    }
+                    catch (ProtocolException ex)
+                    {
+                        ViewData["Message"] = ex.Message;
+                        return View("LogIn");
+                    }
+                }
+                else
+                {
+                    ViewData["Message"] = "Invalid identifier";
+                    return View("Login");
+                }
+            }
+            else
+            {
+                // OpenID Provider sending assertion response
+                switch (response.Status)
+                {
+                    case AuthenticationStatus.Authenticated:
+                        Session["FriendlyIdentifier"] = PersonsRepository.ValidateIdentifier(response.ClaimedIdentifier);
+                        FormsAuthentication.SetAuthCookie(response.ClaimedIdentifier, false);
+
+                        if (!string.IsNullOrEmpty(returnUrl))
+                            return Redirect(returnUrl);
+                        
+                        return RedirectToAction("Index", "Home");
+                        
+                    case AuthenticationStatus.Canceled:
+                        ViewData["Message"] = "Canceled at provider";
+                        return View("LogIn");
+                    case AuthenticationStatus.Failed:
+                        ViewData["Message"] = response.Exception.Message;
+                        return View("LogIn");
+                }
+            }
+            return new EmptyResult();
+        }
+
         [HttpGet]
         public ActionResult Details(string id)
         {
-            var personsList = PersonsRepository.GetPersonsList();
+            var personsList = PersonsRepository.GetActivePersonsList();
             var model = MapPersonToModel(PersonsRepository.GetPerson(id), personsList);
             model.PhotoUrl = string.IsNullOrEmpty(model.PhotoUrl) ? "../../Content/noImage.jpg" : model.PhotoUrl;
             return View(model);
@@ -63,19 +141,26 @@ namespace DnTeam.Controllers
         [HttpGet]
         public ActionResult Edit(string id)
         {
-            var personsList = PersonsRepository.GetPersonsList();
+            var personsList = PersonsRepository.GetActivePersonsList();
             var model = MapPersonToModel(PersonsRepository.GetPerson(id), personsList);
             ViewData["PersonsList"] = new SelectList(personsList, "key", "value");
-            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value");
-            ViewData["TechnologySpecialties"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialties));
+            // ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value"); //Todo: implement GetLocationName()
+            ViewData["TechnologySpecialtyNames"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyNames));
+            ViewData["TechnologySpecialtyLevels"] = SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyLevels);
             return View(model);
         }
 
         [HttpGet]
         public ActionResult List()
         {
-            ViewData["PersonsList"] = new SelectList(PersonsRepository.GetPersonsList(), "key", "value");
-            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value");
+            ViewData["PersonsList"] = new SelectList(PersonsRepository.GetActivePersonsList(), "key", "value");
+            //ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value"); //Todo: implement GetLocationName()
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult Inactive()
+        {
             return View();
         }
 
@@ -84,7 +169,7 @@ namespace DnTeam.Controllers
         {
             if (TryUpdateModel(model))
             {
-                PersonsRepository.CreatePerson(model.UserName, model.Location, model.PrimaryManager, model.Email);
+                PersonsRepository.CreatePerson(model.UserName, model.Location, model.PrimaryManager);
             }
 
             return View(new GridModel(Return()));
@@ -95,7 +180,7 @@ namespace DnTeam.Controllers
         {
             if (TryUpdateModel(model))
             {
-                PersonsRepository.UpdatePerson(id, model.UserName, model.Location, model.PrimaryManager, model.Email);
+                PersonsRepository.UpdatePerson(id, model.UserName, model.Location, model.PrimaryManager);
             }
 
             return View(new GridModel(Return()));
@@ -114,10 +199,34 @@ namespace DnTeam.Controllers
             return View(new GridModel(Return()));
         }
 
+        [GridAction]
+        public ActionResult SelectInActive()
+        {
+            return View(new GridModel(Return(false)));
+        }
+
         #region Update Person Data
         [HttpPost]
         public ActionResult UpdatePersonProperty(string id, string name, string value)
         {
+            //Validate OpenId
+            if (name == "OpenId")
+            {
+                Identifier iden;
+                if (Identifier.TryParse(value, out iden))
+                {
+                    if (!string.IsNullOrEmpty(PersonsRepository.ValidateIdentifier(iden.ToString())))
+                        return new JsonResult { Data = "OpenId Identifier is user by other user." };
+
+                    //assign valid OpenId format to save in the database
+                    value = iden.ToString();
+                }
+                else
+                {
+                    return new JsonResult {Data = "OpenId Identifier is not valid."};
+                }
+            }
+
             return new JsonResult { Data = PersonsRepository.UpdateProperty(id, name, value) };
         }
 
@@ -152,169 +261,32 @@ namespace DnTeam.Controllers
         }
         #endregion
 
-        //
-        // GET: /Account/LogOn
-
-        public ActionResult LogOn()
-        {
-            return View();
-        }
-
-        //
-        // POST: /Account/LogOn
-
-        [HttpPost]
-        public ActionResult LogOn(LogOnModel model, string returnUrl)
-        {
-            if (ModelState.IsValid)
-            {
-                if (Membership.ValidateUser(model.UserName, model.Password))
-                {
-                    FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
-                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
-                        && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
-                    {
-                        return Redirect(returnUrl);
-                    }
-                    return RedirectToAction("Index", "Home");
-                }
-                ModelState.AddModelError("", "The user name or password provided is incorrect.");
-            }
-
-            // If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        //
-        // GET: /Account/LogOff
-
-        public ActionResult LogOff()
-        {
-            FormsAuthentication.SignOut();
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        //
-        // GET: /Account/Register
-
-        public ActionResult Register()
-        {
-            PersonModel model = new PersonModel();
-
-            return View(model);
-        }
-
-        //
-        // POST: /Account/Register
-
-        //[HttpPost]
-        //public ActionResult Register(RegisterModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        // Attempt to register the user
-        //        UserCreateStatus createStatus;
-        //        //Membership.CreateUser(model.UserName, model.Password, model.Email, null, null, true, null, out createStatus);
-
-        //        PersonsRepository.CreateUser(model.Name, model.Email, model.Location, "password", 
-        //            model.PrimaryManager,model.Comments, null, model.DoB, 
-        //            false, out createStatus);
-        //        if (createStatus == UserCreateStatus.Success)
-        //        {
-        //            //FormsAuthentication.SetAuthCookie(model.UserName, false /* createPersistentCookie */);
-        //            return RedirectToAction("List", "Account");
-        //        }
-        //        else
-        //        {
-        //            ModelState.AddModelError("", ErrorCodeToString(createStatus));
-        //        }
-        //    }
-
-        //    // If we got this far, something failed, redisplay form
-        //    return View(model);
-        //}
-
-        //
-        // GET: /Account/ChangePassword
-
-        [Authorize]
-        public ActionResult ChangePassword()
-        {
-            return View();
-        }
-
-        //
-        // POST: /Account/ChangePassword
-
-        [Authorize]
-        [HttpPost]
-        public ActionResult ChangePassword(ChangePasswordModel model)
-        {
-            if (ModelState.IsValid)
-            {
-
-                // ChangePassword will throw an exception rather
-                // than return false in certain failure scenarios.
-                bool changePasswordSucceeded;
-                try
-                {
-                    MembershipUser currentUser = Membership.GetUser(User.Identity.Name, true /* userIsOnline */);
-                    changePasswordSucceeded = currentUser.ChangePassword(model.OldPassword, model.NewPassword);
-                }
-                catch (Exception)
-                {
-                    changePasswordSucceeded = false;
-                }
-
-                if (changePasswordSucceeded)
-                {
-                    return RedirectToAction("ChangePasswordSuccess");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "The current password is incorrect or the new password is invalid.");
-                }
-            }
-
-            // If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        //
-        // GET: /Account/ChangePasswordSuccess
-
-        public ActionResult ChangePasswordSuccess()
-        {
-            return View();
-        }
-
         #region Status Codes
-        private static string ErrorCodeToString(UserCreateStatus createStatus)
+        private static string ErrorCodeToString(PersonCreateStatus createStatus)
         {
             // See http://go.microsoft.com/fwlink/?LinkID=177550 for
             // a full list of status codes.
             switch (createStatus)
             {
-                case UserCreateStatus.DuplicateUserName:
+                case PersonCreateStatus.DuplicateUserName:
                     return "User name already exists. Please enter a different user name.";
 
-                case UserCreateStatus.DuplicateEmail:
+                case PersonCreateStatus.DuplicateEmail:
                     return "A user name for that e-mail address already exists. Please enter a different e-mail address.";
 
-                case UserCreateStatus.InvalidPassword:
+                case PersonCreateStatus.InvalidPassword:
                     return "The password provided is invalid. Please enter a valid password value.";
 
-                case UserCreateStatus.InvalidEmail:
+                case PersonCreateStatus.InvalidEmail:
                     return "The e-mail address provided is invalid. Please check the value and try again.";
 
-                case UserCreateStatus.InvalidUserName:
+                case PersonCreateStatus.InvalidUserName:
                     return "The user name provided is invalid. Please check the value and try again.";
 
-                case UserCreateStatus.ProviderError:
+                case PersonCreateStatus.ProviderError:
                     return "The authentication provider returned an error. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
 
-                case UserCreateStatus.UserRejected:
+                case PersonCreateStatus.UserRejected:
                     return "The user creation request has been canceled. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
 
                 default:

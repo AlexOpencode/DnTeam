@@ -70,40 +70,40 @@ namespace DnTeam.Tests
         }
 
 
-        /// <summary>
-        ///A test for GetDepartmentsTree
-        ///</summary>
-        [TestMethod]
-        public void GetDepartmentsTreeTest()
-        {
-            const int expectedCount = 10;
+        ///// <summary>
+        /////A test for GetDepartmentsTree
+        /////</summary>
+        //[TestMethod]
+        //public void GetDepartmentsTreeTest()
+        //{
+        //    const int expectedCount = 10;
 
-            #region Create test Departments
-            for (int i = 0; i < expectedCount; i++)
-            {
-                string name = "Test_Department" + i;
-                string parentDepartmentId = string.Empty;
-                DepartmentRepository.CreateDepartment(name, parentDepartmentId);
+        //    #region Create test Departments
+        //    for (int i = 0; i < expectedCount; i++)
+        //    {
+        //        string name = "Test_Department" + i;
+        //        string parentDepartmentId = string.Empty;
+        //        DepartmentRepository.CreateDepartment(name, parentDepartmentId);
 
                 
-            }
+        //    }
 
-            var created = DepartmentRepository.GetAllDepartments();
+        //    var created = DepartmentRepository.GetAllDepartments();
 
-            foreach (Department Department in created)
-            {
-                for (int j = 0; j < 10; j++)
-                {
-                    string subName = "Test_SubDepartment" + j + "Of" + Department.Id;
-                    string subParentDepartmentId = Department.Id.ToString();
-                    DepartmentRepository.CreateDepartment(subName, subParentDepartmentId);
-                }
-            }
-            #endregion 
+        //    foreach (Department Department in created)
+        //    {
+        //        for (int j = 0; j < 10; j++)
+        //        {
+        //            string subName = "Test_SubDepartment" + j + "Of" + Department.Id;
+        //            string subParentDepartmentId = Department.Id.ToString();
+        //            DepartmentRepository.CreateDepartment(subName, subParentDepartmentId);
+        //        }
+        //    }
+        //    #endregion 
 
-            IEnumerable<TDepartment> actual = DepartmentRepository.GetDepartmentsTree();
-            Assert.AreEqual(expectedCount, actual.Count());
-        }
+        //    IEnumerable<TDepartment> actual = DepartmentRepository.GetDepartmentsTree();
+        //    Assert.AreEqual(expectedCount, actual.Count());
+        //}
 
         
     }

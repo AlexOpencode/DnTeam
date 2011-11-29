@@ -15,10 +15,9 @@ namespace DnTeamData.Models
             get { return Id.ToString(); }
         }
         public string Name { get; set; }
-        public bool IsLocked { get; set; }
-        public bool IsDeleted { get; set; }
+        public bool IsActive { get; set; }
         public string Password { get; set; }
-        public string Email { get; set; }
+        public string Phone { get; set; }
         public string Comments { get; set; }
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime? DoB { get; set; }
@@ -33,7 +32,7 @@ namespace DnTeamData.Models
             get
             {
                 return (PrimaryManager != ObjectId.Empty)
-                    ? PersonsRepository.GetPersonName(PrimaryManager) : "none";
+                    ? PersonsRepository.GetPersonName(PrimaryManager) : "wanted";
             }
         }
         public List<ObjectId> OtherManagers { get; set; }
@@ -53,9 +52,10 @@ namespace DnTeamData.Models
         }
         public string LocationName
         {
-            get { return (LocatedIn == ObjectId.Empty) ? "none" : DepartmentRepository.GetLocationName(LocatedIn); }
+            get { return (LocatedIn == ObjectId.Empty) ? "none" : "not implemented"; } //Todo: implement GetLocationName()
         }
         public string PhotoUrl { get; set; }
+        public string OpenId { get; set; }
 
         public Person()
         {
@@ -66,10 +66,10 @@ namespace DnTeamData.Models
             DirectReports = new List<ObjectId>();
             LikesToWorkWith = new List<ObjectId>();
             Links = new List<string>();
-            IsLocked = false;
             PrimaryPeer = ObjectId.Empty;
             PrimaryManager = ObjectId.Empty;
             LocatedIn = ObjectId.Empty;
+            IsActive = true;
         }
 
         public IEnumerable<string> OtherManagersList
@@ -104,7 +104,7 @@ namespace DnTeamData.Models
         public string LastProjectNote { get; set; }
     }
 
-    public enum UserCreateStatus
+    public enum PersonCreateStatus
     {
         Success,
         DuplicateUserName,

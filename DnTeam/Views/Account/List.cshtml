@@ -9,7 +9,7 @@
 
 @(Html.Telerik().Grid(Model)
         .Name("UsersGrid")
-        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
          .DataKeys(keys => keys.Add(o => o.UserId))
          .DataBinding(dataBinding => dataBinding.Ajax()
                                                 .Select("Select", "Account")
@@ -18,12 +18,11 @@
                                                 .Delete("Delete", "Account"))
         .Columns(columns =>
         {
-            columns.Bound(o => o.Details).Width(45).Encoded(false).Title("");
+            columns.Bound(o => o.Details).Width(45).Encoded(false).Title("").HtmlAttributes(new { style = "text-align:center" });
             columns.Bound(o => o.UserName).Width(200);
-            columns.Bound(o => o.Email);
             columns.Bound(o => o.Location);
-            columns.Bound(o => o.TechnologySkills);
             columns.Bound(o => o.PrimaryManager);
+            columns.Bound(o => o.TechnologySkills);
             columns.Command(commands =>
             {
                 commands.Edit().ButtonType(GridButtonType.ImageAndText);

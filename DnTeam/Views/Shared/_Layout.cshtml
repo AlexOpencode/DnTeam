@@ -4,14 +4,16 @@
     <meta charset="utf-8" />
     <title>@ViewBag.Title</title>
     <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
-    <script src="@Url.Content("~/Scripts/jquery-1.6.4.min.js")" type="text/javascript"></script>       
-    @Html.Telerik().StyleSheetRegistrar().DefaultGroup(group => group.Add("telerik.common.css").Add("telerik.sitefinity.min.css"))
+    <script src="@Url.Content("~/Scripts/2011.3.1115/jquery-1.6.4.min.js")" type="text/javascript"></script>  
+    <script src="@Url.Content("~/Scripts/openCloseTelerikWindow.js")" type="text/javascript"></script>     
+    @Html.Telerik().StyleSheetRegistrar().DefaultGroup(group => group.Add("telerik.common.css").Add("telerik.metro.min.css"))
 </head>
 <body>
     <div class="page">
         <header>           
-            <div id="logindisplay">
-                @Html.Partial("_LogOnPartial")
+            <div class="helloDiv">
+            Hello, @Session["FriendlyIdentifier"]  | @Html.ActionLink("Logout", "LogOut", "Account") 
+              @*  @Html.Partial("_LogOnPartial")*@
             </div>
             @{ Html.Telerik().Menu()
         .Name("Menu")
@@ -19,7 +21,7 @@
         {
             menu.Add().Text("Home").Action("Index", "Home");
             menu.Add().Text("Projects").Action("Index", "Project");
-            menu.Add().Text("People").Action("List", "Account");
+            menu.Add().Text("People").Action("List", "Account").Items(item => item.Add().Text("Inactive").Action("Inactive", "Account"));
             menu.Add().Text("Clients").Action("Index", "Client");
             menu.Add().Text("Products").Action("Index", "Product");
             menu.Add().Text("Departments").Action("Index", "Department");
@@ -27,31 +29,25 @@
                 .Text("Settings")
                 .Items(item =>
                 {
-                    item.Add().Text("Locations").Action("Index", "Settings", new { type = "Locations" });                  
-                    item.Add().Text("Technology Specialties").Action("Index", "Settings", new { type = "Technology Specialties" });
+                    item.Add().Text("Locations").Action("Index", "Settings", new { type = "Locations" });
+                    item.Add().Text("Technology Specialty").Items(subItem =>
+                    {
+                        subItem.Add().Text("Names").Action("Index", "Settings", new { type = "Technology Specialty Names" });
+                        subItem.Add().Text("Levels").Action("Index", "Settings", new { type = "Technology Specialty Levels" });
+                    });
                     item.Add().Text("Project").Items(subItem =>
-                                                         {
-                                                             subItem.Add().Text("Roles").Action("Index", "Settings", new {type = "Project Roles"});
-                                                             subItem.Add().Text("Statuses").Action("Index", "Settings", new {type = "Project Statuses"});
-                                                             subItem.Add().Text("Types").Action("Index", "Settings", new {type = "Project Types"});
-                                                             subItem.Add().Text("Milestones").Action("Index", "Settings", new {type = "Project Milestones"});
-                                                            // subItem.Add().Text("Noise Types").Action("Index", "Settings", new {type = "Project Noise Types"});
-                                                         });
-                });        
+                    {
+                        subItem.Add().Text("Roles").Action("Index", "Settings", new { type = "Project Roles" });
+                        subItem.Add().Text("Statuses").Action("Index", "Settings", new { type = "Project Statuses" });
+                        subItem.Add().Text("Types").Action("Index", "Settings", new { type = "Project Types" });
+                        subItem.Add().Text("Milestones").Action("Index", "Settings", new { type = "Project Milestones" });
+                        subItem.Add().Text("Noise Types").Action("Index", "Settings", new { type = "Project Noise Types" });
+                        subItem.Add().Text("Priority Types").Action("Index", "Settings", new { type = "Project Priority Types" });
+                    });
+                });
         })
         .Render();
 }
-@*            <nav>
-                <ul id="menu">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("Projects", "Index", "Project")</li>
-                    <li>@Html.ActionLink("Project Statuses", "Index", "ProjectStatuses")</li>
-                    <li>@Html.ActionLink("Users", "List", "Account")</li>
-                    <li>@Html.ActionLink("User Roles", "Index", "UserRoles")</li>
-                    <li>@Html.ActionLink("Locations", "Index", "Locations")</li>
-                    <li>@Html.ActionLink("Technology", "Index", "Technology")</li>
-                </ul>
-            </nav>*@
         </header>
         <section id="main">
             @RenderBody()

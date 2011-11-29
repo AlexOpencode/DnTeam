@@ -19,9 +19,13 @@ namespace DnTeamData
 
         public static Dictionary<string, string> GetClientsList()
         {
-            return GetAllClients().ToDictionary(o=>o.Id.ToString(), x=>x.Name);
+            return GetAllClients().ToDictionary(o => o.Id.ToString(), x => x.Name);
         }
 
+        //public static IEnumerable<string> GetClientsList()
+        //{
+        //    return GetAllClients().Select(x => x.Name);
+        //}
 
         public static Client GetClient(ObjectId id)
         {
@@ -31,16 +35,13 @@ namespace DnTeamData
 
         public static void InsertClient(string name)
         {
-            Coll.Insert(new Client()
-                            {
-                                Name = name
-                            });
+            Coll.Insert(new Client { Name = name }, SafeMode.True);
         }
 
         public static void UpdateClient(string id, string name)
         {
-           
-            var query = Query.EQ("_id", ObjectId.Parse(id));
+
+            var query = Query.EQ("_id", id);
             var update = Update.Set("Name", name);
             Coll.Update(query, update);
         }
@@ -63,6 +64,24 @@ namespace DnTeamData
             var query = Query.EQ("_id", ObjectId.Parse(id));
             var update = Update.Pull("Links", link);
             Coll.Update(query, update);
+        }
+
+        public static void InsertBatchClient(string value)
+        {
+            try
+            {
+                var options = new MongoInsertOptions(Coll)
+                                  {
+                                      CheckElementNames = true,
+                                      Flags = InsertFlags.ContinueOnError,
+                                      SafeMode = SafeMode.True
+                                  };
+                Coll.InsertBatch(value.Split('~').Where(o => !string.IsNullOrEmpty(o)).Select(o => new Client {Name = o.Trim()}), options);
+            }
+            catch(MongoSafeModeException)
+            {
+               //TODO: get appropriate error code
+            }
         }
     }
 }

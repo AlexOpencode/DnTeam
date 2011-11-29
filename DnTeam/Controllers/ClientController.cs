@@ -8,6 +8,7 @@ using DnTeamData.Models;
 
 namespace DnTeam.Controllers
 {
+    [OpenIdAuthorize]
     public class ClientController : Controller
     {
 
@@ -16,10 +17,16 @@ namespace DnTeam.Controllers
             return View();
         }
 
+        //[NonAction]
+        //private IEnumerable<EditableClientModel> Return(List<Client> clients)
+        //{
+        //    return clients.Select(o => new EditableClientModel { Name = o.Name, Id = o.ClientId });
+        //}
+
         [NonAction]
         private IEnumerable<EditableClientModel> Return(List<Client> clients)
         {
-            return clients.Select(o => new EditableClientModel { Name = o.Name, Id = o.ClientId });
+            return clients.Select(o => new EditableClientModel { Name = o.Name, Id = o.ClientId});
         }
             
         [GridAction]
@@ -33,6 +40,12 @@ namespace DnTeam.Controllers
         {
             ClientRepository.InsertClient(name);
             return View(new GridModel(Return(ClientRepository.GetAllClients())));
+        }
+
+        public ActionResult MultipleInsert(string value)
+        {
+            ClientRepository.InsertBatchClient(value);
+            return Content("");
         }
 
         [HttpPost]

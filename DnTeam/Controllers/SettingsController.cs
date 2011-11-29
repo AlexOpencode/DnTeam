@@ -7,6 +7,7 @@ using Telerik.Web.Mvc;
 
 namespace DnTeam.Controllers
 {
+    
     public class SettingsController : Controller
     {
         public ActionResult Index(string type)
@@ -18,7 +19,7 @@ namespace DnTeam.Controllers
             ViewBag.Title = type;
             return View();
         }
-
+        
         [GridAction]
         public ActionResult Select(string type)
         {
@@ -26,6 +27,14 @@ namespace DnTeam.Controllers
             var list = SettingsRepository.GetSettingValues(enumName);
 
             return View(new GridModel((list != null) ? list.Select(o => new Value {Name = o}).ToList() : new List<Value>()));
+        }
+
+        public ActionResult MultipleInsert(string type, string value)
+        {
+            var enumName = SettingsRepository.GetEnumName(type);
+            SettingsRepository.BatchUpdateSetting(enumName, value);
+
+            return Content("");
         }
 
         [GridAction]

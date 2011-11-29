@@ -48,12 +48,12 @@ namespace DnTeam.Models
         public string Id { get; set; }
 
         [Required]
-        [Display(Name = "User name")]
+        [Display(Name = "Name")]
         public string Name { get; set; }
         
         [DataType(DataType.EmailAddress)]
-        [Display(Name = "Email address")]
-        public string Email { get; set; }
+        [Display(Name = "Phone")]
+        public string Phone { get; set; }
 
         [Required]
         [UIHint("Locations")]
@@ -97,6 +97,11 @@ namespace DnTeam.Models
         [DataType(DataType.ImageUrl)]
         [Display(Name = "Photo URL")]
         public string PhotoUrl { get; set; }
+
+        [Display(Name = "OpenId (user will be able to Log in the system)")]
+        public string OpenId { get; set; }
+
+        
     }
 
     public class PersonGridModel
@@ -107,7 +112,7 @@ namespace DnTeam.Models
         }
         public string UserId { get; set; }
 
-        [Display(Name = "User name"), Required]
+        [Display(Name = "Name"), Required]
         public string UserName { get; set; }
 
         [UIHint("Locations")]
@@ -120,10 +125,5 @@ namespace DnTeam.Models
 
         [Display(Name = "Technology skills"), ReadOnly(true)]
         public string TechnologySkills { get; set; }
-
-        [DataType(DataType.EmailAddress)]
-        [Display(Name = "Email address")]
-        public string Email { get; set; }
-        
     }
 }

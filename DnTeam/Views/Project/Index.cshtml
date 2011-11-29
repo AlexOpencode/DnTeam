@@ -12,9 +12,9 @@
                 });
             }
     </script>
-@(Html.Telerik().Grid<ProjectEditableModel>()
+@(Html.Telerik().Grid<ProjectGridModel>()
         .Name("Grid")
-        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
         .DataKeys(keys => keys.Add(o => o.Id))
         .DataBinding(dataBinding => dataBinding.Ajax()
                                             .Select("Select", "Project")
@@ -23,12 +23,14 @@
                                             .Delete("Delete", "Project"))
         .Columns(columns =>
         {
-            columns.Bound(o => o.Details).Width(45).Encoded(false).Title("");
+            columns.Bound(o => o.Details).Width(45).Encoded(false).Title("").HtmlAttributes(new { style = "text-align:center" });
             columns.Bound(o => o.Priority).Width(45);
             columns.Bound(o => o.Product);
             columns.Bound(o => o.Name);
             columns.Bound(o => o.ProjectStatus);
             columns.Bound(o => o.ProjectType);
+            columns.Bound(o => o.ProgramManager);
+            columns.Bound(o => o.TechnicalLead);
             columns.Bound(o => o.Noise);
             columns.Bound(o => o.CreatedDate).Width(200);
             columns.Command(commands =>
@@ -37,6 +39,7 @@
                 commands.Delete().ButtonType(GridButtonType.ImageAndText);
             }).Width(200).Title("Edit");
         })
+        .Filterable()
         .ClientEvents(events => events.OnEdit("onEdit"))
 )
 

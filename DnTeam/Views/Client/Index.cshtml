@@ -4,10 +4,18 @@
 }
 
 <h2>Clients</h2>
+<h4>You can enter multiple values with a <b>"~"</b> separator: @Html.TextBox("MultipleClientValue","",new {@style = "width:700px"}) <input type="button" class="t-button" value="Add" onclick="addMultipleClientValue()"/> </h4>  
+<script type="text/javascript">
+    function addMultipleClientValue() {
+        $.post('@Url.Action("MultipleInsert", "Client")', { value: $("#MultipleClientValue").val()}, function () {
+            $("#Grid").data("tGrid").ajaxRequest();
+        });
+    }
+</script>
 @(Html.Telerik().Grid<EditableClientModel>()
         .Name("Grid")
             .DataKeys(keys => keys.Add(p => p.Id))
-            .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+            .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
         .DataBinding(dataBinding => dataBinding.Ajax()
                                         .Select("Select", "Client")
                                         .Insert("Insert", "Client")

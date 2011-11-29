@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Linq;
 
 namespace DnTeamData.Models
 {
@@ -23,7 +24,7 @@ namespace DnTeamData.Models
         public bool IsDeleted { get; set; }
         public string Name { get; set; }
         public string Status { get; set; }
-        public int Priority { get; set; }
+        public string Priority { get; set; }
         public string Type { get; set; }
 
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
@@ -33,15 +34,31 @@ namespace DnTeamData.Models
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime EndDate { get; set; }
 
-        public int Noise { get; set; }
+        public string Noise { get; set; }
         public List<Milestone> Milestones { get; set; }
         public List<Assignment> Assignments { get; set; }
 
         public Project()
         {
             Id = ObjectId.GenerateNewId();
-            Milestones = new List<Milestone>();
-            Assignments = new List<Assignment>();
+        }
+
+        public string ProgramManagerName
+        {
+            get
+            {
+                var assignments = Assignments.Where(o => o.Role == "Program Manager").ToList();
+                return (assignments.Count() > 0) ? PersonsRepository.GetPersonName(assignments.First().PersonId) : "wanted";
+            }
+        }
+
+        public string TechnicalLeadName
+        {
+            get
+            {
+                var assignments = Assignments.Where(o => o.Role == "Technical Lead").ToList();
+                return (assignments.Count() > 0) ? PersonsRepository.GetPersonName(assignments.First().PersonId) : "wanted";
+            }
         }
     }
     
@@ -55,16 +72,11 @@ namespace DnTeamData.Models
         }
         public DateTime CreatedTime { get; set; }
         public bool IsDeleted { get; set; }
-        public ObjectId Person { get; set; }
-        //public string PersonId
-        //{
-        //    get { return Person.ToString(); }
-        //}
+        public ObjectId PersonId { get; set; }
         public string PersonName
         {
-            get { return PersonsRepository.GetPersonName(Person); }
+            get { return PersonsRepository.GetPersonName(PersonId); }
         }
-
         public string Role { get; set; }
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime StartDate { get; set; }
@@ -84,14 +96,22 @@ namespace DnTeamData.Models
 
     public class Milestone
     {
+        [BsonId]
+        public ObjectId Id { get; set; }
+        public string MilestoneId
+        {
+            get { return Id.ToString(); }
+        }
         public string Name { get; set; }
+        public int Index { get; set; }
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime TargetDate { get; set; }
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime ActualDate { get; set; }
-        public bool Status
+        
+        public Milestone()
         {
-            get { return ActualDate <= TargetDate; }
+            Id = ObjectId.GenerateNewId();
         }
     }
 }

@@ -1,9 +1,21 @@
 use dndata
+
+db.createCollection("Enums")
 db.Enums.insert({Name : "Locations"})
 db.Enums.insert({Name : "ProjectRoles"})
 db.Enums.insert({Name : "ProjectStatuses"})
 db.Enums.insert({Name : "ProjectTypes"})
-db.Enums.insert({Name : "TechnologySpecialties"})
+db.Enums.insert({Name : "TechnologySpecialtyNames"})
+db.Enums.insert({Name : "TechnologySpecialtyLevels"})
 db.Enums.insert({Name : "ProjectMilestones"})
 db.Enums.insert({Name : "ProjectNoiseTypes"})
+db.Enums.insert({Name : "ProjectPriorityTypes"})
 
+db.createCollection("Clients")
+db.Clients.ensureIndex({"Name" : 1}, {unique : true})
+
+db.createCollection("Persons")
+db.Persons.insert(doc = { Name: 'wanted', IsActive: true, LocatedIn: ObjectId('000000000000000000000000'), PrimaryManager: ObjectId('000000000000000000000000')})
+
+db.createCollection("Departments")
+db.Departments.ensureIndex({ "Name" : 1, "Location": 1}, {unique : true})
