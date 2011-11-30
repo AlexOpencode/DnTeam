@@ -9,13 +9,12 @@ using MongoDB.Driver.Builders;
 namespace DnTeamData
 {
     /// <summary>
-    /// Manages Persons entity manipulation
+    /// Manages Persons entity 
     /// </summary>
-    public static class PersonsRepository
+    public static class PersonRepository
     {
         private static readonly MongoDatabase Db = Mongo.Init();
         private static readonly MongoCollection<Person> Coll = Db.GetCollection<Person>("Persons");
-        private static readonly MongoCollection<Department> Dpt = Db.GetCollection<Department>("Departments");
 
         /// <summary>
         /// Returns the list of persons
@@ -85,8 +84,7 @@ namespace DnTeamData
             locationId = string.IsNullOrEmpty(locatedIn) ? ObjectId.Empty : ObjectId.Parse(locatedIn);
             if (locationId != ObjectId.Empty)
             {
-                query = Query.EQ("Subsidiaries._id", locationId);
-                if (!Dpt.Find(query).Any())
+                if (!DepartmentRepository.Exists(locationId))
                     return PersonCreateStatus.InvalidLocation;
             }
 
@@ -101,19 +99,27 @@ namespace DnTeamData
         public static string GetPersonName(ObjectId id)
         {
             if (id == ObjectId.Empty) return "wanted";
-
-            var query = Query.EQ("_id", id);
-
-            return Coll.FindOne(query).Name;
+            
+            return Coll.FindOneById(id).Name;
         }
 
+        /// <summary>
+        /// Returns the defined Person
+        /// </summary>
+        /// <param name="id">Person Id</param>
+        /// <returns>Person</returns>
         public static Person GetPerson(string id)
         {
-            var query = Query.EQ("_id", ObjectId.Parse(id));
-
-            return Coll.FindOne(query);
+            return Coll.FindOneById(ObjectId.Parse(id));
         }
 
+        /// <summary>
+        /// Updates value of the specified Person's property
+        /// </summary>
+        /// <param name="id">Person Id</param>
+        /// <param name="name">property name</param>
+        /// <param name="value">property value</param>
+        /// <returns>Update status</returns>
         public static string UpdateProperty(string id, string name, string value)
         {
             var query = Query.EQ("_id", ObjectId.Parse(id));
@@ -145,6 +151,13 @@ namespace DnTeamData
             return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
         }
 
+        /// <summary>
+        /// Adds value to the defined property of the Person
+        /// </summary>
+        /// <param name="id">Person Id</param>
+        /// <param name="name">property name</param>
+        /// <param name="value">property value</param>
+        /// <returns>Update status</returns>
         public static string AddValueToPropertySet(string id, string name, string value)
         {
             var query = Query.EQ("_id", ObjectId.Parse(id));
@@ -168,6 +181,13 @@ namespace DnTeamData
             return res.Ok ? string.Empty : "error"; //TODO: return user-friendly error
         }
 
+        /// <summary>
+        /// Deletes defined value from Person's property
+        /// </summary>
+        /// <param name="id">Person Id</param>
+        /// <param name="name">property name</param>
+        /// <param name="value">property value</param>
+        /// <returns>Deletion status</returns>
         public static string DeleteValueFromPropertySet(string id, string name, string value)
         {
             var query = Query.EQ("_id", ObjectId.Parse(id));
@@ -192,44 +212,10 @@ namespace DnTeamData
             return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
         }
 
-        public static string AddTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
-        {
-            var query = Query.And(new[] { Query.EQ("_id", ObjectId.Parse(id)), Query.NE("TechnologySpecialties.Name", name) });
-
-            var update = Update.AddToSet("TechnologySpecialties", new Specialty
-            {
-                Name = name,
-                Level = value, 
-                LastUsed = DateTime.Parse(lastUsed), 
-                ExperienceSince = DateTime.Parse(expSince), 
-                LastProjectNote = note
-            }.ToBsonDocument());
-
-            var res = Coll.Update(query, update, SafeMode.True);
-
-            return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
-        }
-
-        public static string DeleteTechnologySpecialty(string id, string name)
-        {
-            var update = Update.Pull("TechnologySpecialties", Query.EQ("Name", name));
-            var res = Coll.Update(Query.EQ("_id", ObjectId.Parse(id)), update, SafeMode.True);
-
-            return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
-        }
-
-        public static object UpdateTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
-        {
-            
-            var query = Query.And(new[] { Query.EQ("_id", ObjectId.Parse(id)), Query.EQ("TechnologySpecialties.Name", name) });
-            var update = Update.Set("TechnologySpecialties.$.Level", value).Set("TechnologySpecialties.$.LastUsed", DateTime.Parse(lastUsed))
-                .Set("TechnologySpecialties.$.ExperienceSince", DateTime.Parse(expSince)).Set("TechnologySpecialties.$.LastProjectNote", note);
-
-            var res = Coll.Update(query, update, SafeMode.True);
-
-            return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
-        }
-
+        /// <summary>
+        /// Deactivates person
+        /// </summary>
+        /// <param name="id">Person Id</param>
         public static void DeletePerson(string id)
         {
             var query = Query.EQ("_id", ObjectId.Parse(id));
@@ -238,20 +224,28 @@ namespace DnTeamData
             Coll.Update(query, update, SafeMode.True);
         }
 
-        public static PersonCreateStatus UpdatePerson(string id, string userName, string locatedIn, string primaryManager)
-        {
-            ObjectId locationId;
-            ObjectId managerId;
-            var status = VerifyPerson(userName, locatedIn, primaryManager, out locationId, out managerId);
-            if (status != PersonCreateStatus.Success) return status;
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="id"></param>
+        ///// <param name="userName"></param>
+        ///// <param name="locatedIn"></param>
+        ///// <param name="primaryManager"></param>
+        ///// <returns></returns>
+        //public static PersonCreateStatus UpdatePerson(string id, string userName, string locatedIn, string primaryManager)
+        //{
+        //    ObjectId locationId;
+        //    ObjectId managerId;
+        //    var status = VerifyPerson(userName, locatedIn, primaryManager, out locationId, out managerId);
+        //    if (status != PersonCreateStatus.Success) return status;
 
-            var query = Query.EQ("_id", ObjectId.Parse(id));
-            var update = Update.Set("Name", userName).Set("PrimaryManager", managerId).Set("LocatedIn", locationId);
+        //    var query = Query.EQ("_id", ObjectId.Parse(id));
+        //    var update = Update.Set("Name", userName).Set("PrimaryManager", managerId).Set("LocatedIn", locationId);
 
-            var res = Coll.Update(query, update, SafeMode.True);
+        //    var res = Coll.Update(query, update, SafeMode.True);
 
-            return res.Ok ? PersonCreateStatus.Success : PersonCreateStatus.ProviderError;
-        }
+        //    return res.Ok ? PersonCreateStatus.Success : PersonCreateStatus.ProviderError;
+        //}
 
         /// <summary>
         /// Validates if the OpenId is assigned to a user
@@ -266,6 +260,11 @@ namespace DnTeamData
             return (res == null) ? string.Empty : res.Name;
         }
 
+        /// <summary>
+        /// Returns the list of the departments used by Persons
+        /// </summary>
+        /// <param name="departments">The list of all departments</param>
+        /// <returns>The list if used departments</returns>
         internal static IEnumerable<ObjectId> GetUsedDepartments(IEnumerable<ObjectId> departments)
         {
             var query = Query.In("LocatedIn", new BsonArray(departments));
@@ -274,5 +273,82 @@ namespace DnTeamData
 
             return result.Select(o => o.LocatedIn);
         }
+
+        /// <summary>
+        ///Returns technology specialties of the defined Person
+        /// </summary>
+        /// <param name="id">Person Id</param>
+        /// <returns>Specialties list</returns>
+        public static List<Specialty> GetTechnologySpecialties(string id)
+        {
+            return GetPerson(id).TechnologySpecialties.ToList();
+        }
+
+        /// <summary>
+        /// Add Technology Specialty to the defined Person
+        /// </summary>
+        /// <param name="id">Person Id</param>
+        /// <param name="name">specilaty name</param>
+        /// <param name="value">specialty level</param>
+        /// <param name="lastUsed">last used date</param>
+        /// <param name="firstUsed">first used date</param>
+        /// <param name="note">last project note</param>
+        /// <returns>Creation status</returns>
+        public static string CreateTechnologySpecialty(string id, string name, string value, string lastUsed, string firstUsed, string note)
+        {
+            var query = Query.And(new[] { Query.EQ("_id", ObjectId.Parse(id)), Query.NE("TechnologySpecialties.Name", name) });
+            
+            var update = Update.AddToSet("TechnologySpecialties", new Specialty
+            {
+                Name = name,
+                Level = value,
+                LastUsed = DateTime.Parse(lastUsed),
+                FirstUsed = DateTime.Parse(firstUsed),
+                LastProjectNote = note
+            }.ToBsonDocument());
+
+            
+            var res = Coll.Update(query, update, SafeMode.True);
+
+            return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
+        }
+
+        /// <summary>
+        /// Updates Technology Specialty to the defined Person
+        /// </summary>
+        /// <param name="id">Person Id</param>
+        /// <param name="name">specilaty name</param>
+        /// <param name="value">specialty level</param>
+        /// <param name="lastUsed">last used date</param>
+        /// <param name="firstUsed">first used date</param>
+        /// <param name="note">last project note</param>
+        /// <returns>Update status</returns>
+        public static string UpdateTechnologySpecialty(string id, string name, string value, string lastUsed, string firstUsed, string note)
+        {
+
+            var query = Query.And(new[] { Query.EQ("_id", ObjectId.Parse(id)), Query.EQ("TechnologySpecialties.Name", name) });
+            var update = Update.Set("TechnologySpecialties.$.Level", value).Set("TechnologySpecialties.$.LastUsed", DateTime.Parse(lastUsed))
+                .Set("TechnologySpecialties.$.FirstUsed", DateTime.Parse(firstUsed)).Set("TechnologySpecialties.$.LastProjectNote", note);
+
+            var res = Coll.Update(query, update, SafeMode.True);
+
+            return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
+        }
+
+        /// <summary>
+        /// Deletes defined technology specialties from the Person
+        /// </summary>
+        /// <param name="id">Person Id</param>
+        /// <param name="values">The list of specialties to delete</param>
+        /// <returns>Deletion status</returns>
+        public static string DeleteTechnologySpecialties(string id, IEnumerable<string> values)
+        {
+            var update = Update.Pull("TechnologySpecialties", Query.In("Name", new BsonArray(values)));
+            var res = Coll.Update(Query.EQ("_id", ObjectId.Parse(id)), update, SafeMode.True);
+
+            return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
+        }
+
+     
     }
 }

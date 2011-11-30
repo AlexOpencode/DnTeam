@@ -54,7 +54,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="SettingsRepository.cs" />
-    <Compile Include="PersonsRepository.cs" />
+    <Compile Include="PersonRepository.cs" />
     <Compile Include="Models\ProjectModels.cs" />
     <Compile Include="Models\SettingsModels.cs" />
     <Compile Include="Models\PersonModels.cs" />

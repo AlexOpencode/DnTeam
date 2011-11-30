@@ -48,7 +48,7 @@ namespace DnTeamData.Models
             get
             {
                 var assignments = Assignments.Where(o => o.Role == "Program Manager").ToList();
-                return (assignments.Count() > 0) ? PersonsRepository.GetPersonName(assignments.First().PersonId) : "wanted";
+                return (assignments.Count() > 0) ? PersonRepository.GetPersonName(assignments.First().PersonId) : "wanted";
             }
         }
 
@@ -57,7 +57,7 @@ namespace DnTeamData.Models
             get
             {
                 var assignments = Assignments.Where(o => o.Role == "Technical Lead").ToList();
-                return (assignments.Count() > 0) ? PersonsRepository.GetPersonName(assignments.First().PersonId) : "wanted";
+                return (assignments.Count() > 0) ? PersonRepository.GetPersonName(assignments.First().PersonId) : "wanted";
             }
         }
     }
@@ -75,7 +75,7 @@ namespace DnTeamData.Models
         public ObjectId PersonId { get; set; }
         public string PersonName
         {
-            get { return PersonsRepository.GetPersonName(PersonId); }
+            get { return PersonRepository.GetPersonName(PersonId); }
         }
         public string Role { get; set; }
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]

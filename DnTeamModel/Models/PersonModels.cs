@@ -32,7 +32,7 @@ namespace DnTeamData.Models
             get
             {
                 return (PrimaryManager != ObjectId.Empty)
-                    ? PersonsRepository.GetPersonName(PrimaryManager) : "wanted";
+                    ? PersonRepository.GetPersonName(PrimaryManager) : "wanted";
             }
         }
         public List<ObjectId> OtherManagers { get; set; }
@@ -52,7 +52,7 @@ namespace DnTeamData.Models
         }
         public string LocationName
         {
-            get { return (LocatedIn == ObjectId.Empty) ? "none" : "not implemented"; } //Todo: implement GetLocationName()
+            get { return (LocatedIn == ObjectId.Empty) ? "none" : DepartmentRepository.GetDepartmentName(LocatedIn); } 
         }
         public string PhotoUrl { get; set; }
         public string OpenId { get; set; }
@@ -93,14 +93,36 @@ namespace DnTeamData.Models
         }
     }
 
+    /// <summary>
+    /// Class describe Person's Specialty
+    /// </summary>
     public class Specialty
     {
+        /// <summary>
+        /// Specialty Name
+        /// </summary>
         public string Name { get; set; }
-        public int Level { get; set; }
+
+        /// <summary>
+        /// Specialty Level
+        /// </summary>
+        public string Level { get; set; }
+
+        /// <summary>
+        /// Specialty fist used
+        /// </summary>
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-        public DateTime ExperienceSince { get; set; }
+        public DateTime FirstUsed { get; set; }
+
+        /// <summary>
+        /// Specialty LastUsed
+        /// </summary>
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime LastUsed { get; set; }
+
+        /// <summary>
+        /// Note to last project
+        /// </summary>
         public string LastProjectNote { get; set; }
     }
 

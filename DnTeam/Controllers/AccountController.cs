@@ -44,14 +44,14 @@ namespace DnTeam.Controllers
         [NonAction]
         private IEnumerable<PersonGridModel> Return(bool isActive = true)
         {
-            return PersonsRepository.GetAllPersons(isActive).Select(o => new PersonGridModel
+            return PersonRepository.GetAllPersons(isActive).Select(o => new PersonGridModel
                                                                      {
                 UserId = o.PersonId,
                 PrimaryManager = o.PrimaryManagerName,
                 UserName = o.Name,
                 Location = o.LocationName,
                 TechnologySkills = (o.TechnologySpecialties.Count > 0) 
-                    ? o.TechnologySpecialties.Where(s => s.Level > 0).Select(s => s.Name).Aggregate((workingSentence, next) => next + ", " + workingSentence)
+                    ? o.TechnologySpecialties.Select(s => s.Name).Aggregate((workingSentence, next) => next + ", " + workingSentence)
                     : string.Empty
             });
         }
@@ -82,7 +82,7 @@ namespace DnTeam.Controllers
                     //Validate Identifier is assigned to an active user in the database
                     
 
-                    if (string.IsNullOrEmpty(PersonsRepository.ValidateIdentifier(id.ToString())))
+                    if (string.IsNullOrEmpty(PersonRepository.ValidateIdentifier(id.ToString())))
                     {
                         ViewData["Message"] = "User with such OpenId is not registered or is not active.";
                         return View("LogIn");
@@ -110,7 +110,7 @@ namespace DnTeam.Controllers
                 switch (response.Status)
                 {
                     case AuthenticationStatus.Authenticated:
-                        Session["FriendlyIdentifier"] = PersonsRepository.ValidateIdentifier(response.ClaimedIdentifier);
+                        Session["FriendlyIdentifier"] = PersonRepository.ValidateIdentifier(response.ClaimedIdentifier);
                         FormsAuthentication.SetAuthCookie(response.ClaimedIdentifier, false);
 
                         if (!string.IsNullOrEmpty(returnUrl))
@@ -132,8 +132,8 @@ namespace DnTeam.Controllers
         [HttpGet]
         public ActionResult Details(string id)
         {
-            var personsList = PersonsRepository.GetActivePersonsList();
-            var model = MapPersonToModel(PersonsRepository.GetPerson(id), personsList);
+            var personsList = PersonRepository.GetActivePersonsList();
+            var model = MapPersonToModel(PersonRepository.GetPerson(id), personsList);
             model.PhotoUrl = string.IsNullOrEmpty(model.PhotoUrl) ? "../../Content/noImage.jpg" : model.PhotoUrl;
             return View(model);
         }
@@ -141,10 +141,10 @@ namespace DnTeam.Controllers
         [HttpGet]
         public ActionResult Edit(string id)
         {
-            var personsList = PersonsRepository.GetActivePersonsList();
-            var model = MapPersonToModel(PersonsRepository.GetPerson(id), personsList);
+            var personsList = PersonRepository.GetActivePersonsList();
+            var model = MapPersonToModel(PersonRepository.GetPerson(id), personsList);
             ViewData["PersonsList"] = new SelectList(personsList, "key", "value");
-            // ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value"); //Todo: implement GetLocationName()
+            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value"); 
             ViewData["TechnologySpecialtyNames"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyNames));
             ViewData["TechnologySpecialtyLevels"] = SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyLevels);
             return View(model);
@@ -153,8 +153,8 @@ namespace DnTeam.Controllers
         [HttpGet]
         public ActionResult List()
         {
-            ViewData["PersonsList"] = new SelectList(PersonsRepository.GetActivePersonsList(), "key", "value");
-            //ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetLocationsList(), "key", "value"); //Todo: implement GetLocationName()
+            ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
+            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value"); 
             return View();
         }
 
@@ -169,27 +169,27 @@ namespace DnTeam.Controllers
         {
             if (TryUpdateModel(model))
             {
-                PersonsRepository.CreatePerson(model.UserName, model.Location, model.PrimaryManager);
+                PersonRepository.CreatePerson(model.UserName, model.Location, model.PrimaryManager);
             }
 
             return View(new GridModel(Return()));
         }
 
-        [GridAction]
-        public ActionResult Save(string id, PersonGridModel model)
-        {
-            if (TryUpdateModel(model))
-            {
-                PersonsRepository.UpdatePerson(id, model.UserName, model.Location, model.PrimaryManager);
-            }
+        //[GridAction]
+        //public ActionResult Save(string id, PersonGridModel model)
+        //{
+        //    if (TryUpdateModel(model))
+        //    {
+        //        PersonRepository.UpdatePerson(id, model.UserName, model.Location, model.PrimaryManager);
+        //    }
 
-            return View(new GridModel(Return()));
-        }
+        //    return View(new GridModel(Return()));
+        //}
 
         [GridAction]
         public ActionResult Delete(string id)
         {
-            PersonsRepository.DeletePerson(id);
+            PersonRepository.DeletePerson(id);
             return View(new GridModel(Return()));
         }
 
@@ -215,7 +215,7 @@ namespace DnTeam.Controllers
                 Identifier iden;
                 if (Identifier.TryParse(value, out iden))
                 {
-                    if (!string.IsNullOrEmpty(PersonsRepository.ValidateIdentifier(iden.ToString())))
+                    if (!string.IsNullOrEmpty(PersonRepository.ValidateIdentifier(iden.ToString())))
                         return new JsonResult { Data = "OpenId Identifier is user by other user." };
 
                     //assign valid OpenId format to save in the database
@@ -227,37 +227,19 @@ namespace DnTeam.Controllers
                 }
             }
 
-            return new JsonResult { Data = PersonsRepository.UpdateProperty(id, name, value) };
+            return new JsonResult { Data = PersonRepository.UpdateProperty(id, name, value) };
         }
 
         [HttpPost]
         public ActionResult AddElementToPersonProperty(string id, string name, string value)
         {
-            return new JsonResult { Data = PersonsRepository.AddValueToPropertySet(id, name, value) };
+            return new JsonResult { Data = PersonRepository.AddValueToPropertySet(id, name, value) };
         }
 
         [HttpPost]
         public ActionResult DeleteElementFromPersonProperty(string id, string name, string value)
         {
-            return new JsonResult { Data = PersonsRepository.DeleteValueFromPropertySet(id, name, value) };
-        }
-
-        [HttpPost]
-        public ActionResult AddTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
-        {
-            return new JsonResult { Data = PersonsRepository.AddTechnologySpecialty(id, name, value, lastUsed, expSince, note) };
-        }
-
-        [HttpPost]
-        public ActionResult UpdateTechnologySpecialty(string id, string name, int value, string lastUsed, string expSince, string note)
-        {
-            return new JsonResult { Data = PersonsRepository.UpdateTechnologySpecialty(id, name, value, lastUsed, expSince, note) };
-        }
-
-        [HttpPost]
-        public ActionResult DeleteTechnologySpecialty(string id, string name)
-        {
-            return new JsonResult { Data = PersonsRepository.DeleteTechnologySpecialty(id, name) };
+            return new JsonResult { Data = PersonRepository.DeleteValueFromPropertySet(id, name, value) };
         }
         #endregion
 
