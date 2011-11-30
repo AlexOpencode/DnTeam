@@ -2,6 +2,7 @@
 
     var theGrid;
     var filterTimeout;
+    var filterTimeoutTime = 1000;
     var mouseIsInside = false;
     var postUrl;
     var gridInsatance;
@@ -40,6 +41,7 @@
                 $(document).mouseup(function () {
                     if (!mouseIsInside) {
                         $('.filterDiv').hide();
+                        filterTimeoutTime = 1000;
 
                         $(".filterSearchBox").val(""); //clear search box
                         $("ul.filterOffer li").remove(); //delete offers
@@ -70,6 +72,9 @@
                     var searchBox = $(this);
                     var query = searchBox.val();
                     clearTimeout(filterTimeout);
+
+                    filterTimeoutTime = filterTimeoutTime - query.length * filterTimeoutTime / 6; //reduse time out time after each input while searching
+
                     filterTimeout = setTimeout(function () {
 
                         var filterDiv = searchBox.closest("div");
@@ -86,7 +91,7 @@
                                 }
                             });
 
-                            if (data.length > 0 && filterDiv.find("div.filterAction a").length < 1) {
+                            if (data.length > 0 && $("#apply" + columnName).length < 1) {
 
                                 filterDiv.find("div.filterAction").append("<a id=\"apply" + columnName + "\" href=\"#\" class=\"t-button t-button-icontext\"><span class=\"t-icon t-filter\"></span><label>Apply Filter</label></a>");
                                 $("#apply" + columnName).click(function (e) {
@@ -96,8 +101,14 @@
                                 });
                             }
 
+                            var ss = filterDiv.find("ul.filterDefined li").length;
+
+                            if (data.length <= 0 && filterDiv.find("ul.filterDefined li").length <= 0) {
+                                $("#apply" + columnName).remove();
+                            }
+
                         }, "json");
-                    }, 500);
+                    }, filterTimeoutTime);
                 });
             });
         }
@@ -155,15 +166,12 @@
         if (selectUrl.indexOf("?") > 0) {
             selectUrl = selectUrl.substring(0, selectUrl.indexOf("?"));
         }
-        //var ss = originalUrl.substring(0, ;
+        
         grid.ajax.selectUrl = selectUrl + "?filterQuery=none" + filterString;
         grid.ajaxRequest();
 
         //hide filter
         $('#divF' + columnName).hide();
-
-        //Set url back to default
-        //grid.ajax.selectUrl = originalUrl;
     }
 
     function getDefinedFilterValues(filterDiv) {
