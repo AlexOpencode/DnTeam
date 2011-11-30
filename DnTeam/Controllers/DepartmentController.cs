@@ -13,7 +13,7 @@ namespace DnTeam.Controllers
         public ActionResult Index()
         {
             ViewData["LocationsList"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.Locations));
-            ViewData["DepartmentsList"] = new SelectList(DepartmentRepository.GetDepartmentsList(), "key", "value");
+            ViewData["DepartmentsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value");
             return View();
         }
 
@@ -46,7 +46,7 @@ namespace DnTeam.Controllers
         
         public ActionResult GetDepartmentsList()
         {
-            return new JsonResult {Data = new SelectList (DepartmentRepository.GetDepartmentsList(), "key", "value")};
+            return new JsonResult {Data = new SelectList (DepartmentRepository.GetDepartmentsDictionary(), "key", "value")};
         }
 
 
