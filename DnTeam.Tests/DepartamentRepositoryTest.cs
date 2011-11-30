@@ -41,9 +41,11 @@ namespace DnTeam.Tests
         [TestMethod]
         public void CreateDepartmentTest()
         {
-            const string name = "Test_Department"; 
-            string parentDepartmentId = string.Empty; 
-            DepartmentRepository.CreateDepartment(name, parentDepartmentId);
+            const string name = "Test_Department";
+            const string location = "Test_Location";
+            const decimal rate = 10;
+            const decimal cost = 10;
+            DepartmentRepository.SaveDepartment(string.Empty, location, name, string.Empty, string.Empty, rate, cost);
         }
 
         /// <summary>
@@ -58,8 +60,10 @@ namespace DnTeam.Tests
             for (int i = 0; i < expectedCount; i++)
             {
                 string name = "Test_Department" + i;
-                string parentDepartmentId = string.Empty;
-                DepartmentRepository.CreateDepartment(name, parentDepartmentId);
+                const string location = "Test_Location";
+                const decimal rate = 10;
+                const decimal cost = 10;
+                DepartmentRepository.SaveDepartment(string.Empty, location, name, string.Empty, string.Empty, rate, cost);
 
 
             }
