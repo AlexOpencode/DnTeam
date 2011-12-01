@@ -46,12 +46,12 @@ namespace DnTeam.Models
         [Required]
         [UIHint("ProjectStatuses")]
         [DisplayName("Project Status")]
-        public string ProjectStatus { get; set; }
+        public string Status { get; set; }
 
         [Required]
         [UIHint("ProjectTypes")]
         [DisplayName("Project Type")]
-        public string ProjectType { get; set; }
+        public string Type { get; set; }
 
         [DataType("ProjectNoiseTypes")]
         [DisplayName("Noise")]

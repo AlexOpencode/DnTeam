@@ -8,6 +8,12 @@ namespace DnTeam.Controllers
 {
     public class ProjectController : Controller
     {
+
+        public ActionResult UpdateProjectProperty(string id, string name, string value)
+        {
+            return new JsonResult { Data = ProjectRepository.UpdateProjectProperty(id, name, value) };
+        }
+
         public ActionResult Index()
         {
             ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetAllProjectStatuses());
@@ -36,8 +42,8 @@ namespace DnTeam.Controllers
                                          Id = project.ProjectId,
                                          Noise = project.Noise,
                                          Product = project.ProductName,
-                                         ProjectStatus = project.Status,
-                                         ProjectType = project.Type,
+                                         Status = project.Status,
+                                         Type = project.Type,
                                          IsDeleted = project.IsDeleted
                                      };
 
@@ -57,7 +63,7 @@ namespace DnTeam.Controllers
             var product = new ProjectGridModel();
             if (TryUpdateModel(product))
             {
-                ProjectRepository.Insert(product.Name, product.Priority, product.CreatedDate, product.ProjectStatus, product.Noise, product.Product, product.ProjectType, 
+                ProjectRepository.Insert(product.Name, product.Priority, product.CreatedDate, product.Status, product.Noise, product.Product, product.Type, 
                     product.ProgramManager, product.TechnicalLead);
             }
 
@@ -70,7 +76,7 @@ namespace DnTeam.Controllers
             var product = new ProjectGridModel();
             if (TryUpdateModel(product))
             {
-                ProjectRepository.Save(id, product.Name, product.Priority, product.ProjectStatus, product.Noise, product.Product, product.ProjectType, 
+                ProjectRepository.Save(id, product.Name, product.Priority, product.Status, product.Noise, product.Product, product.Type, 
                     product.ProgramManager, product.TechnicalLead);
             }
 
@@ -94,9 +100,9 @@ namespace DnTeam.Controllers
                                                           CreatedDate = o.CreatedDate,
                                                           Name = o.Name,
                                                           Priority = o.Priority,
-                                                          ProjectStatus = o.Status,
+                                                          Status = o.Status,
                                                           Noise = o.Noise,
-                                                          ProjectType = o.Type,
+                                                          Type = o.Type,
                                                           Product = o.ProductName,
                                                           ProgramManager = o.ProgramManagerName,
                                                           TechnicalLead = o.TechnicalLeadName

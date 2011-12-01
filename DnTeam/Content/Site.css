@@ -419,3 +419,10 @@ div.filterAction a {width: 155px; margin: 3px auto 3px auto; }
 div.filterAction a.clearFilter { width: 50px; margin-right: 3px;}
 div.filterAction a label { cursor: pointer;  }
 .filterSearchBox { width: 240px; border: none; height: 15px; }
+
+
+/*------------------Person details--------------------------*/
+#person .photo { max-height:425px;overflow:hidden;width:380px;float:left;text-align: center;}
+#person img { max-width: 380px;margin: auto;}
+#person .column {float:left;}
+#person .editButton {margin: 30px 10px 0 10px}

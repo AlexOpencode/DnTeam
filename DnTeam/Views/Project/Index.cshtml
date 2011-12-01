@@ -7,10 +7,11 @@
 <h2>Projects</h2>
     <script type="text/javascript">
         function onEdit(e) {
-                $(e.form).find('#ProjectStatus').data('tDropDownList').select(function (dataItem) {
+                $(e.form).find('#Status').data('tDropDownList').select(function (dataItem) {
                     return dataItem.Text == e.dataItem['ProjectStatus'];
                 });
             }
+        
     </script>
 @(Html.Telerik().Grid<ProjectGridModel>()
         .Name("Grid")
@@ -27,8 +28,8 @@
             columns.Bound(o => o.Priority).Width(45);
             columns.Bound(o => o.Product);
             columns.Bound(o => o.Name);
-            columns.Bound(o => o.ProjectStatus);
-            columns.Bound(o => o.ProjectType);
+            columns.Bound(o => o.Status);
+            columns.Bound(o => o.Type);
             columns.Bound(o => o.ProgramManager);
             columns.Bound(o => o.TechnicalLead);
             columns.Bound(o => o.Noise);
@@ -39,7 +40,6 @@
                 commands.Delete().ButtonType(GridButtonType.ImageAndText);
             }).Width(200).Title("Edit");
         })
-        .Filterable()
         .ClientEvents(events => events.OnEdit("onEdit"))
 )
 

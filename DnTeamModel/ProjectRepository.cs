@@ -173,5 +173,27 @@ namespace DnTeamData
 
             return Coll.FindOne(query);
         }
+
+        public static string UpdateProjectProperty(string id, string name, string value)
+        {
+            dynamic val;
+            switch (name)
+            {
+               case "Product":
+                    val = ObjectId.Parse(value);
+                    break;
+                    
+                default:
+                    val = value;
+                    break;
+            }
+
+            var query = Query.EQ("_id", ObjectId.Parse(id));
+            var update = Update.Set(name, val);
+
+            var res = Coll.Update(query, update, SafeMode.True);
+
+            return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
+        }
     }
 }

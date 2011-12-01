@@ -9,9 +9,16 @@
 
 @using (Html.BeginForm())
  {
-     
-         @Html.HiddenFor(model => model.Id)
 <div class="editLine" style="padding-bottom: 30px;">
+        <div class="editElement">
+             <div class="editor-label">
+                 @Html.LabelFor(model => model.Priority)
+             </div>
+             <div class="editor-field">
+                 @(Html.Telerik().DropDownListFor(model => model.Priority).BindTo(ViewData["ProjectPriorityTypes"] as SelectList)
+                 .ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
+             </div>
+         </div>
          <div class="editElement">
              <div class="editor-label">
                  @Html.LabelFor(model => model.Name)
@@ -22,18 +29,20 @@
          </div>
          <div class="editElement">
              <div class="editor-label">
-                 @Html.LabelFor(model => model.ProjectStatus)
+                 @Html.LabelFor(model => model.Status)
              </div>
              <div class="editor-field">
-                 @Html.EditorFor(model => model.ProjectStatus)
+                 @(Html.Telerik().DropDownListFor(model => model.Status).BindTo(ViewData["ProjectStatuses"] as SelectList)
+                 .ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
              </div>
          </div>
          <div class="editElement">
          <div class="editor-label">
-             @Html.LabelFor(model => model.ProjectType)
+             @Html.LabelFor(model => model.Type)
          </div>
          <div class="editor-field">
-             @Html.EditorFor(model => model.ProjectType)
+             @(Html.Telerik().DropDownListFor(model => model.Type).BindTo(ViewData["ProjectTypes"] as SelectList)
+             .ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
          </div>
          </div>
          <div class="editElement"> 
@@ -41,7 +50,8 @@
              @Html.LabelFor(model => model.Noise)
          </div>
          <div class="editor-field">
-             @Html.EditorFor(model => model.Noise)
+             @(Html.Telerik().DropDownListFor(model => model.Noise).BindTo(ViewData["ProjectNoiseTypes"] as SelectList)
+             .ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
          </div>      
          </div>
          <div class="editElement">    
@@ -49,12 +59,33 @@
              @Html.LabelFor(model => model.Product)
          </div>
          <div class="editor-field">
-             @Html.EditorFor(model => model.Product)
+            @(Html.Telerik().DropDownListFor(model => model.Product).BindTo(ViewData["Products"] as SelectList).ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
          </div>   
          </div>         
          </div>
    
  }
+ <script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
+ <script type="text/javascript">
+     function postUpdate(id, val) {
+         $.post('@Url.Action("UpdateProjectProperty", "Project")', { id: '@(Model.Id)', name: id, value: val }, function (data) {
+             if (data == '') {
+                 showOk(id);
+             } else {
+                 showError(id, data);
+             }
+         }, 'json');
+     }
+
+     function onChangeDropDownValue(e) {
+         postUpdate($(e.target).attr('id'), e.value);
+     }
+
+     $().ready(function () {
+         $("#Name").change(function () { postUpdate($(this).attr('id'), $(this).val()); });
+     });
+ 
+ </script>
     
 <div id="milestonesDiv">
     <h3>Milestones</h3>
@@ -95,7 +126,6 @@
                                             .Delete("Delete", "Assignment", new { projectId = Model.Id}))
         .Columns(columns =>
         {
-            //columns.Bound(o => o.Location);
             columns.Bound(o => o.Role);
             columns.Bound(o => o.Person);
             columns.Bound(o => o.Note);

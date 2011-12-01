@@ -2,12 +2,14 @@ function closeWindow(name) {
     $("#" + name).data('tWindow').close();
 }
 
-function openWindow(name) {
-    $("#" + name).data('tWindow').center().open();
-}
+//function openWindow(name) {
+//    $("#" + name).data('tWindow').center().open();
+//}
 
 function openWindow(name, title, yesButtonName, yesOnClick) {
-    $("#" + name).data('tWindow').title(title).center().open();
-    $(".yesButton").children('label').text(yesButtonName);
-    $(".yesButton").attr('onclick', yesOnClick);
+    var wnd = $("#" + name).data('tWindow');
+    if (title) { wnd.title(title); }
+    if (yesButtonName) { $(".yesButton").children('label').text(yesButtonName); }
+    if (yesOnClick) { $(".yesButton").attr('onclick', yesOnClick); }
+    wnd.center().open();
 }
