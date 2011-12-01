@@ -5,11 +5,17 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>@Html.DisplayFor(model => model.Name)</h2>
-
-    <div class="personUrl">   
-        <img src="@Model.PhotoUrl" alt="photo"/>        
-    </div>
+<div id="person">
+    <div class="photo column">
+        <img src="@Model.PhotoUrl" alt="photo" >            
+    </div>        
+    <div class="column editButton">
+    
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id}, new { @class="t-button"})
+    
+    </div>  
+<div class="column">
+    <h2>@Html.DisplayFor(model => model.Name)</h2>    
     <div class="display-label">Phone</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Phone)
@@ -39,7 +45,7 @@
     <div class="display-field">
         @Html.DisplayFor(model => model.DoB)
     </div>
+    
+    </div>    
+    </div>
 
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id}, new { @class="t-button"})
-</p>

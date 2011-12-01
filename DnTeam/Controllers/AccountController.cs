@@ -15,7 +15,7 @@ namespace DnTeam.Controllers
 {
     public class AccountController : Controller
     {
-        private static readonly OpenIdRelyingParty openid = new OpenIdRelyingParty();
+        private static readonly OpenIdRelyingParty Openid = new OpenIdRelyingParty();
 
         [NonAction]
         private PersonModel MapPersonToModel(Person person, Dictionary<string, string> personsList)
@@ -36,7 +36,7 @@ namespace DnTeam.Controllers
                 LikesToWorkWith = personsList.Where(o => person.LikesToWorkWithList.Contains(o.Key)),
                 DirectReports = personsList.Where(o => person.DirectReportsList.Contains(o.Key)),
                 Links = person.Links,
-                TechnologySpecialties = person.TechnologySpecialties,
+                //TechnologySpecialties = (person.TechnologySpecialties.Count() > 0) ? person.TechnologySpecialties.Select(o=>o.Name) : new List<string>(),
                 OpenId = person.OpenId
             };
         }
@@ -71,7 +71,7 @@ namespace DnTeam.Controllers
         [ValidateInput(false)]
         public ActionResult Authenticate(string returnUrl)
         {
-            var response = openid.GetResponse();
+            var response = Openid.GetResponse();
 
             if (response == null)
             {
@@ -90,7 +90,7 @@ namespace DnTeam.Controllers
 
                     try
                     {
-                        return openid.CreateRequest(Request.Form["openid_identifier"]).RedirectingResponse.AsActionResult();
+                        return Openid.CreateRequest(Request.Form["openid_identifier"]).RedirectingResponse.AsActionResult();
                     }
                     catch (ProtocolException ex)
                     {
@@ -98,33 +98,28 @@ namespace DnTeam.Controllers
                         return View("LogIn");
                     }
                 }
-                else
-                {
-                    ViewData["Message"] = "Invalid identifier";
-                    return View("Login");
-                }
+                ViewData["Message"] = "Invalid identifier";
+                return View("Login");
             }
-            else
-            {
-                // OpenID Provider sending assertion response
-                switch (response.Status)
-                {
-                    case AuthenticationStatus.Authenticated:
-                        Session["FriendlyIdentifier"] = PersonRepository.ValidateIdentifier(response.ClaimedIdentifier);
-                        FormsAuthentication.SetAuthCookie(response.ClaimedIdentifier, false);
 
-                        if (!string.IsNullOrEmpty(returnUrl))
-                            return Redirect(returnUrl);
+            // OpenID Provider sending assertion response
+            switch (response.Status)
+            {
+                case AuthenticationStatus.Authenticated:
+                    Session["FriendlyIdentifier"] = PersonRepository.ValidateIdentifier(response.ClaimedIdentifier);
+                    FormsAuthentication.SetAuthCookie(response.ClaimedIdentifier, false);
+
+                    if (!string.IsNullOrEmpty(returnUrl))
+                        return Redirect(returnUrl);
                         
-                        return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Home");
                         
-                    case AuthenticationStatus.Canceled:
-                        ViewData["Message"] = "Canceled at provider";
-                        return View("LogIn");
-                    case AuthenticationStatus.Failed:
-                        ViewData["Message"] = response.Exception.Message;
-                        return View("LogIn");
-                }
+                case AuthenticationStatus.Canceled:
+                    ViewData["Message"] = "Canceled at provider";
+                    return View("LogIn");
+                case AuthenticationStatus.Failed:
+                    ViewData["Message"] = response.Exception.Message;
+                    return View("LogIn");
             }
             return new EmptyResult();
         }
@@ -144,9 +139,16 @@ namespace DnTeam.Controllers
             var personsList = PersonRepository.GetActivePersonsList();
             var model = MapPersonToModel(PersonRepository.GetPerson(id), personsList);
             ViewData["PersonsList"] = new SelectList(personsList, "key", "value");
-            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value"); 
+            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value");
+            
+            //Filter TechnologySpecialtyNames - display only ones that are not used is Person's specialties
+            //var technologySpecialtyNames = SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyNames);
+            //ViewData["TechnologySpecialtyNames"] = (technologySpecialtyNames.Count() > 0) 
+            //    ? new SelectList(technologySpecialtyNames.Where(o=> !model.TechnologySpecialties.Contains(o)))
+            //    : new SelectList(new List<string>());
             ViewData["TechnologySpecialtyNames"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyNames));
             ViewData["TechnologySpecialtyLevels"] = SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyLevels);
+            
             return View(model);
         }
 

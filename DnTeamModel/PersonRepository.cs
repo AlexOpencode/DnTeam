@@ -70,14 +70,14 @@ namespace DnTeamData
             managerId = ObjectId.Empty;
 
             var query = Query.EQ("Name", userName);
-            if (Coll.Find(query).Any())
+            if (Coll.Find(query).Count() > 0)
                 return PersonCreateStatus.DuplicateUserName;
 
             managerId = string.IsNullOrEmpty(primaryManager) ? ObjectId.Empty : ObjectId.Parse(primaryManager);
             if (managerId != ObjectId.Empty)
             {
                 query = Query.EQ("_id", managerId);
-                if (!Coll.Find(query).Any())
+                if (Coll.Find(query).Count() < 0)
                     return PersonCreateStatus.InvalidPrimaryManager;
             }
 
@@ -278,7 +278,7 @@ namespace DnTeamData
         ///Returns technology specialties of the defined Person
         /// </summary>
         /// <param name="id">Person Id</param>
-        /// <returns>Specialties list</returns>
+        ///<returns>Specialties list</returns>
         public static List<Specialty> GetTechnologySpecialties(string id)
         {
             return GetPerson(id).TechnologySpecialties.ToList();

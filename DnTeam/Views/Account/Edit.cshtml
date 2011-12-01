@@ -15,7 +15,7 @@
             <div class="editor-label">
                 @Html.LabelFor(model => model.Name)
             </div>
-            <div class="editor-field">
+            <div class="editor-field updatable">
                 @Html.EditorFor(model => model.Name)
             </div>
         </div>
@@ -23,7 +23,7 @@
             <div class="editor-label">
                 @Html.LabelFor(model => model.Phone)
             </div>
-            <div class="editor-field">
+            <div class="editor-field updatable">
                 @Html.EditorFor(model => model.Phone)
             </div>
         </div>
@@ -48,15 +48,15 @@
             <div class="editor-label">
                 @Html.LabelFor(model => model.PhotoUrl)
             </div>
-            <div class="editor-field">
-                @Html.EditorFor(model => model.PhotoUrl)
+            <div class="editor-field updatable">
+                @Html.TextBoxFor(model => model.PhotoUrl, new { @style="width:300px"})
             </div>
         </div>
         <div class="editElement">
             <div class="editor-label">
                 @Html.LabelFor(model => model.OpenId)
             </div>
-            <div class="editor-field">
+            <div class="editor-field updatable">
                 @Html.TextBoxFor(model => model.OpenId, new { @style="width:300px"})
             </div>
         </div>
@@ -65,7 +65,7 @@
            <div class="editor-label">
                @Html.LabelFor(model => model.Comments)
            </div>
-           <div class="editor-field">
+           <div class="editor-field updatable">
                @Html.EditorFor(model => model.Comments)
            </div>            
         </div>
@@ -93,8 +93,8 @@
                     </ul>
                 </div>
             </div>
-        </div>
-        <div class="editLine">
+        @*</div>
+        <div class="editLine">*@
             <div class="editElement">
                 <div class="editor-label">
                     @Html.LabelFor(model => model.PrimaryPeer)
@@ -267,7 +267,7 @@
         </div>
         <div class="editLine">
             <div class="editor-label">Last project note</div>
-            <div class="editor-field"> @Html.TextArea("TechnologySpecialtyNote", "", new { cols = "47" })</div>
+            <div class="editor-field"> @Html.TextArea("TechnologySpecialtyNote", "", new { cols = "47", @class = "notResizable" })</div>
         </div>
         <div class="editLine"><span id="TechnologySpecialtiesWindowResult  "></span></div>
         <div class="editLine" style="padding-top: 20px;">
@@ -285,10 +285,20 @@
     function insertTechnologySpecialty() {
         $('#TechnologySpecialtyNote').val('');
         var namedd = $('#TechnologySpecialtyName').data('tDropDownList');
+        if (!namedd.data) {
+            alert("The are no Technology Specialty names. Please, add some before adding one to the person.");
+            return;
+        } 
         namedd.select(0);
         namedd.enable();
-        $("input:radio[name=TechnologySpecialtyValue]").removeAttr("checked");
-        $('input:radio[name=TechnologySpecialtyValue]:nth(0)').attr("checked", "checked");
+        var radioBtns = $("input:radio[name=TechnologySpecialtyValue]");
+        if (radioBtns.length <= 0) {
+            alert("The are no Technology Specialty levels. Please, add some before adding one to the person.");
+            return;
+        }
+        radioBtns.removeAttr("checked");
+        radioBtns.first().attr("checked", "checked");
+        //$('input:radio[name=TechnologySpecialtyValue]:nth(0)').attr("checked", "checked");
         openWindow('TechnologySpecialtiesWindow', 'Insert', 'Insert', 'saveTechnologySpecialty(\'false\')');
     }
 
@@ -373,8 +383,10 @@
     }
 
     function openPersonsWindow(name) {
+        openWindow('PersonsWindow');
         $('#PersonsPropertyName').val(name);
-        $('#PersonsWindow').data('tWindow').title("Add").center().open();
+        openWindow('PersonsWindow', 'Add');
+        //$('#PersonsWindow').data('tWindow').title("Add").center().open();
     }
 
     function addPerson() {
@@ -460,8 +472,10 @@
     }
 
     $().ready(function () {
-        $('.editor-field input[type="text"]').change(function () { postUpdate($(this).attr('id'), $(this).val()); });
-        $("#Comments").change(function () { postUpdate($(this).attr('id'), $(this).val()); });
+        $('.updatable').change(function (e) {
+            postUpdate($(e.target).attr('id'), $(e.target).val());
+        });
+        //$("#Comments").change(function () { postUpdate($(this).attr('id'), $(this).val()); });
     });
 
 </script>
