@@ -36,8 +36,9 @@ namespace DnTeam.Controllers
                 LikesToWorkWith = personsList.Where(o => person.LikesToWorkWithList.Contains(o.Key)),
                 DirectReports = personsList.Where(o => person.DirectReportsList.Contains(o.Key)),
                 Links = person.Links,
-                //TechnologySpecialties = (person.TechnologySpecialties.Count() > 0) ? person.TechnologySpecialties.Select(o=>o.Name) : new List<string>(),
-                OpenId = person.OpenId
+                OpenId = person.OpenId,
+                PrimaryManagerName = person.PrimaryManagerName,
+                PrimaryPeerName = person.PrimaryPeerName
             };
         }
 
@@ -129,7 +130,18 @@ namespace DnTeam.Controllers
         {
             var personsList = PersonRepository.GetActivePersonsList();
             var model = MapPersonToModel(PersonRepository.GetPerson(id), personsList);
+            
+            //customize display values
             model.PhotoUrl = string.IsNullOrEmpty(model.PhotoUrl) ? "../../Content/noImage.jpg" : model.PhotoUrl;
+            model.PrimaryManagerName = (model.PrimaryManagerName == "wanted")
+                                           ? model.PrimaryManagerName
+                                           : string.Format("<a href=\"{0}\">{1}</a>", Url.Action("Details", new {id = model.PrimaryManager}), model.PrimaryManagerName);
+            model.PrimaryPeerName = (model.PrimaryPeerName == "wanted")
+                                           ? model.PrimaryPeerName
+                                           : string.Format("<a href=\"{0}\">{1}</a>", Url.Action("Details", new { id = model.PrimaryPeer }), model.PrimaryPeerName);
+
+            model.DepartmentDescription = DepartmentRepository.GetDepartmentDescription(model.LocatedIn);
+           
             return View(model);
         }
 

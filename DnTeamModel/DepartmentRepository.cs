@@ -191,5 +191,17 @@ namespace DnTeamData
             var department = _coll.FindOneById(id);
             return string.Format("{0}, {1}", department.Location, department.Name);
         }
+
+        /// <summary>
+        /// Returns the string describing department
+        /// </summary>
+        /// <param name="id">Department Id</param>
+        /// <returns>String containing: Location, Department Name (Cost, Rate)</returns>
+        public static string GetDepartmentDescription(string id)
+        {
+            var department = _coll.FindOneById(ObjectId.Parse(id));
+            if(department == null) return string.Empty;
+            return string.Format("{0}, {1} (Cost: {2}, Rate: {3})", department.Location, department.Name, department.Cost, department.Rate);
+        }
     }
 }

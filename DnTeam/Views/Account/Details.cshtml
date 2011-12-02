@@ -11,41 +11,112 @@
     </div>        
     <div class="column editButton">
     
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id}, new { @class="t-button"})
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }, new { @class = "t-button" })
     
     </div>  
-<div class="column">
+
+    <div class="column">
     <h2>@Html.DisplayFor(model => model.Name)</h2>    
-    <div class="display-label">Phone</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Phone)
-    </div>
+    
+    @if (!string.IsNullOrEmpty(Model.DepartmentDescription))
+    {<text>    
+        @*<div class="display-label">Location</div>*@
+        <div class="display-field">
+            <img src="http://localhost:29539/Content/home.png" /> @Html.DisplayFor(model => model.DepartmentDescription)
+        </div>  
+    </text>} 
 
-    <div class="display-label">LocatedIn</div>
+    @if (!string.IsNullOrEmpty(Model.Phone))
+    {<text>  
+            @*<div class="display-label">Phone</div>*@
     <div class="display-field">
-        @Html.DisplayFor(model => model.LocatedIn)
+        <img src="http://localhost:29539/Content/phone.png" /> @Html.DisplayFor(model => model.Phone)
     </div>
+    </text>} 
 
+    @if(Model.DoB != null)
+    {<text>
+       @* <div class="display-label">
+            Date of Birth</div>*@
+        <div class="display-field">
+            <img src="http://localhost:29539/Content/dob.png" /> @Html.DisplayFor(model => model.DoB)
+        </div>
+     </text>}
+            
+    @if (!string.IsNullOrEmpty(Model.Comments))
+     {<text>
     <div class="display-label">Comments</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Comments)
     </div>
+    </text>} 
 
-    <div class="display-label">PrimaryManager</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.PrimaryManager)
-    </div>
+    <div class="display-label">Primary Manager: @Html.Raw(Model.PrimaryManagerName)</div>
 
-    <div class="display-label">PrimaryPeer</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.PrimaryPeer)
-    </div>
-
-    <div class="display-label">DoB</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.DoB)
-    </div>
+    @if (Model.OtherManagers.Count() > 0)
+     {<text>
+         <div class="display-label">Other Managers</div>
+         <div class="display-field">@Html.Raw(Model.OtherManagers.Select(o => Html.ActionLink(o.Value, "Details", new {id = o.Key}, null).ToString())
+            .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
+     </text>}           
+             
+    <div class="display-label">Primary Peer: @Html.Raw(Model.PrimaryPeerName)</div>
     
-    </div>    
-    </div>
+    @if (Model.OtherPeers.Count() > 0)
+     {<text>
+         <div class="display-label">Other Peers</div>
+         <div class="display-field">@Html.Raw(Model.OtherPeers.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
+            .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
+     </text>}
+            
+    @if (Model.LikesToWorkWith.Count() > 0)
+     {<text>
+         <div class="display-label">Likes to Work With</div>
+         <div class="display-field">@Html.Raw(Model.LikesToWorkWith.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
+            .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
+     </text>}
+    
+    @if (Model.DirectReports.Count() > 0)
+     {<text>
+         <div class="display-label">Direct Reports</div>
+         <div class="display-field">@Html.Raw(Model.DirectReports.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
+            .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
+     </text>}     
+     
+     @if (Model.Links.Count() > 0)
+     {<text>
+         <div class="display-label">Links</div>
+         <div class="display-field">@Html.Raw(Model.Links.Select(o=>string.Format("<a target=\"_blank\" href=\"{0}\">{0}</a>", (o.Length < 45) ? o : o.Substring(0,45) + " .." )).Aggregate((workingSentence, next) => next + "<br/> " + workingSentence))</div>
+     </text>}     
+     </div>    
+     <div class="column">
+     
+         <div class="display-label">Technology Specialties</div>
+         <div class="display-field">
+         <table>
+            <tr><th>Name</th><th>Level</th><th>First Used</th><th>Last Used</th><th>Last Project Note</th></tr>
+             @foreach(var s in Model.GetTechnologySpecialties())
+                                    {<text>
+                                        <tr><td>@s.Name</td><td>@s.Level</td><td>@s.FirstUsed.ToShortDateString()</td><td>@s.LastUsed.ToShortDateString()</td><td>@s.LastProjectNote</td></tr>
+                                    </text>}
+         </table>
+         </div>
+    
+    <div class="display-label">Project (Functional) Specialties</div>
+         <div class="display-field">
+         <table>
+            <tr><th>Project Name</th><th>Roles</th><th>From</th><th>To</th></tr>
+             @foreach (var s in Model.GetProjectSpecialties())
+                                    {<text>
+                                        <tr>
+                                            <td>@Html.ActionLink(s.Name, "Details", "Project", new { id = s.LastProjectNote}, null)</td>
+                                            <td>@s.Level</td>
+                                            <td>@s.FirstUsed.ToShortDateString()</td>
+                                            <td>@s.LastUsed.ToShortDateString()</td>
+                                        </tr>
+                                    </text>}
+         </table>
+         </div>
+         </div>
 
+</div>

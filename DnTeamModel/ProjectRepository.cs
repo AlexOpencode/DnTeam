@@ -195,5 +195,26 @@ namespace DnTeamData
 
             return res.Ok ? string.Empty : "error description"; //TODO: return user-friendly error
         }
+
+        /// <summary>
+        /// Returns the list of projects person partisipated in
+        /// </summary>
+        /// <param name="id">Person Id</param>
+        /// <returns>The list of project specialties</returns>
+        public static IEnumerable<Specialty> GetPersonProjectSpecialties(string id)
+        {
+            var personId = ObjectId.Parse(id);
+            var query = Query.EQ("Assignments.PersonId", personId);
+            var cursor = Coll.Find(query);
+
+            return cursor.Select(o => new Specialty
+                                            {
+                                                Name = o.Name,
+                                                LastProjectNote = o.Id.ToString(),
+                                                FirstUsed = o.Assignments.Where(x => x.PersonId == personId).OrderBy(x => x.StartDate).First().StartDate,
+                                                LastUsed = o.Assignments.Where(x => x.PersonId == personId).OrderByDescending(x => x.EndDate).First().EndDate,
+                                                Level = o.Assignments.Select(x => x.Role).Aggregate((workingSentence, next) => next + ", " + workingSentence)
+                                            });
+        }
     }
 }

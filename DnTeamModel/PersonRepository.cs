@@ -96,11 +96,27 @@ namespace DnTeamData
         /// </summary>
         /// <param name="id">Person id</param>
         /// <returns>Person name</returns>
-        public static string GetPersonName(ObjectId id)
+        internal static string GetPersonName(ObjectId id)
         {
             if (id == ObjectId.Empty) return "wanted";
             
             return Coll.FindOneById(id).Name;
+        }
+
+        /// <summary>
+        /// Returns the name of the specified person
+        /// </summary>
+        /// <param name="id">Person id</param>
+        /// <returns>Person name</returns>
+        public static string GetPersonName(string id)
+        {
+            ObjectId personId;
+            if(ObjectId.TryParse(id, out personId))
+            {
+                return GetPersonName(personId);
+            }
+
+            return "wanted";
         }
 
         /// <summary>
@@ -279,9 +295,9 @@ namespace DnTeamData
         /// </summary>
         /// <param name="id">Person Id</param>
         ///<returns>Specialties list</returns>
-        public static List<Specialty> GetTechnologySpecialties(string id)
+        public static IEnumerable<Specialty> GetTechnologySpecialties(string id)
         {
-            return GetPerson(id).TechnologySpecialties.ToList();
+            return GetPerson(id).TechnologySpecialties;
         }
 
         /// <summary>

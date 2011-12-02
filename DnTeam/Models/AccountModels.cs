@@ -2,27 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Web.Mvc;
+using DnTeamData;
 using DnTeamData.Models;
+
 
 namespace DnTeam.Models
 {
 
-    //public class LogOnModel
-    //{
-    //    [Required]
-    //    [Display(Name = "User name")]
-    //    public string UserName { get; set; }
-
-    //    [Required]
-    //    [DataType(DataType.Password)]
-    //    [Display(Name = "Password")]
-    //    public string Password { get; set; }
-
-    //    [Display(Name = "Remember me?")]
-    //    public bool RememberMe { get; set; }
-    //}
-
+ 
     public class PersonModel
     {
         [ReadOnly(true)]
@@ -32,7 +19,6 @@ namespace DnTeam.Models
         [Display(Name = "Name")]
         public string Name { get; set; }
         
-        [DataType(DataType.EmailAddress)]
         [Display(Name = "Phone")]
         public string Phone { get; set; }
 
@@ -62,11 +48,6 @@ namespace DnTeam.Models
         [Display(Name = "Likes to work with")]
         public IEnumerable<KeyValuePair<string, string>> LikesToWorkWith { get; set; }
     
-        /// <summary>
-        /// The list of technology specialties names of preson
-        /// </summary>
-        public IEnumerable<string> TechnologySpecialties { get; set; }
-
         [Display(Name = "Direct Reports")]
         public IEnumerable<KeyValuePair<string, string>> DirectReports { get; set; }
 
@@ -75,6 +56,7 @@ namespace DnTeam.Models
         
         [UIHint("NullableDate")]
         [Display(Name = "Date of birth")]
+        [DataType(DataType.Date)]
         public DateTime? DoB { get; set; }
 
         [DataType(DataType.ImageUrl)]
@@ -84,7 +66,20 @@ namespace DnTeam.Models
         [Display(Name = "OpenId (user will be able to Log in the system)")]
         public string OpenId { get; set; }
 
-        
+        public string PrimaryManagerName { get; set; }
+        public string PrimaryPeerName { get; set; }
+        public string DepartmentDescription { get; set; }
+
+        public IEnumerable<Specialty> GetTechnologySpecialties()
+        {
+            return PersonRepository.GetTechnologySpecialties(Id);
+        }
+
+        public IEnumerable<Specialty> GetProjectSpecialties()
+        {
+            return ProjectRepository.GetPersonProjectSpecialties(Id);
+        }
+       
     }
 
     public class PersonGridModel

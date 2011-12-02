@@ -41,6 +41,14 @@ namespace DnTeamData.Models
         {
             get { return PrimaryPeer.ToString(); }
         }
+        public string PrimaryPeerName
+        {
+            get
+            {
+                return (PrimaryPeer != ObjectId.Empty)
+                    ? PersonRepository.GetPersonName(PrimaryPeer) : "wanted";
+            }
+        }
         public List<ObjectId> OtherPeers { get; set; }
         public List<ObjectId> DirectReports { get; set; }
         public List<ObjectId> LikesToWorkWith { get; set; }

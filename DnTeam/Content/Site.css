@@ -77,7 +77,7 @@ h5, h6 {
 /* you can specify a greater or lesser percentage for the 
 page width. Or, you can specify an exact pixel width. */
 .page {
-    width: 90%;
+    width: 98%;
     margin-left: auto;
     margin-right: auto;
 }
@@ -215,20 +215,24 @@ input[type="submit"] {
 ----------------------------------------------------------*/
 
 table {
-    border: solid 1px #e8eef4;
+    border: solid 1px #25A0DA;
     border-collapse: collapse;
 }
 
 table td {
     padding: 5px;
-    border: solid 1px #e8eef4;
+    border: solid 1px #E5E5E5;
+    color: #767676;
 }
 
 table th {
     padding: 6px 5px;
     text-align: left;
-    background-color: #e8eef4;
-    border: solid 1px #e8eef4;
+    background-color: #25A0DA;
+    border: solid 1px #25A0DA;
+    color: white;
+    font-weight: normal;
+    font-size: 14px;
 }
 
 /* MISC  
@@ -422,7 +426,10 @@ div.filterAction a label { cursor: pointer;  }
 
 
 /*------------------Person details--------------------------*/
-#person .photo { max-height:425px;overflow:hidden;width:380px;float:left;text-align: center;}
+#person .photo { max-height:425px;overflow:hidden;width:380px;float:left;text-align: center;margin-left: 0;}
 #person img { max-width: 380px;margin: auto;}
-#person .column {float:left;}
-#person .editButton {margin: 30px 10px 0 10px}
+#person .column {float:left;margin-left: 10px; }
+#person .editButton {margin: 27px 0px 0 10px}
+#person .display-field img { vertical-align: middle;}
+
+#person a:visited { color: #105CD6; }
