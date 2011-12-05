@@ -88,7 +88,7 @@ namespace DnTeamData
                 Coll.Update(query, update, SafeMode.True);
                 
                 //Add a new milestone with the <name>, if it is absent
-                SettingsRepository.UpdateSetting(EnumName.ProjectMilestones, name);
+                SettingsRepository.AddSettingValue(EnumName.ProjectMilestones, name);
             }
         }
 
@@ -122,7 +122,7 @@ namespace DnTeamData
         public static void Insert(string name, string priority, DateTime createdDate, string status, string noise, string product, string projectType, string programManager, 
             string technicalLead)
         {
-            var milestonesName = SettingsRepository.GetAllMilestones();
+            var milestonesName = SettingsRepository.GetSettingValues(EnumName.ProjectMilestones);
 
             var res = Coll.Insert(new Project
                             {

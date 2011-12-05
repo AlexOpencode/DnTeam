@@ -2,6 +2,7 @@
 using System.Web.Mvc;
 using DnTeam.Models;
 using DnTeamData;
+using DnTeamData.Models;
 using Telerik.Web.Mvc;
 
 namespace DnTeam.Controllers
@@ -16,24 +17,24 @@ namespace DnTeam.Controllers
 
         public ActionResult Index()
         {
-            ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetAllProjectStatuses());
-            ViewData["ProjectTypes"] = new SelectList(SettingsRepository.GetAllProjectTypes());
+            ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectStatuses));
+            ViewData["ProjectTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectTypes));
             ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsList(), "key", "value");
-            ViewData["ProjectNoiseTypes"] = new SelectList(SettingsRepository.GetAllProjectNoiseTypes());
-            ViewData["ProjectPriorityTypes"] = new SelectList(SettingsRepository.GetAllProjectPriorityTypes());
+            ViewData["ProjectNoiseTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectNoiseTypes));
+            ViewData["ProjectPriorityTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectPriorityTypes));
             ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
             return View();
         }
 
         public ActionResult Details(string id)
         {
-            ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetAllProjectStatuses());
-            ViewData["ProjectTypes"] = new SelectList(SettingsRepository.GetAllProjectTypes());
+            ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectStatuses));
+            ViewData["ProjectTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectTypes));
             ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsList(), "key", "value");
             ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
-            ViewData["ProjectRoles"] = new SelectList(SettingsRepository.GetAllProjectRoles());
-            ViewData["ProjectNoiseTypes"] = new SelectList(SettingsRepository.GetAllProjectNoiseTypes());
-            ViewData["ProjectPriorityTypes"] = new SelectList(SettingsRepository.GetAllProjectPriorityTypes());
+            ViewData["ProjectRoles"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectRoles));
+            ViewData["ProjectNoiseTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectNoiseTypes));
+            ViewData["ProjectPriorityTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectPriorityTypes));
             var project = ProjectRepository.GetProject(id);
             ProjectModel model = new ProjectModel
                                      {

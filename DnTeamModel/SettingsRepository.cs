@@ -8,11 +8,30 @@ using MongoDB.Driver.Builders;
 
 namespace DnTeamData
 {
+    /// <summary>
+    /// A static class that manages settings  in the Enums collection
+    /// </summary>
     public static class SettingsRepository
     {
         private static readonly MongoDatabase Db = Mongo.Init();
-        private static readonly MongoCollection<Enums> Coll = Db.GetCollection<Enums>("Enums");
+        private static MongoCollection<Enums> _coll = Db.GetCollection<Enums>("Enums");
 
+        #if DEBUG //Test variables
+        /// <summary>
+        /// Set the name of the collection
+        /// </summary>
+        /// <param name="collectionName">Departments collection name</param>
+        public static void SetTestCollection(string collectionName)
+        {
+            _coll = Db.GetCollection<Enums>(collectionName);
+        }
+        #endif
+
+        /// <summary>
+        /// Returns parsed string as Enum
+        /// </summary>
+        /// <param name="value">Settings name</param>
+        /// <returns>Enum value</returns>
         public static EnumName GetEnumName(string value)
         {
             EnumName res;
@@ -22,70 +41,56 @@ namespace DnTeamData
             return EnumName.Undefined;
         }
 
+        /// <summary>
+        /// Returns the list of values of the defined setting
+        /// </summary>
+        /// <param name="name">Setting's Enum value</param>
+        /// <returns>The list of settings</returns>
         public static List<string> GetSettingValues(EnumName name)
         {
-            var query = Query.EQ("Name", name.ToString());
-            var collection = Coll.FindOne(query);
-            var res = (collection.Values == null) ? new List<string>() : collection.Values;
-
-            return res;
+            var query = Query.EQ("_id", name.ToString());
+            var collection = _coll.FindOne(query);
+            
+            return collection.Values ?? new List<string>();
         }
 
-        public static void UpdateSetting(EnumName name, string value)
+        /// <summary>
+        /// Adds value (skip dublicate values) to the defined setting. 
+        /// </summary>
+        /// <param name="name">Setting name</param>
+        /// <param name="value">Value to add</param>
+        public static void AddSettingValue(EnumName name, string value)
         {
-            var query = Query.EQ("Name", name.ToString());
+            var query = Query.EQ("_id", name.ToString());
             var update = Update.AddToSet("Values", value);
-            Coll.Update(query, update);
+
+            _coll.Update(query, update);
         }
 
-        public static void DeleteSetting(EnumName name, string value)
+        /// <summary>
+        /// Adds the list of values to the defined Setting
+        /// </summary>
+        /// <param name="name">Setting name</param>
+        /// <param name="values">Values string</param>
+        public static void BatchAddSettingValues(EnumName name, IEnumerable<string> values)
         {
-            var query = Query.EQ("Name", name.ToString());
-            var update = Update.Pull("Values", value);
-            Coll.Update(query, update);
+            var query = Query.EQ("_id", name.ToString());
+            var update = Update.AddToSetEach("Values", BsonArray.Create(values));
+
+            _coll.Update(query, update);
         }
 
-        public static List<string> GetAllLocations()
+        /// <summary>
+        /// Removes all values from the defined Setting
+        /// </summary>
+        /// <param name="name">Setting name</param>
+        /// <param name="values">Values string</param>
+        public static void BatchDeleteSettingValues(EnumName name, IEnumerable<string> values)
         {
-            return GetSettingValues(EnumName.Locations);
-        }
+            var query = Query.EQ("_id", name.ToString());
+            var update = Update.PullAll("Values", BsonArray.Create(values));
 
-        public static List<string> GetAllProjectStatuses()
-        {
-            return GetSettingValues(EnumName.ProjectStatuses);
-        }
-
-        public static List<string> GetAllProjectTypes()
-        {
-            return GetSettingValues(EnumName.ProjectTypes);
-        }
-
-        public static List<string> GetAllProjectRoles()
-        {
-            return GetSettingValues(EnumName.ProjectRoles);
-        }
-
-        internal static List<string> GetAllMilestones()
-        {
-            return GetSettingValues(EnumName.ProjectMilestones);
-        }
-
-        public static void BatchUpdateSetting(EnumName name, string value)
-        {
-            var query = Query.EQ("Name", name.ToString());
-            var update = Update.AddToSetEach("Values", BsonArray.Create(value.Split('~').Where(o => !string.IsNullOrEmpty(o)).Select(o => o.Trim())));
-
-            Coll.Update(query, update);
-        }
-
-        public static List<string> GetAllProjectNoiseTypes()
-        {
-            return GetSettingValues(EnumName.ProjectNoiseTypes);
-        }
-
-        public static List<string> GetAllProjectPriorityTypes()
-        {
-            return GetSettingValues(EnumName.ProjectPriorityTypes);
+            _coll.Update(query, update);
         }
     }
 }

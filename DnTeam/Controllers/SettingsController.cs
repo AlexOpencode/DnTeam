@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using DnTeam.Models;
 using DnTeamData;
 using DnTeamData.Models;
 using Telerik.Web.Mvc;
@@ -31,32 +32,17 @@ namespace DnTeam.Controllers
 
         public ActionResult MultipleInsert(string type, string value)
         {
-            var enumName = SettingsRepository.GetEnumName(type);
-            SettingsRepository.BatchUpdateSetting(enumName, value);
+            SettingsRepository.BatchAddSettingValues(SettingsRepository.GetEnumName(type), Common.SplitValues(value));
 
             return Content("");
         }
 
-        [GridAction]
-        public ActionResult Insert(string type, string name)
+        public ActionResult Delete(string type, List<string> values)
         {
             var enumName = SettingsRepository.GetEnumName(type);
-            SettingsRepository.UpdateSetting(enumName, name);
-            return View(new GridModel(SettingsRepository.GetSettingValues(enumName).Select(o => new Value { Name = o })));
-        }
+            SettingsRepository.BatchDeleteSettingValues(enumName, values);
 
-        [GridAction]
-        public ActionResult Save(string type, string id)
-        {
-            return View(new GridModel(SettingsRepository.GetSettingValues(SettingsRepository.GetEnumName(type)).Select(o => new Value { Name = o })));
-        }
-
-        [GridAction]
-        public ActionResult Delete(string type, string id)
-        {
-            var enumName = SettingsRepository.GetEnumName(type);
-            SettingsRepository.DeleteSetting(enumName, id);
-            return View(new GridModel(SettingsRepository.GetSettingValues(enumName).Select(o => new Value { Name = o })));
+            return Content("");
         }
 
     }

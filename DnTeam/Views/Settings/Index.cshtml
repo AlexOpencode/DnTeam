@@ -1,4 +1,5 @@
-﻿@using DnTeamData.Models
+﻿@using DnTeam.Models
+
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -6,33 +7,57 @@
 <h2>@ViewBag.Title</h2>
 
 <h4>You can enter multiple values with a <b>"~"</b> separator: @Html.TextBox("MultipleSettingValue","",new {@style = "width:700px"}) <input type="button" class="t-button" value="Add" onclick="addMultipleSettingValue()"/> </h4>  
+<p>
+    <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Values</a>
+</p>
 
+@(Html.Telerik().Grid<Value>()
+        .Name("SettingsGrid")
+        .DataKeys(keys => keys.Add(p => p.Name))
+        .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Settings"))
+        .Columns(columns =>
+        {
+            columns.Bound(o => o.Name).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Name #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(o => o.Name);
+        }).Sortable()        
+)
+
+@section HeadScripts {
 <script type="text/javascript">
     function addMultipleSettingValue() {
         $.post('@Url.Action("MultipleInsert", "Settings")', { value: $("#MultipleSettingValue").val(), type: '@ViewBag.Title' }, function () {
-                $("#Grid").data("tGrid").ajaxRequest();
+            $("#SettingsGrid").data("tGrid").ajaxRequest();
         });
     }
-</script>
 
-@(Html.Telerik().Grid<Value>()
-        .Name("Grid")
-            .DataKeys(keys => keys.Add(p => p.Name))
-            .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
-        .DataBinding(dataBinding => dataBinding.Ajax()
-                                        .Select("Select", "Settings")
-                                        .Insert("Insert", "Settings")
-                                        .Update("Save", "Settings")
-                                        .Delete("Delete", "Settings"))
-        .Columns(columns =>
-        {
-            columns.Bound(p => p.Name);
-            columns.Command(commands =>
-            {
-                commands.Edit().ButtonType(GridButtonType.ImageAndText);
-                commands.Delete().ButtonType(GridButtonType.ImageAndText);
-            }).Width(200).Title("Edit");
-        })
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
-        .Sortable()        
-)
+    $().ready(function () {
+        
+        //Delete selected values
+        $("#deleteValues").click(function (e) {
+            e.preventDefault();
+
+            var values = new Array();
+            $("input:checkbox[name=checkedRecords]:checked").each(function() {
+                values.push($(this).val());
+            });
+            
+            if (values.length <= 0) {
+                alert("Please, check values to be deleted.");
+            } else {
+                if (confirm("Are you sure you want to delete these values?")) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@(Url.Action("Delete", "Settings"))',
+                        dataType: 'json',
+                        traditional: true,
+                        data: { values: values, type: '@ViewBag.Title' },
+                        success: function () {
+                            $("#SettingsGrid").data("tGrid").ajaxRequest();
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+}

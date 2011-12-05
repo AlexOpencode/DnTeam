@@ -17,16 +17,16 @@ namespace DnTeamData
         private static readonly MongoDatabase Db = Mongo.Init();
         private static MongoCollection<Department> _coll = Db.GetCollection<Department>("Departments");
 
-#if DEBUG //Test variables
+        #if DEBUG //Test variables
         /// <summary>
         /// Set the name of the Departments collection
         /// </summary>
         /// <param name="collectionName">Departments collection name</param>
-        public static void SetTestDepartmentCollection(string collectionName)
+        public static void SetTestCollection(string collectionName)
         {
             _coll = Db.GetCollection<Department>(collectionName);
         }
-#endif
+        #endif
 
         /// <summary>
         /// Returns the list of all departments

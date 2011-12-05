@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientRepository.cs" />
+    <Compile Include="Common.cs" />
     <Compile Include="DepartmentRepository.cs" />
     <Compile Include="Models\ClientModels.cs" />
     <Compile Include="Models\DepartamentModels.cs" />
