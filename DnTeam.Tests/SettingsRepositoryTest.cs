@@ -3,16 +3,10 @@ using DnTeamData;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DnTeamData.Models;
 using System.Collections.Generic;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
 namespace DnTeam.Tests
 {
-    public class Enum
-    {
-        [BsonId]
-        public string Name { set; get; }
-    }
 
     /// <summary>
     ///This is a test class for SettingsRepositoryTest and is intended
@@ -22,6 +16,8 @@ namespace DnTeam.Tests
     public class SettingsRepositoryTest
     {
         private const string CollectionName = "Enums_Test";
+        private static readonly MongoDatabase Db = Mongo.Init();
+        private static readonly MongoCollection<Client> Coll = Db.GetCollection<Client>(CollectionName);
 
         #region Additional test attributes
 
@@ -29,9 +25,7 @@ namespace DnTeam.Tests
         public void MyTestInitialize()
         {
             SettingsRepository.SetTestCollection(CollectionName);
-            MongoDatabase db = Mongo.Init();
-            MongoCollection<Enums> coll = db.GetCollection<Enums>(CollectionName);
-            coll.Drop();
+            Coll.Drop();
 
             var batch = new List<Enums>
                                     {
@@ -46,15 +40,13 @@ namespace DnTeam.Tests
                                         new Enums {Name =  EnumName.TechnologySpecialtyLevels.ToString() }
                                     };
 
-            coll.InsertBatch(batch);
+            Coll.InsertBatch(batch);
         }
 
         [ClassCleanup]
         public static void MyClassCleanup()
         {
-            MongoDatabase db = Mongo.Init();
-            MongoCollection<Enums> coll = db.GetCollection<Enums>(CollectionName);
-            coll.Drop();
+            Coll.Drop();
         }
 
         #endregion
@@ -100,6 +92,22 @@ namespace DnTeam.Tests
 
             var actual = SettingsRepository.GetSettingValues(name);
             Assert.IsTrue(actual.Count() == 0);
+        }
+
+        /// <summary>
+        ///A test for: while submiting empty list, shouldn't drop all records
+        ///</summary>
+        [TestMethod]
+        public void BatchDeleteSettingValuesWithEmptyListTest()
+        {
+            const EnumName name = EnumName.Locations;
+            IEnumerable<string> values = new List<string> { "value 1", "value 2", "value 3" };
+            SettingsRepository.BatchAddSettingValues(name, values);
+
+            SettingsRepository.BatchDeleteSettingValues(name, new List<string>());
+
+            var actual = SettingsRepository.GetSettingValues(name);
+            Assert.IsTrue(actual.Count() == 3);
         }
 
         /// <summary>

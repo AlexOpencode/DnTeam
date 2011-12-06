@@ -9,7 +9,7 @@ using MongoDB.Driver.Builders;
 namespace DnTeamData
 {
     /// <summary>
-    /// A static class that manages settings  in the Enums collection
+    /// A static class that manages settings in the Enums collection
     /// </summary>
     public static class SettingsRepository
     {
