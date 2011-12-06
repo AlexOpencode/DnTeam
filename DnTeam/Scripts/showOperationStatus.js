@@ -10,13 +10,20 @@ function showOk(id) {
     });
 }
 
-function showError(id, desc) {
-    var tmpId = 'Res' + id;
+function showError(id, desc, wnd) {
+    var tmpId = 'Res' + id.attr("id");
     var theSpan = $('#' + tmpId);
-    if (theSpan.length > 0) { theSpan.remove(); }
     
-    var ok = '<span class="resultError" id="' + tmpId + '"><b>Error:</b> '+ desc +'</span>';
-    $('#' + id).after(ok);
+    if (theSpan.length > 0) { theSpan.remove(); }
+
+    var ok = '<span class="resultError" id="' + tmpId + '">' + desc + '</span>';
+    id.after(ok);
+
+    if (wnd) { //resize window to suit contents
+        var window = $("#" + wnd).data("tWindow");
+        $(window.element).find(".t-window-content").css("height", "auto");
+    }
+    
     $('#' + tmpId).delay(6200).fadeOut('fast', function () {
         $('#' + tmpId).remove();
     });
