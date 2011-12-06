@@ -6,18 +6,13 @@
     public enum TransactionStatus
     {
         /// <summary>
-        /// MongoSafeModeException occured and it is updefined
-        /// </summary>
-        UndefinedMongoSafeModeException,
-
-        /// <summary>
         /// Transaction copleted successfuly
         /// </summary>
         /// 
         Ok,
         /// <summary>
-        /// Error occured: duplicate Name
+        /// Error occured: item with such index already exist
         /// </summary>
-        DuplicateName
+        DuplicateItem
     }
 }

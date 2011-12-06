@@ -18,9 +18,9 @@ namespace DnTeam.Controllers
         }
 
         [NonAction]
-        private IEnumerable<EditableClientModel> Return(IEnumerable<Client> clients)
+        private IEnumerable<ClientModel> Return(IEnumerable<Client> clients)
         {
-            return clients.Select(o => new EditableClientModel { Name = o.Name, Id = o.ToString()});
+            return clients.Select(o => new ClientModel { Name = o.Name, Id = o.ToString()});
         }
             
         [GridAction]
@@ -55,7 +55,7 @@ namespace DnTeam.Controllers
                 case TransactionStatus.Ok:
                     return null;
 
-                case  TransactionStatus.DuplicateName:
+                case  TransactionStatus.DuplicateItem:
                     return "Client with such name already exists. Please, enter other name.";
 
                 default:
