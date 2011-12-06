@@ -16,6 +16,8 @@ namespace DnTeam.Tests
     public class DepartmentRepositoryTest
     {
         private const string CollectionName = "Departments_Test";
+        private static readonly MongoDatabase Db = Mongo.Init();
+        private static readonly MongoCollection<Client> Coll = Db.GetCollection<Client>(CollectionName);
 
         #region Additional test attributes
 
@@ -23,14 +25,13 @@ namespace DnTeam.Tests
         public void MyTestInitialize()
         {
             DepartmentRepository.SetTestCollection(CollectionName);
+            Coll.Drop();
         }
 
-        [TestCleanup]
-        public void MyTestCleanup()
+        [ClassCleanup]
+        public static void MyClassCleanup()
         {
-            MongoDatabase db = Mongo.Init();
-            MongoCollection<Department> coll = db.GetCollection<Department>(CollectionName);
-            coll.Drop();
+            Coll.Drop();
         }
 
         #endregion
