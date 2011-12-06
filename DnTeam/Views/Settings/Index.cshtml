@@ -12,20 +12,20 @@
 </p>
 
 @(Html.Telerik().Grid<Value>()
-        .Name("SettingsGrid")
-        .DataKeys(keys => keys.Add(p => p.Name))
+        .Name("SettingsGrid").Sortable() 
         .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Settings"))
         .Columns(columns =>
         {
             columns.Bound(o => o.Name).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Name #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
             columns.Bound(o => o.Name);
-        }).Sortable()        
+        })       
 )
 
 @section HeadScripts {
 <script type="text/javascript">
     function addMultipleSettingValue() {
         $.post('@Url.Action("MultipleInsert", "Settings")', { value: $("#MultipleSettingValue").val(), type: '@ViewBag.Title' }, function () {
+            $("#MultipleSettingValue").val("");
             $("#SettingsGrid").data("tGrid").ajaxRequest();
         });
     }

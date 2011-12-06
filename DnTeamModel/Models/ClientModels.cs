@@ -1,36 +1,37 @@
-﻿using System.Collections.Generic;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace DnTeamData.Models
 {
+    /// <summary>
+    /// A class describing Client
+    /// </summary>
     public class Client
     {
+        /// <summary>
+        /// Client Id
+        /// </summary>
         [BsonId]
         public ObjectId Id { get; set; }
-        public string ClientId { get { return Id.ToString(); } }
-        public string Name { get; set; }
-        public List<string> Links { get; set; }
         
-        public Client()
-        {
-            //Id = ObjectId.GenerateNewId();
-        }
-    }
-
-    public class Product
-    {
-        [BsonId]
-        public ObjectId Id { get; set; }
-        public string ProductId { get { return Id.ToString(); } }
+        /// <summary>
+        /// Client Name
+        /// </summary>
         public string Name { get; set; }
-        public ObjectId ClientId { get; set; }
-        public string ClientName ()
+
+        /// <summary>
+        /// Overrides ToString() to return Client Id
+        /// </summary>
+        /// <returns>String value of Client Id</returns>
+        public override string ToString()
         {
-            return ClientRepository.GetClient(ClientId).Name;
+            return Id.ToString();
         }
 
-        public Product()
+        /// <summary>
+        /// Generates Client Id while creation a new client
+        /// </summary>
+        public Client()
         {
             Id = ObjectId.GenerateNewId();
         }

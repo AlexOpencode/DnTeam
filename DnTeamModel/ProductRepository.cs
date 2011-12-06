@@ -44,13 +44,24 @@ namespace DnTeamData
 
         internal static string GetName(ObjectId id)
         {
-            var query = Query.EQ("_id", id);
-            return Coll.FindOne(query).Name;
+            return Coll.FindOneById(id).Name;
         }
 
         public static Dictionary<string,string> GetAllProductsList()
         {
             return GetAllProducts().ToDictionary(o => o.Id.ToString(), x => x.Name);
+        }
+
+        /// <summary>
+        /// Returns the list of Client Ids used linked to Products
+        /// </summary>
+        /// <returns>The list of Client Ids</returns>
+        internal static IEnumerable<ObjectId> GetUsedClients()
+        {
+            var cursor = Coll.FindAll();
+            cursor.Fields = Fields.Include("ClientId");
+            
+            return cursor.Select(o=>o.ClientId);
         }
     }
 }

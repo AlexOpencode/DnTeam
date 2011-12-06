@@ -45,6 +45,8 @@
     <Compile Include="Common.cs" />
     <Compile Include="DepartmentRepository.cs" />
     <Compile Include="Models\ClientModels.cs" />
+    <Compile Include="Models\TransactionStatusEnums.cs" />
+    <Compile Include="Models\ProductModels.cs" />
     <Compile Include="Models\DepartamentModels.cs" />
     <Compile Include="Mongo.cs" />
     <Compile Include="ProductRepository.cs" />

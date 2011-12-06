@@ -5,32 +5,114 @@
 
 <h2>Clients</h2>
 <h4>You can enter multiple values with a <b>"~"</b> separator: @Html.TextBox("MultipleClientValue","",new {@style = "width:700px"}) <input type="button" class="t-button" value="Add" onclick="addMultipleClientValue()"/> </h4>  
-<script type="text/javascript">
-    function addMultipleClientValue() {
-        $.post('@Url.Action("MultipleInsert", "Client")', { value: $("#MultipleClientValue").val()}, function () {
-            $("#Grid").data("tGrid").ajaxRequest();
-        });
-    }
-</script>
+<p>
+    <a id="editValue" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Client</a>
+    <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Clients</a>
+</p>
+
 @(Html.Telerik().Grid<EditableClientModel>()
-        .Name("Grid")
-            .DataKeys(keys => keys.Add(p => p.Id))
-            .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
-        .DataBinding(dataBinding => dataBinding.Ajax()
-                                        .Select("Select", "Client")
-                                        .Insert("Insert", "Client")
-                                        .Update("Save", "Client")
-                                        .Delete("Delete", "Client"))
+        .Name("ClientsGrid").Sortable()
+        .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Client"))
         .Columns(columns =>
         {
-            columns.Bound(p => p.Name);
-            //columns.Bound(p => p.Links).Encoded(false);
-            columns.Command(commands =>
-            {
-                commands.Edit().ButtonType(GridButtonType.ImageAndText);
-                commands.Delete().ButtonType(GridButtonType.ImageAndText);
-            }).Width(200).Title("Edit");
+            columns.Bound(o => o.Id).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Id #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(o => o.Name);
         })
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
-        .Sortable()        
 )
+
+@{Html.Telerik().Window().Name("ValueEditWindow").Title("Edit").Content(
+      @<text>
+                @Html.Hidden("ClientId")
+                <div class="editLine">
+                    <div class="editElement">
+                        <div class="editor-label">
+                            Name
+                        </div>
+                        <div class="editor-field">
+                            @Html.TextBox("Name")                      
+                        </div>
+                    </div>                    
+                </div>                
+                <div class="editLine" style="padding-top: 20px;">
+                    <a class="t-button t-button-icontext yesButton" onclick="updateValue()"><span class="t-icon t-insert"></span><label>Save</label></a>
+                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('ValueEditWindow')"><span class="t-icon t-cancel"></span><label>Cancel</label></a>
+                </div>
+      </text>).Visible(false).Draggable(true).Scrollable(false).Modal(true).Width(400).Render();}
+
+@section HeadScripts {
+
+<script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
+<script type="text/javascript">
+    function addMultipleClientValue() {
+        $.post('@Url.Action("MultipleInsert", "Client")', { value: $("#MultipleClientValue").val() }, function () {
+            $("#MultipleClientValue").val("");
+            $("#ClientsGrid").data("tGrid").ajaxRequest();
+        });
+    }
+
+    function updateValue() {
+        $.post('@Url.Action("Save", "Client")', { id: $("#ClientId").val(), name: $("#Name").val() }, function (data) {
+            if (data == null) {
+                $("#ClientsGrid").data("tGrid").ajaxRequest();
+                closeWindow("ValueEditWindow");
+            } else {
+                showError($("#Name"), data, "ValueEditWindow");
+            }
+        }, 'json');
+    }
+    
+    $().ready(function () {
+
+        //Open edit window
+        $("#editValue").click(function () {
+            var values = new Array();
+            $("input:checkbox[name=checkedRecords]:checked").each(function () {
+                values.push($(this));
+            });
+
+            if (values.length != 1) {
+                alert("Please, check one client to be edited.");
+            } else {
+                //get cell values
+                var ths = values[0].closest('tr').children('td');
+                //open edit departments window
+                openEditWindow(values[0].val(), ths[1].innerHTML);
+            }
+        });
+
+        function openEditWindow(id, name) {
+            $("#ClientId").val(id);
+            $("#Name").val(name);
+
+            openWindow('ValueEditWindow');
+        }
+
+        //Delete selected values
+        $("#deleteValues").click(function (e) {
+            e.preventDefault();
+
+            var values = new Array();
+            $("input:checkbox[name=checkedRecords]:checked").each(function () {
+                values.push($(this).val());
+            });
+
+            if (values.length <= 0) {
+                alert("Please, check clients to be deleted.");
+            } else {
+                if (confirm("Are you sure you want to delete these clients?")) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@(Url.Action("Delete", "Client"))',
+                        dataType: 'json',
+                        traditional: true,
+                        data: { values: values, type: '@ViewBag.Title' },
+                        success: function () {
+                            $("#ClientsGrid").data("tGrid").ajaxRequest();
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+}

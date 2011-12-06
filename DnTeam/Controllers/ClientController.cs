@@ -8,7 +8,7 @@ using DnTeamData.Models;
 
 namespace DnTeam.Controllers
 {
-    [OpenIdAuthorize]
+    //[OpenIdAuthorize]
     public class ClientController : Controller
     {
 
@@ -17,16 +17,10 @@ namespace DnTeam.Controllers
             return View();
         }
 
-        //[NonAction]
-        //private IEnumerable<EditableClientModel> Return(List<Client> clients)
-        //{
-        //    return clients.Select(o => new EditableClientModel { Name = o.Name, Id = o.ClientId });
-        //}
-
         [NonAction]
-        private IEnumerable<EditableClientModel> Return(List<Client> clients)
+        private IEnumerable<EditableClientModel> Return(IEnumerable<Client> clients)
         {
-            return clients.Select(o => new EditableClientModel { Name = o.Name, Id = o.ClientId});
+            return clients.Select(o => new EditableClientModel { Name = o.Name, Id = o.ToString()});
         }
             
         [GridAction]
@@ -35,45 +29,38 @@ namespace DnTeam.Controllers
             return View(new GridModel(Return(ClientRepository.GetAllClients())));
         }
 
-        [GridAction]
-        public ActionResult Insert(string name, List<string> links)
-        {
-            ClientRepository.InsertClient(name);
-            return View(new GridModel(Return(ClientRepository.GetAllClients())));
-        }
-
         public ActionResult MultipleInsert(string value)
         {
-            ClientRepository.InsertBatchClient(value);
+            ClientRepository.InsertClients(Common.SplitValues(value));
             return Content("");
         }
-
-        [HttpPost]
-        public ActionResult AddLink(string name, string link)
-        {
-            ClientRepository.AddLink(name, link);
-            return Content("");
-        }
-
-        [HttpPost]
-        public ActionResult RemoveLink(string name, string link)
-        {
-            ClientRepository.RemoveLink(name, link);
-            return Content("");
-        }
-
-        [GridAction]
+        
         public ActionResult Save(string id, string name)
         {
-            ClientRepository.UpdateClient(id, name);
-            return View(new GridModel(Return(ClientRepository.GetAllClients())));
+            return new JsonResult { Data = GetTransactionStatusCode(ClientRepository.UpdateClient(id, name)) };
+        }
+        
+        public ActionResult Delete(List<string> values)
+        {
+            ClientRepository.DeleteClients(values);
+
+            return Content("");
         }
 
-        [GridAction]
-        public ActionResult Delete(string id)
+        [NonAction]
+        private string GetTransactionStatusCode(TransactionStatus status)
         {
-            ClientRepository.DeleteClient(id);
-            return View(new GridModel(Return(ClientRepository.GetAllClients())));
+            switch (status)
+            {
+                case TransactionStatus.Ok:
+                    return null;
+
+                case  TransactionStatus.DuplicateName:
+                    return "Client with such name already exists. Please, enter other name.";
+
+                default:
+                    return "Undefined error occured. Please, contact your administrator.";
+            }
         }
     }
 }

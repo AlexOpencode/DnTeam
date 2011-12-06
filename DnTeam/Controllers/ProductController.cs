@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using DnTeamData;
 using Telerik.Web.Mvc;
@@ -14,14 +12,14 @@ namespace DnTeam.Controllers
 
         public ActionResult Index()
         {
-            ViewData["Clients"] = new SelectList(ClientRepository.GetClientsList(), "key", "value");
+            ViewData["Clients"] = new SelectList(ClientRepository.GetClientsDictionary(), "key", "value");
             return View();
         }
 
         [NonAction]
         private IEnumerable<EditableProductModel> Return()
         {
-            return ProductRepository.GetAllProducts().Select(o => new EditableProductModel { Name = o.Name, Id = o.ProductId, Client = o.ClientName() });
+            return ProductRepository.GetAllProducts().Select(o => new EditableProductModel { Name = o.Name, Id = o.ToString(), Client = o.ClientName() });
         }
             
         [GridAction]

@@ -7,81 +7,113 @@ using MongoDB.Bson;
 
 namespace DnTeamData
 {
+    /// <summary>
+    /// A static class that manages Clients
+    /// </summary>
     public static class ClientRepository
     {
         private static readonly MongoDatabase Db = Mongo.Init();
-        private static readonly MongoCollection<Client> Coll = Db.GetCollection<Client>("Clients");
+        private static MongoCollection<Client> _coll = Db.GetCollection<Client>("Clients");
 
-        public static List<Client> GetAllClients()
+        #if DEBUG //Test variables
+        /// <summary>
+        /// Set the name of the collection
+        /// </summary>
+        /// <param name="collectionName">Collection name</param>
+        public static void SetTestCollection(string collectionName)
         {
-            return Coll.FindAll().ToList();
+            _coll = Db.GetCollection<Client>(collectionName);
+        }
+        /// <summary>
+        /// Inserts a new client to the database
+        /// </summary>
+        /// <param name="client">Clients object</param>
+        public static void InsertTestClient(Client client)
+        {
+            _coll.Insert(client);
+        }
+        #endif
+
+        /// <summary>
+        /// Returns the list of all clients
+        /// </summary>
+        /// <returns>The list of all clients</returns>
+        public static IEnumerable<Client> GetAllClients()
+        {
+            return _coll.FindAll().ToList();
         }
 
-        public static Dictionary<string, string> GetClientsList()
+        /// <summary>
+        /// Returns a dictionary of clients
+        /// </summary>
+        /// <returns>Dictionary(id,name)</returns>
+        public static Dictionary<string, string> GetClientsDictionary()
         {
             return GetAllClients().ToDictionary(o => o.Id.ToString(), x => x.Name);
         }
 
-        //public static IEnumerable<string> GetClientsList()
-        //{
-        //    return GetAllClients().Select(x => x.Name);
-        //}
-
-        public static Client GetClient(ObjectId id)
+        /// <summary>
+        /// Returns the name of the defined client
+        /// </summary>
+        /// <param name="id">Client Id</param>
+        /// <returns>Name</returns>
+        public static string GetName(ObjectId id)
         {
-            var query = Query.EQ("_id", id);
-            return Coll.FindOne(query);
+            return _coll.FindOneById(id).Name;
         }
 
-        public static void InsertClient(string name)
+        /// <summary>
+        /// Updates client name
+        /// </summary>
+        /// <param name="id">Client Id</param>
+        /// <param name="name">Client Name</param>
+        /// <returns>Update status</returns>
+        public static TransactionStatus UpdateClient(string id, string name)
         {
-            Coll.Insert(new Client { Name = name }, SafeMode.True);
-        }
-
-        public static void UpdateClient(string id, string name)
-        {
-
-            var query = Query.EQ("_id", id);
+            var query = Query.EQ("_id", ObjectId.Parse(id));
             var update = Update.Set("Name", name);
-            Coll.Update(query, update);
-        }
-
-        public static void DeleteClient(string id)
-        {
-            var query = Query.EQ("_id", ObjectId.Parse(id));
-            Coll.Remove(query);
-        }
-
-        public static void AddLink(string id, string link)
-        {
-            var query = Query.EQ("_id", ObjectId.Parse(id));
-            var update = Update.AddToSet("Links", link);
-            Coll.Update(query, update);
-        }
-
-        public static void RemoveLink(string id, string link)
-        {
-            var query = Query.EQ("_id", ObjectId.Parse(id));
-            var update = Update.Pull("Links", link);
-            Coll.Update(query, update);
-        }
-
-        public static void InsertBatchClient(string value)
-        {
             try
             {
-                var options = new MongoInsertOptions(Coll)
-                                  {
-                                      CheckElementNames = true,
-                                      Flags = InsertFlags.ContinueOnError,
-                                      SafeMode = SafeMode.True
-                                  };
-                Coll.InsertBatch(value.Split('~').Where(o => !string.IsNullOrEmpty(o)).Select(o => new Client {Name = o.Trim()}), options);
+                _coll.Update(query, update, SafeMode.True);
             }
-            catch(MongoSafeModeException)
+            catch(MongoSafeModeException ex)
             {
-               //TODO: get appropriate error code
+                if (ex.Message.Contains("duplicate"))
+                    return TransactionStatus.DuplicateName;
+
+                return TransactionStatus.UndefinedMongoSafeModeException;
             }
+
+            return TransactionStatus.Ok;
+        }
+
+        /// <summary>
+        /// Deletes defined clients except ones, used on Products
+        /// </summary>
+        /// <param name="values">Selected clients</param>
+        public static void DeleteClients(IEnumerable<string> values)
+        {
+            //Get Clients used on Products
+            var productClients = ProductRepository.GetUsedClients();
+
+            var query = Query.In("_id", new BsonArray(values.Select(ObjectId.Parse).Except(productClients)));
+            _coll.Remove(query);
+        }
+       
+        /// <summary>
+        /// Inserts the list of clients, except ones whith the duplicate name
+        /// </summary>
+        /// <param name="values">Client names</param>
+        public static void InsertClients(IEnumerable<string> values)
+        {
+            var options = new MongoInsertOptions(_coll)
+                              {
+                                  CheckElementNames = true,
+                                  Flags = InsertFlags.ContinueOnError,
+                                  SafeMode = SafeMode.False
+                              }; //if name is dublicate skips it, and continue to insert others
+
+            _coll.InsertBatch(values.Select(o => new Client{ Name = o }), options);
         }
     }
 }
