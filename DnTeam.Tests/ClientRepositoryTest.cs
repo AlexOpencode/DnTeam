@@ -42,6 +42,31 @@ namespace DnTeam.Tests
         #endregion
 
         /// <summary>
+        ///A test for InsertClient
+        ///</summary>
+        [TestMethod]
+        public void InsertClientTest()
+        {
+            var client = new Client {Id = ObjectId.GenerateNewId(), Name = "Name1"};
+            var expectedStatus = TransactionStatus.Ok;
+
+            //TransactionStatus.Ok---------------------------------//
+            var actualStatus = ClientRepository.InsertClient(client);
+
+            Assert.AreEqual(expectedStatus,actualStatus);
+            var actualClientName = ClientRepository.GetName(client.Id);
+            Assert.AreEqual(client.Name, actualClientName);
+
+            //TransactionStatus.DuplicateClientName-----------------------------------//
+            client = new Client { Id = ObjectId.GenerateNewId(), Name = "Name1" };
+            expectedStatus = TransactionStatus.DuplicateItem;
+
+            actualStatus = ClientRepository.InsertClient(client);
+
+            Assert.AreEqual(expectedStatus, actualStatus);
+        }
+        
+        /// <summary>
         ///A test for GetAllClients
         ///</summary>
         [TestMethod]
@@ -116,7 +141,7 @@ namespace DnTeam.Tests
         public void GetNameTest()
         {
             var expected = new Client { Id = ObjectId.GenerateNewId(), Name = "Name1"};
-            ClientRepository.InsertTestClient(expected);
+            ClientRepository.InsertClient(expected);
 
             string actual = ClientRepository.GetName(expected.Id);
             
@@ -145,7 +170,7 @@ namespace DnTeam.Tests
         public void UpdateClientTest()
         {
             var client = new Client { Id = ObjectId.GenerateNewId(), Name = "Name1" };
-            ClientRepository.InsertTestClient(client);
+            ClientRepository.InsertClient(client);
             const string expectedName = "Name2";
 
             //TransactionStatus.Ok------------------//
@@ -156,10 +181,10 @@ namespace DnTeam.Tests
             var actualName = ClientRepository.GetName(client.Id);
             Assert.AreEqual(expectedName, actualName);
 
-            //TransactionStatus.DuplicateName--------------//
-            expectedStatus = TransactionStatus.DuplicateName;
+            //TransactionStatus.DuplicateClientName--------------//
+            expectedStatus = TransactionStatus.DuplicateItem;
             const string duplicateName = "Name1";
-            ClientRepository.InsertTestClient(new Client { Id = ObjectId.GenerateNewId(), Name = duplicateName });
+            ClientRepository.InsertClient(new Client { Id = ObjectId.GenerateNewId(), Name = duplicateName });
 
             actualStatus = ClientRepository.UpdateClient(client.Id.ToString(), duplicateName);
             Assert.AreEqual(expectedStatus, actualStatus);

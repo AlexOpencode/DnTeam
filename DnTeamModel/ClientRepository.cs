@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DnTeamData.Models;
 using MongoDB.Driver;
@@ -24,15 +25,28 @@ namespace DnTeamData
         {
             _coll = Db.GetCollection<Client>(collectionName);
         }
+        
+        #endif
+
         /// <summary>
         /// Inserts a new client to the database
         /// </summary>
-        /// <param name="client">Clients object</param>
-        public static void InsertTestClient(Client client)
+        /// <param name="client">Client object</param>
+        public static TransactionStatus InsertClient(Client client)
         {
-            _coll.Insert(client);
+            try
+            {
+                _coll.Insert(client, SafeMode.True);
+            }
+            catch (MongoSafeModeException ex)
+            {
+                if (ex.Message.Contains("duplicate")) return TransactionStatus.DuplicateItem;
+
+                throw;
+            }
+
+            return TransactionStatus.Ok;
         }
-        #endif
 
         /// <summary>
         /// Returns the list of all clients
@@ -78,10 +92,9 @@ namespace DnTeamData
             }
             catch(MongoSafeModeException ex)
             {
-                if (ex.Message.Contains("duplicate"))
-                    return TransactionStatus.DuplicateName;
+                if (ex.Message.Contains("duplicate")) return TransactionStatus.DuplicateItem;
 
-                return TransactionStatus.UndefinedMongoSafeModeException;
+                throw;
             }
 
             return TransactionStatus.Ok;
