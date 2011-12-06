@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using DnTeamData;
+using DnTeamData.Models;
 using Telerik.Web.Mvc;
 using DnTeam.Models;
 
@@ -17,9 +18,9 @@ namespace DnTeam.Controllers
         }
 
         [NonAction]
-        private IEnumerable<EditableProductModel> Return()
+        private IEnumerable<ProductModel> Return()
         {
-            return ProductRepository.GetAllProducts().Select(o => new EditableProductModel { Name = o.Name, Id = o.ToString(), Client = o.ClientName() });
+            return ProductRepository.GetAllProducts().Select(o => new ProductModel { Name = o.Name, Id = o.ToString(), Client = o.ClientName() });
         }
             
         [GridAction]
@@ -28,31 +29,37 @@ namespace DnTeam.Controllers
             return View(new GridModel(Return()));
         }
 
-        [GridAction]
-        public ActionResult Insert(EditableProductModel model)
+        public ActionResult Insert(string name, string client, bool isClientNew)
         {
-            if (TryUpdateModel(model))
-            {
-                ProductRepository.InsertProduct(model.Name, model.Client);
-            }
-            return View(new GridModel(Return()));
+            return new JsonResult {Data = GetTransactionStatusCode(ProductRepository.InsertProduct(name, client, isClientNew))};
         }
 
-        [GridAction]
-        public ActionResult Save(string id, EditableProductModel model)
+
+        public ActionResult Save(string id, string name, string client, bool isClientNew)
         {
-            if (TryUpdateModel(model))
-            {
-                ProductRepository.UpdateProduct(id, model.Name, model.Client);
-            }
-            return View(new GridModel(Return()));
+            return new JsonResult { Data = GetTransactionStatusCode(ProductRepository.UpdateProduct(id, name, client, isClientNew)) };
         }
 
-        [GridAction]
-        public ActionResult Delete(string id)
+        public ActionResult Delete(List<string> values)
         {
-            ProductRepository.DeleteProduct(id);
-            return View(new GridModel(Return()));
+            ProductRepository.DeleteProducts(values);
+            return Content("");
+        }
+
+        [NonAction]
+        private string GetTransactionStatusCode(TransactionStatus status)
+        {
+            switch (status)
+            {
+                case TransactionStatus.Ok:
+                    return null;
+
+                case TransactionStatus.DuplicateItem:
+                    return "Product with such name of the defined client already exists. Please, enter other name or select other client.";
+
+                default:
+                    return "Undefined error occured. Please, contact your administrator.";
+            }
         }
     }
 }

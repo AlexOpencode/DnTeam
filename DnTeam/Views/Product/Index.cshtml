@@ -4,32 +4,175 @@
 }
 
 <h2>Products</h2>
-  @*<script type="text/javascript">
-      function onEdit(e) {
-          $(e.form).find('#Client').data('tDropDownList').select(function (dataItem) {
-              return dataItem.Text == e.dataItem['Client'];
-          });
-      }
-    </script>*@
-@(Html.Telerik().Grid<EditableProductModel>()
-        .Name("Grid")
-            .DataKeys(keys => keys.Add(p => p.Id))
-            .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
-        .DataBinding(dataBinding => dataBinding.Ajax()
-                                        .Select("Select", "Product")
-                                        .Insert("Insert", "Product")
-                                        .Update("Save", "Product")
-                                        .Delete("Delete", "Product"))
+
+<p>
+    <a id="addNewValue" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Product</a>
+    <a id="editValue" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Product</a>
+    <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Products</a>
+</p>
+@(Html.Telerik().Grid<ProductModel>()
+        .Name("ProductsGrid").Sortable() 
+        .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Product"))
         .Columns(columns =>
         {
+            columns.Bound(o => o.Id).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Id #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
             columns.Bound(p => p.Name);
             columns.Bound(p => p.Client);
-            columns.Command(commands =>
-            {
-                commands.Edit().ButtonType(GridButtonType.ImageAndText);
-                commands.Delete().ButtonType(GridButtonType.ImageAndText);
-            }).Width(200).Title("Edit");
         })
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
-        .Sortable()        
 )
+
+@{Html.Telerik().Window().Name("ValueEditWindow").Title("Edit").Content(
+      @<text>
+                @Html.Hidden("ProductId")
+                <div class="editLine">
+                    <div class="editElement">
+                        <div class="editor-label">
+                            Name
+                        </div>
+                        <div class="editor-field">
+                            @Html.TextBox("Name")                      
+                        </div>
+                     </div>  
+                     <div class="editElement">
+                        <div class="editor-label">
+                            Client
+                        </div>
+                        <div class="editor-field">
+                            @Html.Telerik().ComboBox().Name("Client").BindTo(ViewData["Clients"] as SelectList).HighlightFirstMatch(true).Filterable(o=>o.FilterMode(AutoCompleteFilterMode.StartsWith))
+                        </div>
+                    </div>                    
+                </div>    
+                <div id="editResult" class="editLine"></div>            
+                <div class="editLine" style="padding-top: 20px;">
+                    <a class="t-button t-button-icontext yesButton" onclick="updateValue()"><span class="t-icon t-insert"></span><label>Save</label></a>
+                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('ValueEditWindow')"><span class="t-icon t-cancel"></span><label>Cancel</label></a>
+                </div>
+      </text>).Visible(false).Draggable(true).Scrollable(false).Modal(true).Width(600).Render();}
+
+@section HeadScripts {
+<script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
+<script type="text/javascript">
+    function addProduct() {
+        var client = $("#Client").data("tComboBox");
+        var name = $("#Name").val();
+        var isClientNew = false;
+
+        if (name.length <= 0) {
+            showError($("#editResult"), "Name can't be empty.");
+        }
+
+        if (client.value() == client.text()) {
+            if (client.text().length > 0) {
+                if (!confirm("Client with a such name doesn't exist. Do you want to add it and continue?")) {
+                    return;
+                }
+                isClientNew = true;
+            }
+            showError($("#editResult"), "Client can't be empty.");
+        }
+
+        $.post('@Url.Action("Insert", "Product")', { name: name, client: client.value(), isClientNew: isClientNew }, function (data) {
+            if (data == null) {
+                $("#ProductsGrid").data("tGrid").ajaxRequest();
+                closeWindow("ValueEditWindow");
+            } else {
+                showError($("#editResult"), data, "ValueEditWindow");
+            }
+        }, 'json');
+    }
+
+    function updateValue() {
+        var client = $("#Client").data("tComboBox");
+        var name = $("#Name").val();
+        var isClientNew = false;
+        var productId = $("#ProductId").val();
+
+        if (name.length <= 0) {
+            showError($("#editResult"), "Name can't be empty.");
+        }
+
+        if (client.value() == client.text()) {
+            if (client.text().length > 0) {
+                if (!confirm("Client with a such name doesn't exist. Do you want to add it and continue?")) {
+                    return;
+                }
+                isClientNew = true;
+            }
+            showError($("#editResult"), "Client can't be empty.");
+        }
+
+        $.post('@Url.Action("Save", "Product")', { id: productId, name: name, client: client.value(), isClientNew: isClientNew }, function (data) {
+            if (data == null) {
+                $("#ProductsGrid").data("tGrid").ajaxRequest();
+                closeWindow("ValueEditWindow");
+            } else {
+                showError($("#editResult"), data, "ValueEditWindow");
+            }
+        }, 'json');
+    }
+    $().ready(function () {
+
+        //Open insert window
+        $("#addNewValue").click(function (e) {
+            e.preventDefault();
+            $("#Name").val("");
+            $("#Client").data("tComboBox").select(0);
+            openWindow('ValueEditWindow', 'Insert', 'Insert', 'addProduct()');
+        });
+
+        //Open edit window
+        $("#editValue").click(function () {
+            var values = new Array();
+            $("input:checkbox[name=checkedRecords]:checked").each(function () {
+                values.push($(this));
+            });
+
+            if (values.length != 1) {
+                alert("Please, check one client to be edited.");
+            } else {
+                //get cell values
+                var ths = values[0].closest('tr').children('td');
+                //open edit departments window
+                openEditWindow(values[0].val(), ths[1].innerHTML, ths[2].innerHTML);
+            }
+        });
+
+        function openEditWindow(id, name, client) {
+            $("#ProductId").val(id);
+            $("#Name").val(name);
+            $("#Client").data("tComboBox").select(function(dataItem) {
+                return dataItem.Text == client;
+            });
+
+            openWindow('ValueEditWindow', 'Edit', 'Save', 'updateValue()');
+        }
+
+        //Delete selected values
+        $("#deleteValues").click(function (e) {
+            e.preventDefault();
+
+            var values = new Array();
+            $("input:checkbox[name=checkedRecords]:checked").each(function () {
+                values.push($(this).val());
+            });
+
+            if (values.length <= 0) {
+                alert("Please, check products to be deleted.");
+            } else {
+                if (confirm("Are you sure you want to delete these products?")) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@(Url.Action("Delete", "Product"))',
+                        dataType: 'json',
+                        traditional: true,
+                        data: { values: values },
+                        success: function () {
+                            $("#ProductsGrid").data("tGrid").ajaxRequest();
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+}

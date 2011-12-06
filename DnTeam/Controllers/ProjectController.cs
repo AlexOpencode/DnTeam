@@ -19,7 +19,7 @@ namespace DnTeam.Controllers
         {
             ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectStatuses));
             ViewData["ProjectTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectTypes));
-            ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsList(), "key", "value");
+            ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsDictionary(), "key", "value");
             ViewData["ProjectNoiseTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectNoiseTypes));
             ViewData["ProjectPriorityTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectPriorityTypes));
             ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
@@ -30,7 +30,7 @@ namespace DnTeam.Controllers
         {
             ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectStatuses));
             ViewData["ProjectTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectTypes));
-            ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsList(), "key", "value");
+            ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsDictionary(), "key", "value");
             ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
             ViewData["ProjectRoles"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectRoles));
             ViewData["ProjectNoiseTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectNoiseTypes));

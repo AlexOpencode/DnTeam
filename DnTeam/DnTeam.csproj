@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\ClientModels.cs" />
+    <Compile Include="Models\ProductModels.cs" />
     <Compile Include="Models\DepartmentModels.cs" />
     <Compile Include="Models\ProjectModels.cs" />
     <Compile Include="Models\SettingModels.cs" />

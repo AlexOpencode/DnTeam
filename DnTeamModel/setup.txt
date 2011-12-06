@@ -14,6 +14,9 @@ db.Enums.insert({_id : "ProjectPriorityTypes"})
 db.createCollection("Clients")
 db.Clients.ensureIndex({"Name" : 1}, {unique : true})
 
+db.createCollection("Products")
+db.Products.ensureIndex({"Name" : 1, "ClientId" : 1}, {unique : true})
+
 db.createCollection("Persons")
 db.Persons.insert(doc = { Name: 'Admin', IsActive: true, OpenId: 'http://igniter.myopenid.com/', LocatedIn: ObjectId('000000000000000000000000'), PrimaryManager: ObjectId('000000000000000000000000')})
 db.Persons.ensureIndex({"Name" : 1}, {unique : true})  
