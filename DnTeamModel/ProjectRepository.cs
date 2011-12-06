@@ -216,5 +216,17 @@ namespace DnTeamData
                                                 Level = o.Assignments.Select(x => x.Role).Aggregate((workingSentence, next) => next + ", " + workingSentence)
                                             });
         }
+
+        /// <summary>
+        /// Returns the list of product ids used by projects
+        /// </summary>
+        /// <returns>The list of product ids</returns>
+        internal static IEnumerable<ObjectId> GetUsedProducts()
+        {
+            var cursor = Coll.FindAll();
+            cursor.Fields = Fields.Include("Product");
+
+            return cursor.Select(o => o.Product);
+        }
     }
 }
