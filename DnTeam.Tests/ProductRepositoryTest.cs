@@ -87,9 +87,8 @@ namespace DnTeam.Tests
             var expectedNames = new List<string> { "Name1", "Name2", "Name3" };
             
             Dictionary<string, string> actual = ProductRepository.GetAllProductsDictionary();
-            
-            Assert.IsTrue(expectedNames.Except(actual.Select(o=>o.Value)).Count() == 0);
-            Assert.IsTrue(actual.Select(o => o.Value).Except(expectedNames).Count() == 0);
+
+            Assert.IsTrue(expectedNames.SequenceEqual(actual.Select(o => o.Value)));
             foreach (KeyValuePair<string, string> keyValuePair in actual)
             {
                 ObjectId id;
@@ -181,8 +180,7 @@ namespace DnTeam.Tests
             
             var actual = ProductRepository.GetUsedClientsTest().ToList();
             
-            Assert.IsTrue(expected.Except(actual).Count() == 0);
-            Assert.IsTrue(actual.Except(expected).Count() == 0);
+            Assert.IsTrue(expected.SequenceEqual(actual));
         }
     }
 }

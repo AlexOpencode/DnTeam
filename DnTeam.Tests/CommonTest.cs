@@ -24,8 +24,7 @@ namespace DnTeam.Tests
             var expected = new List<string> {"value1", "value2", "value3"} ; 
             List<string> actual = Common.SplitValues(values).ToList();
 
-            Assert.IsTrue(expected.Except(actual).Count() == 0);
-            Assert.IsTrue(actual.Except(expected).Count() == 0);
+            Assert.IsTrue(expected.SequenceEqual(actual));
         }
     }
 }

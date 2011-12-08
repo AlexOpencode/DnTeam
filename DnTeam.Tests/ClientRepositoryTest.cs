@@ -77,9 +77,7 @@ namespace DnTeam.Tests
 
             List<Client> actual = ClientRepository.GetAllClients().ToList();
             
-            Assert.IsTrue(expected.Except(actual.Select(o=>o.Name)).Count() == 0);
-            Assert.IsTrue(actual.Select(o => o.Name).Except(expected).Count() == 0);
-            
+            Assert.IsTrue(expected.SequenceEqual(actual.Select(o => o.Name)));
         }
 
         /// <summary>
@@ -125,8 +123,7 @@ namespace DnTeam.Tests
             Dictionary<string, string> actual = ClientRepository.GetClientsDictionary();
 
 
-            Assert.IsTrue(expected.Except(actual.Select(o => o.Value)).Count() == 0);
-            Assert.IsTrue(actual.Select(o => o.Value).Except(expected).Count() == 0);
+            Assert.IsTrue(expected.SequenceEqual(actual.Select(o => o.Value)));
             foreach (KeyValuePair<string, string> keyValuePair in actual)
             {
                 ObjectId id;
@@ -159,8 +156,7 @@ namespace DnTeam.Tests
             ClientRepository.InsertClients(values);
 
             var actual = ClientRepository.GetAllClients().ToList();
-            Assert.IsTrue(values.Distinct().Except(actual.Select(o => o.Name)).Count() == 0);
-            Assert.IsTrue(actual.Select(o => o.Name).Except(values.Distinct()).Count() == 0);
+            Assert.IsTrue(values.Distinct().SequenceEqual(actual.Select(o => o.Name)));
         }
 
         /// <summary>

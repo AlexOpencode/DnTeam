@@ -123,8 +123,7 @@ namespace DnTeam.Tests
 
             var actual = SettingsRepository.GetSettingValues(name);
             Assert.IsTrue(actual.Count() == 3);
-            Assert.IsTrue(actual.Except(values.Distinct()).Count() == 0);
-            Assert.IsTrue(values.Distinct().Except(actual).Count() == 0);
+            Assert.IsTrue(actual.SequenceEqual(values.Distinct()));
         }
 
         /// <summary>
