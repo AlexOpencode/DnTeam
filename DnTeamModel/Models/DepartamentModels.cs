@@ -1,104 +1,85 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace DnTeamData.Models
 {
-    //public class Department
-    //{
-    //    [BsonId]
-    //    public ObjectId Id { get; set; }
-    //    public string DepartmentId { get { return Id.ToString(); } }
-    //    public string Name { get; set; }
-    //    public List<Subsidiary> Subsidiaries { get; set; }
-    //    public ObjectId DepartmentOf { get; set; }
-    //    public string DepartmentOfId { get { return (DepartmentOf == ObjectId.Empty) ? string.Empty : DepartmentOf.ToString(); } }
-
-    //    public Department()
-    //    {
-    //        Id = ObjectId.GenerateNewId();
-    //        Subsidiaries = new List<Subsidiary>();
-    //    }
-        
-    //}
-
-    //public class Subsidiary
-    //{
-    //    [BsonId]
-    //    public ObjectId Id { get; set; }
-    //    public string SubsidiaryId { get { return Id.ToString(); } }
-    //    public string Location { get; set; }
-    //    public decimal BaseCost { get; set; }
-    //    public decimal BaseRate { get; set; }
-
-    //    public Subsidiary()
-    //    {
-    //        Id = ObjectId.GenerateNewId();
-    //    }
-    //} 
-    
-    //public class TDepartment
-    //{
-    //    public string Id { get; set; }
-    //    public string Name { get; set; }
-    //    public List<Subsidiary> Subsidiaries { get; set; }
-    //    public List<TDepartment> SubDepartments { get; set; }
-        
-    //    public TDepartment()
-    //    {
-    //        SubDepartments = new List<TDepartment>();
-    //    }
-    //}
-
-    //public class DepartmentId
-    //{
-    //    public string Name { get; set; }
-    //    public string Location { get; set; }
-    //}
-
-
-    //public class Department
-    //{
-    //    [BsonId]
-    //    public DepartmentId Id { get; set; }
-    //    public string DepartmentId { get { return Id.ToString(); } }
-    //    public DepartmentId DepartmentOf { get; set; }
-    //    public string DepartmentOfId { get { return DepartmentOf.ToString(); } }
-    //    public decimal Cost { get; set; }
-    //    public decimal Rate { get; set; }
-
-    //    public Department()
-    //    {
-    //        Id = ObjectId.GenerateNewId();
-
-    //    }
-    //}
-
-    public class Department
+    /// <summary>
+    /// A class describing Department
+    /// </summary>
+    public class Department : IEquatable<Department>
     {
+        /// <summary>
+        /// Department id
+        /// </summary>
         [BsonId]
         public ObjectId Id { get; set; }
-        public string DepartmentId { get { return Id.ToString(); } }
+        
+        /// <summary>
+        /// Department name
+        /// </summary>
         public string Name { get; set; }
+        
+        /// <summary>
+        /// Parent department id
+        /// </summary>
         public ObjectId DepartmentOf { get; set; }
-        public string DepartmentOfId { get { return (DepartmentOf == ObjectId.Empty) ? string.Empty : DepartmentOf.ToString(); } }
+        
+        /// <summary>
+        /// Parent department description (Location, Name)
+        /// </summary>
         public string ParentDepartment { get; set; }
+        
+        /// <summary>
+        /// Department location
+        /// </summary>
         public string Location { get; set; }
+        
+        /// <summary>
+        /// Base cost
+        /// </summary>
         public decimal Cost { get; set; }
+        
+        /// <summary>
+        /// Base rate
+        /// </summary>
         public decimal Rate { get; set; }
 
-        //public Department()
-        //{
-        //    Id = ObjectId.GenerateNewId();
+        /// <summary>
+        /// Override of ToSting method, returning department id
+        /// </summary>
+        /// <returns>String of department id</returns>
+        public override string ToString()
+        {
+            return Id.ToString();
+        }
 
-        //}
+        public bool Equals(Department other)
+        {
+            return Id == other.Id && Name == other.Name && DepartmentOf == other.DepartmentOf && Location == other.Location && Cost == other.Cost && Rate == other.Rate;
+        }
     }
 
+    /// <summary>
+    /// Decribes options of departments editing
+    /// </summary>
     public enum DepartmentEditStatus
     {
-        Created,
+        /// <summary>
+        /// Department was edited successfuly
+        /// </summary>
+        Ok,
+        /// <summary>
+        /// Department is duplicate
+        /// </summary>
         ErrorDuplicate,
-        ErrorUndefined,
-        
+        /// <summary>
+        /// Parent department was defined incorectly
+        /// </summary>
+        ErrorParentUndefined,
+        /// <summary>
+        /// Department name was empty
+        /// </summary>
+        ErrorNameIsEmpty,
     }
 }

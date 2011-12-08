@@ -40,7 +40,7 @@ namespace DnTeam.Controllers
 
         public ActionResult Save(string location, string name, string parentId, string parentName, decimal rate, decimal cost, string id = null)
         {
-            return new JsonResult { Data = DepartmentRepository.SaveDepartment(id, location, name, parentId, parentName, rate, cost) };
+            return new JsonResult { Data = GetStatusCode(DepartmentRepository.SaveDepartment(id, location, name, parentId, parentName, rate, cost)) };
         }
 
         
@@ -64,10 +64,32 @@ namespace DnTeam.Controllers
                        Cost = department.Cost,
                        Rate = department.Rate,
                        Location = department.Location,
-                       Id = department.DepartmentId,
+                       Id = department.ToString(),
                        Name = department.Name,
                        ParentDepartment = string.IsNullOrEmpty(department.ParentDepartment) ? "none" : department.ParentDepartment
                    };
+        }
+
+        [NonAction]
+        private string GetStatusCode(DepartmentEditStatus status)
+        {
+            switch (status)
+            {
+                case DepartmentEditStatus.Ok:
+                    return null;
+
+                case DepartmentEditStatus.ErrorDuplicate:
+                    return "Department with such name and location already exists. Please, enter other name or select other location.";
+
+                case DepartmentEditStatus.ErrorParentUndefined:
+                    return "Please, select parent department from the list or leave the field empty.";
+
+                case DepartmentEditStatus.ErrorNameIsEmpty:
+                    return "Please, enter the Name of the department.";
+
+                default:
+                    return "Undefined error occured. Please, contact your administrator.";
+            }
         }
     }
 }

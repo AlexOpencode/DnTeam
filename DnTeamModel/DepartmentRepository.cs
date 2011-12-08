@@ -17,7 +17,7 @@ namespace DnTeamData
         private static readonly MongoDatabase Db = Mongo.Init();
         private static MongoCollection<Department> _coll = Db.GetCollection<Department>("Departments");
 
-        #if DEBUG //Test variables
+        #if DEBUG //Test area
         /// <summary>
         /// Set the name of the Departments collection
         /// </summary>
@@ -26,7 +26,105 @@ namespace DnTeamData
         {
             _coll = Db.GetCollection<Department>(collectionName);
         }
+        /// <summary>
+        /// Public function to call internal Exists while testing
+        /// </summary>
+        public static bool ExistsTest(ObjectId id)
+        {
+            return Exists(id);
+        }
+        /// <summary>
+        /// Public function to call internal GetDepartmentName while testing
+        /// </summary>
+        public static string GetDepartmentNameTest(ObjectId id)
+        {
+            return GetDepartmentName(id);
+        }
+        /// <summary>
+        /// Public function to call private GetParentDependantDepartments while testing
+        /// </summary>
+        public static IEnumerable<ObjectId> GetParentDependantDepartmentsTest(List<ObjectId> departments)
+        {
+            return GetParentDependantDepartments(departments);
+        }
         #endif
+
+        /// <summary>
+        /// Returns the list of departments that are being used as parent and departments that use them are not in the list
+        /// </summary>
+        /// <param name="departments">The list of departments</param>
+        /// <returns>List of Departments' ObjectId</returns>
+        private static IEnumerable<ObjectId> GetParentDependantDepartments(List<ObjectId> departments)
+        {
+            var query = Query.In("DepartmentOf", new BsonArray(departments));
+            var cursor = _coll.Find(query);
+            cursor.Fields = Fields.Include(new[] { "_id", "DepartmentOf" });
+            var parents = cursor.Select(o => o.DepartmentOf).Distinct().ToList();
+
+            RemoveIfAllChildrenArePresentOrThereAreNoChildren(departments, cursor, parents);
+            
+            return parents;
+        }
+
+        /// <summary>
+        /// Recursive method that removes id from the list of departments if all of its children are present in the list and their children don't have children ...
+        /// </summary>
+        /// <param name="departments">The list of all department ids</param>
+        /// <param name="cursor">Mongo Cursor, providing acces to the list of all departments</param>
+        /// <param name="parents"></param>
+        private static void RemoveIfAllChildrenArePresentOrThereAreNoChildren(List<ObjectId> departments, MongoCursor<Department> cursor, List<ObjectId> parents)
+        {
+            var localParents = new List<ObjectId>(parents);
+            foreach (var dep in localParents)
+            {
+                ObjectId pId = dep;
+                //Get all children
+                var children = cursor.Where(o => o.DepartmentOf == pId).Select(o => o.Id).Distinct().ToList();
+                //If no children, remove department
+                if (children.Count() == 0)
+                {
+                    parents.Remove(dep);
+                }
+                else
+                {
+                    //Validate whether all children are present in the departments
+                    if (children.Except(departments).Count() == 0)
+                    {
+                        //Validate if their children have children
+                        RemoveIfAllChildrenArePresentOrThereAreNoChildren(departments, cursor, children);
+
+                        //If no children, remove department
+                        if (children.Count() == 0)
+                        {
+                            parents.Remove(dep);
+                        }
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Validates whether deparment exists in the database
+        /// </summary>
+        /// <param name="id">Department Id</param>
+        /// <returns>True if deparment exists</returns>
+        internal static bool Exists(ObjectId id)
+        {
+            var query = Query.EQ("_id", id);
+
+            return _coll.Count(query) > 0;
+        }
+
+        /// <summary>
+        /// Retuns the name of the defined department
+        /// </summary>
+        /// <param name="id">Department Id</param>
+        /// <returns>"Location, Name"</returns>
+        internal static string GetDepartmentName(ObjectId id)
+        {
+            var department = _coll.FindOneById(id);
+            return string.Format("{0}, {1}", department.Location, department.Name);
+        }
 
         /// <summary>
         /// Returns the list of all departments
@@ -56,13 +154,18 @@ namespace DnTeamData
         /// <param name="parentName">Parent Department Location, Name</param>
         /// <param name="rate">Basic Rate</param>
         /// <param name="cost">Basic Rate</param>
-        /// <returns>DepartmentEditStatus</returns>
-        public static object[] SaveDepartment(string id, string location, string name, string parentId, string parentName, decimal rate, decimal cost)
+        /// <returns>Department Edit Status</returns>
+        public static DepartmentEditStatus SaveDepartment(string id, string location, string name, string parentId, string parentName, decimal rate, decimal cost)
         {
             try
             {
+                if(string.IsNullOrEmpty(name))
+                    return DepartmentEditStatus.ErrorNameIsEmpty;
+
                 ObjectId departmentOf;
-                ObjectId.TryParse(parentId, out departmentOf);
+                if(!ObjectId.TryParse(parentId, out departmentOf) && !string.IsNullOrEmpty(parentName))
+                    return  DepartmentEditStatus.ErrorParentUndefined;
+                
 
                 var department = new Department
                                      {
@@ -72,18 +175,16 @@ namespace DnTeamData
                                          Cost = cost,
                                          Rate = rate,
                                          Location = location,
-                                         ParentDepartment = string.IsNullOrEmpty(parentName) ? string.Empty : parentName.Split(',').ElementAt(1).Trim()
+                                         ParentDepartment = string.IsNullOrEmpty(parentName) ? string.Empty : parentName//.Split(',').ElementAt(1).Trim()
                                      };
                 _coll.Save(department, SafeMode.True);
 
-                return new object[] { DepartmentEditStatus.Created, department.Id.ToString() };
+                return DepartmentEditStatus.Ok;
             }
             catch (MongoSafeModeException ex)
             {
-                if (ex.Message.Contains("duplicate"))
-                    return new object[] {DepartmentEditStatus.ErrorDuplicate, ex.Message};
-
-                return new object[] { DepartmentEditStatus.ErrorUndefined, ex.Message };
+                if (ex.Message.Contains("duplicate")) return DepartmentEditStatus.ErrorDuplicate;
+                throw;
             }
         }
 
@@ -93,8 +194,7 @@ namespace DnTeamData
         /// <param name="values">The list of departments' ids to be deleted.</param>
         public static void DeleteDepartments(List<string> values)
         {
-
-            //conbert ids to ObjectId
+            //convert ids to ObjectId
             List<ObjectId> departments = values.Where(o => !string.IsNullOrEmpty(o)).Select(ObjectId.Parse).ToList();
             if (departments.Count() <= 0) return;
 
@@ -103,28 +203,14 @@ namespace DnTeamData
             if (departments.Count() <= 0) return;
 
             //validate department is not parent
-            departments = departments.Except(GetParentDepartments(departments)).ToList();
+            departments = departments.Except(GetParentDependantDepartments(departments)).ToList();
 
             if (departments.Count() <= 0) return;
 
             var query = Query.In("_id", new BsonArray(departments));
             _coll.Remove(query);
         }
-
-        /// <summary>
-        /// Returns the list of departments that are beaing used as parent and departments that use them are not in the list
-        /// </summary>
-        /// <param name="departments">The list of departments</param>
-        /// <returns>List of Departments' ObjectId</returns>
-        private static IEnumerable<ObjectId> GetParentDepartments(List<ObjectId> departments)
-        {
-            var query = Query.And(Query.In("DepartmentOf", new BsonArray(departments)), Query.NotIn("_id", new BsonArray(departments))); 
-            var result = _coll.Find(query);
-            result.Fields = Fields.Include(new[] { "DepartmentOf" });
-
-            return result.Select(o => o.DepartmentOf);
-        }
-
+        
         /// <summary>
         /// Returns the list of offered values to be used for filter
         /// </summary>
@@ -150,13 +236,13 @@ namespace DnTeamData
         /// <summary>
         /// Returns the list of filtered parameters
         /// </summary>
-        /// <param name="querys">the list of queries of kind ColumnName~value1,value2</param>
+        /// <param name="queries">the list of queries of kind ColumnName~value1,value2</param>
         /// <returns>The list of departments</returns>
-        public static List<Department> GetFilteredDepartments(List<string> querys)
+        public static List<Department> GetFilteredDepartments(List<string> queries)
         {
             var andQueryList = new List<IMongoQuery>();
 
-            foreach (string query in querys)
+            foreach (string query in queries)
             {
                 var v = query.Split('~');
                 var names = v[1].Split(',');
@@ -167,29 +253,6 @@ namespace DnTeamData
 
             return _coll.Find(Query.And(andQueryList.ToArray())).ToList();
 
-        }
-
-        /// <summary>
-        /// Validates whether deparment exists in the database
-        /// </summary>
-        /// <param name="id">Department Id</param>
-        /// <returns>True if deparment exists</returns>
-        internal static bool Exists(ObjectId id)
-        {
-            var query = Query.EQ("_id", id);
-
-            return _coll.Count(query) > 0;
-        }
-
-        /// <summary>
-        /// Retuns the name of the defined department
-        /// </summary>
-        /// <param name="id">Department Id</param>
-        /// <returns>"Location, Name"</returns>
-        internal static string GetDepartmentName(ObjectId id)
-        {
-            var department = _coll.FindOneById(id);
-            return string.Format("{0}, {1}", department.Location, department.Name);
         }
 
         /// <summary>
