@@ -22,7 +22,7 @@
         {
             menu.Add().Text("Home").Action("Index", "Home");
             menu.Add().Text("Projects").Action("Index", "Project");
-            menu.Add().Text("People").Action("List", "Account").Items(item => item.Add().Text("Inactive").Action("Inactive", "Account"));
+            menu.Add().Text("People").Action("Index", "Person").Items(item => item.Add().Text("Inactive").Action("Inactive", "Person"));
             menu.Add().Text("Clients").Action("Index", "Client");
             menu.Add().Text("Products").Action("Index", "Product");
             menu.Add().Text("Departments").Action("Index", "Department");

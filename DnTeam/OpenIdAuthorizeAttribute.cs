@@ -8,9 +8,8 @@ namespace DnTeam
         {
             if (!filterContext.HttpContext.User.Identity.IsAuthenticated)
             {
-                filterContext.HttpContext.Response.Redirect(string.Format("~/Account/LogIn?ReturnUrl={0}", filterContext.HttpContext.Request.Url));
+                filterContext.HttpContext.Response.Redirect(string.Format("~/Person/LogIn?ReturnUrl={0}", filterContext.HttpContext.Request.Url));
             }
         }
-
     }
 }

@@ -13,7 +13,7 @@ using DotNetOpenAuth.Messaging;
 
 namespace DnTeam.Controllers
 {
-    public class AccountController : Controller
+    public class PersonController : Controller
     {
         private static readonly OpenIdRelyingParty Openid = new OpenIdRelyingParty();
 
@@ -22,7 +22,7 @@ namespace DnTeam.Controllers
         {
             return (person == null) ? new PersonModel() : new PersonModel
             {
-                Id = person.PersonId,
+                Id = person.ToString(),
                 Name = person.Name,
                 DoB = person.DoB,
                 Comments = person.Comments,
@@ -45,11 +45,11 @@ namespace DnTeam.Controllers
         [NonAction]
         private IEnumerable<PersonGridModel> Return(bool isActive = true)
         {
-            return PersonRepository.GetAllPersons(isActive).Select(o => new PersonGridModel
+            return PersonRepository.GetAllPeople(isActive).Select(o => new PersonGridModel
                                                                      {
-                UserId = o.PersonId,
+                Id = o.ToString(),
                 PrimaryManager = o.PrimaryManagerName,
-                UserName = o.Name,
+                Name = o.Name,
                 Location = o.LocationName,
                 TechnologySkills = (o.TechnologySpecialties.Count > 0) 
                     ? o.TechnologySpecialties.Select(s => s.Name).Aggregate((workingSentence, next) => next + ", " + workingSentence)
@@ -152,12 +152,6 @@ namespace DnTeam.Controllers
             var model = MapPersonToModel(PersonRepository.GetPerson(id), personsList);
             ViewData["PersonsList"] = new SelectList(personsList, "key", "value");
             ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value");
-            
-            //Filter TechnologySpecialtyNames - display only ones that are not used is Person's specialties
-            //var technologySpecialtyNames = SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyNames);
-            //ViewData["TechnologySpecialtyNames"] = (technologySpecialtyNames.Count() > 0) 
-            //    ? new SelectList(technologySpecialtyNames.Where(o=> !model.TechnologySpecialties.Contains(o)))
-            //    : new SelectList(new List<string>());
             ViewData["TechnologySpecialtyNames"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyNames));
             ViewData["TechnologySpecialtyLevels"] = SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyLevels);
             
@@ -165,7 +159,7 @@ namespace DnTeam.Controllers
         }
 
         [HttpGet]
-        public ActionResult List()
+        public ActionResult Index()
         {
             ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
             ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value"); 
@@ -178,33 +172,21 @@ namespace DnTeam.Controllers
             return View();
         }
 
-        [GridAction]
-        public ActionResult Insert(PersonGridModel model)
+        public ActionResult Insert(string name, string location, string primaryManager)
         {
-            if (TryUpdateModel(model))
-            {
-                PersonRepository.CreatePerson(model.UserName, model.Location, model.PrimaryManager);
-            }
-
-            return View(new GridModel(Return()));
+            return new JsonResult { Data = GetTransactionStatusCode(PersonRepository.CreatePerson(name, location, primaryManager)) };
         }
 
-        //[GridAction]
-        //public ActionResult Save(string id, PersonGridModel model)
-        //{
-        //    if (TryUpdateModel(model))
-        //    {
-        //        PersonRepository.UpdatePerson(id, model.UserName, model.Location, model.PrimaryManager);
-        //    }
-
-        //    return View(new GridModel(Return()));
-        //}
-
-        [GridAction]
-        public ActionResult Delete(string id)
+        public ActionResult GetPeopleList()
         {
-            PersonRepository.DeletePerson(id);
-            return View(new GridModel(Return()));
+            return new JsonResult { Data = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value") };
+        }
+
+        public ActionResult Delete(List<string> values)
+        {
+            PersonRepository.DeletePeople(values);
+            
+            return Content("");
         }
 
         [GridAction]
@@ -241,7 +223,7 @@ namespace DnTeam.Controllers
                 }
             }
 
-            return new JsonResult { Data = PersonRepository.UpdateProperty(id, name, value) };
+            return new JsonResult { Data = GetTransactionStatusCode(PersonRepository.UpdateProperty(id, name, value)) };
         }
 
         [HttpPost]
@@ -253,42 +235,36 @@ namespace DnTeam.Controllers
         [HttpPost]
         public ActionResult DeleteElementFromPersonProperty(string id, string name, string value)
         {
-            return new JsonResult { Data = PersonRepository.DeleteValueFromPropertySet(id, name, value) };
+            PersonRepository.DeleteValueFromPropertySet(id, name, value);
+            
+            return Content("");
         }
         #endregion
 
-        #region Status Codes
-        private static string ErrorCodeToString(PersonCreateStatus createStatus)
+        [NonAction]
+        private static string GetTransactionStatusCode(PersonEditStatus status)
         {
-            // See http://go.microsoft.com/fwlink/?LinkID=177550 for
-            // a full list of status codes.
-            switch (createStatus)
+            switch (status)
             {
-                case PersonCreateStatus.DuplicateUserName:
+                case PersonEditStatus.Ok:
+                    return null;
+
+                case PersonEditStatus.ErrorDuplicateName:
                     return "User name already exists. Please enter a different user name.";
 
-                case PersonCreateStatus.DuplicateEmail:
-                    return "A user name for that e-mail address already exists. Please enter a different e-mail address.";
+                case PersonEditStatus.ErrorDuplicateItem:
+                    return "User with such value already exists. Please enter a different value.";
 
-                case PersonCreateStatus.InvalidPassword:
-                    return "The password provided is invalid. Please enter a valid password value.";
+                case PersonEditStatus.ErrorInvalidPrimaryManager:
+                    return "Please, select primary manager from the list or leave the field empty.";
 
-                case PersonCreateStatus.InvalidEmail:
-                    return "The e-mail address provided is invalid. Please check the value and try again.";
-
-                case PersonCreateStatus.InvalidUserName:
-                    return "The user name provided is invalid. Please check the value and try again.";
-
-                case PersonCreateStatus.ProviderError:
-                    return "The authentication provider returned an error. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
-
-                case PersonCreateStatus.UserRejected:
-                    return "The user creation request has been canceled. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+                case PersonEditStatus.ErrorInvalidLocation:
+                    return "Please, select department location from the list or leave the field empty.";
 
                 default:
                     return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
             }
         }
-        #endregion
+        
     }
 }

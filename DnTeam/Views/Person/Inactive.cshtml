@@ -1,0 +1,22 @@
+﻿@model IEnumerable<DnTeam.Models.PersonGridModel>
+
+@{
+    ViewBag.Title = "List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Inactive People</h2>
+
+@(Html.Telerik().Grid(Model)
+        .Name("UsersGrid")
+        .DataBinding(dataBinding => dataBinding.Ajax().Select("SelectInActive", "Person"))
+        .Columns(columns =>
+        {
+            columns.Bound(o => o.Id).Sortable(false)
+                .ClientTemplate("<a href='" + @Url.Action("Details", "Person") + "/<#= Id #>'><img class='link-button' src='" + @Url.Content("~/Content/link.png") + "' alt='View'/></a>")
+                .Width(50).Title("").HtmlAttributes(new { style = "text-align:center" }); 
+            columns.Bound(o => o.Name).Width(200);
+            columns.Bound(o => o.Location);
+            columns.Bound(o => o.PrimaryManager);
+            columns.Bound(o => o.TechnologySkills);
+        }))

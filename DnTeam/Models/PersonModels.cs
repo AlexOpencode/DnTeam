@@ -8,7 +8,6 @@ using DnTeamData.Models;
 
 namespace DnTeam.Models
 {
-
  
     public class PersonModel
     {
@@ -84,14 +83,10 @@ namespace DnTeam.Models
 
     public class PersonGridModel
     {
-        public string Details
-        {
-            get { return string.IsNullOrEmpty(UserId) ? "" : "<a href=\"/Account/Details/" + UserId + "\"><img class=\"link-button\" src=\"../../Content/link.png\" alt=\"View\"/></a>"; }
-        }
-        public string UserId { get; set; }
+        public string Id { get; set; }
 
         [Display(Name = "Name"), Required]
-        public string UserName { get; set; }
+        public string Name { get; set; }
 
         [UIHint("Locations")]
         [Display(Name = "Location")]
@@ -130,7 +125,7 @@ namespace DnTeam.Models
         public DateTime LastUsed { get; set; }
 
         /// <summary>
-        /// Note to last project
+        /// Some notes to last project
         /// </summary>
         public string LastProjectNote { get; set; }
     }
