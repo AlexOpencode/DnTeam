@@ -1,10 +1,13 @@
-function showOk(id) {
+function showOk(element) {
+    var id = element.attr("id");
+    id = (id == null) ? new Date().getTime() : id;
+    
     var tmpId = 'Res' + id;
     var theSpan = $('#' + tmpId);
     if (theSpan.length > 0) { theSpan.remove(); }
     
     var ok = '<span class="resultOk" id="' + tmpId + '">Saved!</span>';
-    $('#' + id).after(ok);
+    element.after(ok);
     $('#' + tmpId).delay(3600).fadeOut('fast', function () {
         $('#' + tmpId).remove();
     });
