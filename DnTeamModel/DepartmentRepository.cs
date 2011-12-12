@@ -157,8 +157,7 @@ namespace DnTeamData
         /// <returns>Department Edit Status</returns>
         public static DepartmentEditStatus SaveDepartment(string id, string location, string name, string parentId, string parentName, decimal rate, decimal cost)
         {
-            try
-            {
+           
                 if(string.IsNullOrEmpty(name))
                     return DepartmentEditStatus.ErrorNameIsEmpty;
 
@@ -175,8 +174,10 @@ namespace DnTeamData
                                          Cost = cost,
                                          Rate = rate,
                                          Location = location,
-                                         ParentDepartment = string.IsNullOrEmpty(parentName) ? string.Empty : parentName//.Split(',').ElementAt(1).Trim()
+                                         ParentDepartment = string.IsNullOrEmpty(parentName) ? string.Empty : parentName
                                      };
+            try
+            {
                 _coll.Save(department, SafeMode.True);
 
                 return DepartmentEditStatus.Ok;
