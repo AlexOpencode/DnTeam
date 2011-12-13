@@ -87,6 +87,7 @@
     <Compile Include="Models\SettingModels.cs" />
     <Compile Include="OpenIdAuthorizeAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\2011.3.1115\Metro\editor.png" />
