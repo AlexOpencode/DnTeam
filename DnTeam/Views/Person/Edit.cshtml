@@ -483,7 +483,8 @@
 
     function onChangeDoB(e) {
         var parentdiv = $("#DoB").closest(".editor-field");
-        postUpdate('DoB', e.value.toDateString(), $(parentdiv));
+        var value = (e.value == null) ? "" : e.value.toDateString();
+        postUpdate('DoB', value, $(parentdiv));
     }
     function onChangeLocatedIn(e) {
         var parentdiv = $("#LocatedIn").closest(".editor-field");
