@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 using MongoDB.Bson;
@@ -65,6 +66,11 @@ namespace DnTeamData
                     return true;
 
                 case "ObjectId":
+                    if(string.IsNullOrEmpty(value))
+                    {
+                        val = ObjectId.Empty;
+                        return true;
+                    }
                     ObjectId objectId;
                     if (ObjectId.TryParse(value, out objectId))
                     {
@@ -130,6 +136,5 @@ namespace DnTeamData
             nDate = isParsed ? date : new DateTime?();
             return isParsed;
         }
-
     }
 }
