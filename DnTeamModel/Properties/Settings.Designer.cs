@@ -40,5 +40,14 @@ namespace DnTeamData.Properties {
                 return ((string)(this["ConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://igniter.myopenid.com/")]
+        public string AdminOpenId {
+            get {
+                return ((string)(this["AdminOpenId"]));
+            }
+        }
     }
 }

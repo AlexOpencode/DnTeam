@@ -139,7 +139,7 @@ namespace DnTeamData
             }
 
             var query = Query.EQ("_id", ObjectId.Parse(id));
-            var update = Update.Set(name, val);
+            var update = Update.Set(name, val ?? BsonNull.Value);
 
             try
             {
@@ -213,14 +213,21 @@ namespace DnTeamData
         /// <summary>
         /// Validates if the OpenId is assigned to a user
         /// </summary>
-        /// <param name="id">OpenId (is "http" or "https" URI, or an XRI)</param>
+        /// <param name="openId">OpenId (is "http" or "https" URI, or an XRI)</param>
         /// <returns>User name</returns>
-        public static string ValidateIdentifier(string id)
+        public static string ValidateIdentifier(string openId)
         {
-            var query = Query.And(new [] {Query.EQ("OpenId", id), Query.EQ("IsActive", true)});
+            var query = Query.And(new [] {Query.EQ("OpenId", openId), Query.EQ("IsActive", true)});
             var res = _coll.FindOne(query);
 
-            return (res == null) ? string.Empty : res.Name;
+            if (res != null) 
+                return res.Name;
+
+            //check if openId belongs to admin user
+            if (Properties.Settings.Default.AdminOpenId == openId)
+                return "Administrator";
+
+            return null;
         }
 
         /// <summary>

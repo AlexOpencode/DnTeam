@@ -8,5 +8,8 @@
     <Setting Name="ConnectionString" Type="System.String" Scope="Application">
       <Value Profile="(Default)">mongodb://localhost</Value>
     </Setting>
+    <Setting Name="AdminOpenId" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://igniter.myopenid.com/</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

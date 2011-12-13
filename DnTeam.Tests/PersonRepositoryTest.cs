@@ -485,12 +485,11 @@ namespace DnTeam.Tests
             string actual = PersonRepository.ValidateIdentifier(openId);
 
             Assert.AreEqual(expected, actual);
-
-            expected = string.Empty;
+            
             openId = "foo openId";
             actual = PersonRepository.ValidateIdentifier(openId);
 
-            Assert.AreEqual(expected, actual);
+            Assert.IsTrue(string.IsNullOrEmpty(actual));
         }
     }
 }
