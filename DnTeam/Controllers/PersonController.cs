@@ -148,8 +148,14 @@ namespace DnTeam.Controllers
         [HttpGet]
         public ActionResult Edit(string id)
         {
+            var person = PersonRepository.GetPerson(id);
+
+            //Prevent editing if person is not active
+            if (!person.IsActive) 
+                return RedirectToAction("Index");
+
             var personsList = PersonRepository.GetActivePersonsList();
-            var model = MapPersonToModel(PersonRepository.GetPerson(id), personsList);
+            var model = MapPersonToModel(person, personsList);
             ViewData["PersonsList"] = new SelectList(personsList.Where(o => o.Key != id), "key", "value");
             ViewData["NullablePersonsList"] = personsList.Where(o => o.Key != id).ToSelectList(string.Empty, "wanted");
             ViewData["LocationsList"] = DepartmentRepository.GetDepartmentsDictionary().ToSelectList(string.Empty, "none");
