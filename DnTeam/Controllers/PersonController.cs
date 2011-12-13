@@ -150,8 +150,9 @@ namespace DnTeam.Controllers
         {
             var personsList = PersonRepository.GetActivePersonsList();
             var model = MapPersonToModel(PersonRepository.GetPerson(id), personsList);
-            ViewData["PersonsList"] = new SelectList(personsList, "key", "value");
-            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value");
+            ViewData["PersonsList"] = new SelectList(personsList.Where(o => o.Key != id), "key", "value");
+            ViewData["NullablePersonsList"] = personsList.Where(o => o.Key != id).ToSelectList(string.Empty, "wanted");
+            ViewData["LocationsList"] = DepartmentRepository.GetDepartmentsDictionary().ToSelectList(string.Empty, "none");
             ViewData["TechnologySpecialtyNames"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyNames));
             ViewData["TechnologySpecialtyLevels"] = SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyLevels);
             

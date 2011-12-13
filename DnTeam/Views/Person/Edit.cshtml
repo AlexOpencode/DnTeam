@@ -73,7 +73,7 @@
                     @Html.LabelFor(model => model.PrimaryManager)
                 </div>
                 <div class="editor-field">
-                    @(Html.Telerik().DropDownListFor(model => model.PrimaryManager).BindTo(ViewData["PersonsList"] as SelectList).ClientEvents(events => events.OnChange("onChangePrimaryManager")))
+                    @(Html.Telerik().DropDownListFor(model => model.PrimaryManager).BindTo((ViewData["NullablePersonsList"] as SelectList)).ClientEvents(events => events.OnChange("onChangePrimaryManager")))
                 </div>
             </div>
             <div class="editElement">
@@ -100,7 +100,7 @@
                     @Html.LabelFor(model => model.PrimaryPeer)
                 </div>
                 <div class="editor-field">
-                    @(Html.Telerik().DropDownListFor(model => model.PrimaryPeer).BindTo(ViewData["PersonsList"] as SelectList).ClientEvents(events => events.OnChange("onChangePrimaryPeer")))
+                    @(Html.Telerik().DropDownListFor(model => model.PrimaryPeer).BindTo(ViewData["NullablePersonsList"] as SelectList).ClientEvents(events => events.OnChange("onChangePrimaryPeer")))
                 </div>
             </div>
             <div class="editElement">
