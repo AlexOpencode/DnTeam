@@ -476,7 +476,7 @@ namespace DnTeam.Tests
         [TestMethod]
         public void ValidateIdentifierTest()
         {
-            string expected = "name1";
+            const string expected = "name1";
             string openId = "test.myopenid.com";
             PersonRepository.CreatePerson(expected, string.Empty, string.Empty);
             var id = PersonRepository.GetAllPeople(true).First().Id.ToString();

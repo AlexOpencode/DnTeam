@@ -54,6 +54,9 @@ namespace DnTeamData.Models
             return Id.ToString();
         }
 
+        /// <summary>
+        /// Implements IEquatable interface
+        /// </summary>
         public bool Equals(Department other)
         {
             return Id == other.Id && Name == other.Name && DepartmentOf == other.DepartmentOf && Location == other.Location && Cost == other.Cost && Rate == other.Rate;

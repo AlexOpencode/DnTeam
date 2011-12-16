@@ -4,6 +4,7 @@ namespace DnTeam.Controllers
 {
     public class HomeController : Controller
     {
+        
         [OpenIdAuthorize]
         public ActionResult Index()
         {

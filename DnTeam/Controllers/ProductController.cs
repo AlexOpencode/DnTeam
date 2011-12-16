@@ -8,6 +8,7 @@ using DnTeam.Models;
 
 namespace DnTeam.Controllers
 {
+    [OpenIdAuthorize]
     public class ProductController : Controller
     {
 

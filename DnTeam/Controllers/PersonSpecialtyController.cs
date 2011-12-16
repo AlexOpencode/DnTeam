@@ -9,6 +9,7 @@ using DnTeam.Models;
 
 namespace DnTeam.Controllers
 {
+    [OpenIdAuthorize]
     public class PersonSpecialtyController : Controller
     {
         [NonAction]
@@ -33,9 +34,9 @@ namespace DnTeam.Controllers
         [HttpPost]
         public ActionResult Save(string id, string name, string value, string lastUsed, string firstUsed, string note, bool update = false)
         {
-            if(update) return new JsonResult { Data = GetTransactionStatusCode(PersonRepository.UpdateTechnologySpecialty(id, name, value, lastUsed, firstUsed, note)) };
-
-            return new JsonResult { Data = GetTransactionStatusCode(PersonRepository.CreateTechnologySpecialty(id, name, value, lastUsed, firstUsed, note)) };
+            return update 
+                ? new JsonResult { Data = GetTransactionStatusCode(PersonRepository.UpdateTechnologySpecialty(id, name, value, lastUsed, firstUsed, note)) } 
+                : new JsonResult { Data = GetTransactionStatusCode(PersonRepository.CreateTechnologySpecialty(id, name, value, lastUsed, firstUsed, note)) };
         }
 
         [HttpPost]

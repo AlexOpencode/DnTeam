@@ -243,6 +243,9 @@ namespace DnTeamData.Models
         /// </summary>
         public string LastProjectNote { get; set; }
 
+        /// <summary>
+        /// Implements IEquatable interface
+        /// </summary>
         public bool Equals(Specialty other)
         {
             return Name == other.Name && Level == other.Level && FirstUsed == other.FirstUsed &&
@@ -299,6 +302,9 @@ namespace DnTeamData.Models
         /// Value's format is not valid
         /// </summary>
         ErrorUndefinedFormat,
+        /// <summary>
+        /// Error occured but it is undefined
+        /// </summary>
         ErrorUndefined
     }
 }

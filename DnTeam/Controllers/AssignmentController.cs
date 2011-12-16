@@ -1,11 +1,15 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using DnTeamData;
+using DnTeamData.Models;
 using Telerik.Web.Mvc;
 using DnTeam.Models;
 
 namespace DnTeam.Controllers
 {
+
+    [OpenIdAuthorize]
     public class AssignmentController : Controller
     {
         [NonAction]
@@ -19,7 +23,7 @@ namespace DnTeam.Controllers
                                                                                          Person = o.PersonName,
                                                                                          Role = o.Role,
                                                                                          StartDate = o.StartDate,
-                                                                                         AssignmentId = o.AssignmentId
+                                                                                         AssignmentId = o.ToString()
                                                                                      }));
         }
 
@@ -28,34 +32,38 @@ namespace DnTeam.Controllers
         {
             return View(Return(projectId));
         }
-
-        [GridAction]
-        public ActionResult Insert(string projectId)
+        
+        public ActionResult Save(string id, string assignmentId, string role, string person, string note, string startDate, string endDate, int commitment)
         {
-            var model = new AssignmentModel();
-            if (TryUpdateModel(model))
-            {
-                ProjectRepository.CreateAssignment(projectId, model.StartDate, model.EndDate, model.Person, model.Role, model.Commitment, model.Note);
-            }
-            return View(Return(projectId));
+            return string.IsNullOrEmpty(assignmentId) 
+                ? new JsonResult { Data = GetTransactionStatusCode(ProjectRepository.InsertAssignment(id, role, person, note, startDate, endDate, commitment)) } 
+                : new JsonResult { Data = GetTransactionStatusCode(ProjectRepository.UpdateAssignment(id, assignmentId, role, person, note, startDate, endDate, commitment)) };
+        }
+        
+        public ActionResult Delete(string projectId, List<string> values)
+        {
+            ProjectRepository.DeleteAssignments(projectId, values);
+
+            return Content("");
         }
 
-        [GridAction]
-        public ActionResult Save(string id, string projectId)
+        [NonAction]
+        private static string GetTransactionStatusCode(AssignmentEditStatus status)
         {
-            var model = new AssignmentModel();
-            if (TryUpdateModel(model))
+            switch (status)
             {
-                ProjectRepository.UpdateAssignment(projectId, id, model.StartDate, model.EndDate, model.Person, model.Role, model.Commitment, model.Note);
-            }
-            return View(Return(projectId));
-        }
+                case AssignmentEditStatus.Ok:
+                    return null;
 
-        [GridAction]
-        public ActionResult Delete(string id, string projectId)
-        {
-            ProjectRepository.DeleteAssignment(projectId, id);
-            return View(Return(projectId));
+                case AssignmentEditStatus.ErrorAssignmentHasNotBeenUpdated:
+                    return "Assignment has not been updated. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+
+                case AssignmentEditStatus.ErrorAssignmentHasNotBeenInserted:
+                    return "Assignment has not been inserted. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+
+                default:
+                    return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+            }
         }
     }
 }

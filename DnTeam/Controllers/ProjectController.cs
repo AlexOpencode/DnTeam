@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using DnTeam.Models;
 using DnTeamData;
@@ -7,12 +8,14 @@ using Telerik.Web.Mvc;
 
 namespace DnTeam.Controllers
 {
+    [OpenIdAuthorize]
     public class ProjectController : Controller
     {
+        private const string BlankPerson = "wanted";
 
         public ActionResult UpdateProjectProperty(string id, string name, string value)
         {
-            return new JsonResult { Data = ProjectRepository.UpdateProjectProperty(id, name, value) };
+           return new JsonResult { Data = GetTransactionStatusCode(ProjectRepository.UpdateProjectProperty(id, name, value)) };
         }
 
         public ActionResult Index()
@@ -22,7 +25,7 @@ namespace DnTeam.Controllers
             ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsDictionary(), "key", "value");
             ViewData["ProjectNoiseTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectNoiseTypes));
             ViewData["ProjectPriorityTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectPriorityTypes));
-            ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
+            ViewData["PersonsList"] = PersonRepository.GetActivePersonsList().ToSelectList(string.Empty, BlankPerson);
             return View();
         }
 
@@ -31,18 +34,18 @@ namespace DnTeam.Controllers
             ViewData["ProjectStatuses"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectStatuses));
             ViewData["ProjectTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectTypes));
             ViewData["Products"] = new SelectList(ProductRepository.GetAllProductsDictionary(), "key", "value");
-            ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
+            ViewData["PersonsList"] = PersonRepository.GetActivePersonsList().ToSelectList(string.Empty, BlankPerson);
             ViewData["ProjectRoles"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectRoles));
             ViewData["ProjectNoiseTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectNoiseTypes));
             ViewData["ProjectPriorityTypes"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.ProjectPriorityTypes));
             var project = ProjectRepository.GetProject(id);
-            ProjectModel model = new ProjectModel
+            var model = new ProjectModel
                                      {
                                          Name = project.Name,
                                          CreatedDate = project.CreatedDate,
-                                         Id = project.ProjectId,
+                                         Id = project.ToString(),
                                          Noise = project.Noise,
-                                         Product = project.ProductName,
+                                         ProductId = project.ProductName,
                                          Status = project.Status,
                                          Type = project.Type,
                                          IsDeleted = project.IsDeleted
@@ -56,58 +59,64 @@ namespace DnTeam.Controllers
         {
             return View(Return());
         }
-
-
-        [GridAction]
-        public ActionResult Insert()
+        
+        public ActionResult Insert(ProjectGridModel model)
         {
-            var product = new ProjectGridModel();
-            if (TryUpdateModel(product))
-            {
-                ProjectRepository.Insert(product.Name, product.Priority, product.CreatedDate, product.Status, product.Noise, product.Product, product.Type, 
-                    product.ProgramManager, product.TechnicalLead);
-            }
+            model.ProgramManager = (model.ProgramManager == BlankPerson) ? string.Empty : model.ProgramManager;
+            model.TechnicalLead = (model.TechnicalLead == BlankPerson) ? string.Empty : model.TechnicalLead;
 
-            return View(Return());
+            return new JsonResult { Data = GetTransactionStatusCode(ProjectRepository.Insert(model.Name, model.Priority, model.CreatedDate, model.Status, 
+                model.Noise, model.ProductId, model.Type, model.ProgramManager, model.TechnicalLead)) };
         }
 
-        [GridAction]
-        public ActionResult Save(string id)
+        public ActionResult Delete(List<string> values)
         {
-            var product = new ProjectGridModel();
-            if (TryUpdateModel(product))
-            {
-                ProjectRepository.Save(id, product.Name, product.Priority, product.Status, product.Noise, product.Product, product.Type, 
-                    product.ProgramManager, product.TechnicalLead);
-            }
-
-            return View(Return());
-        }
-
-        [GridAction]
-        public ActionResult Delete(string id)
-        {
-            ProjectRepository.Delete(id);
-            return View(Return());
+            ProjectRepository.Delete(values);
+            return Content("");
         }
 
         [NonAction]
         private static GridModel Return()
         {
             return new GridModel(ProjectRepository.GetAllProjects()
-                                     .Select(o => new ProjectGridModel()
+                                     .Select(o => new ProjectGridModel
                                                       {
-                                                          Id = o.ProjectId,
+                                                          Id = o.ToString(),
                                                           CreatedDate = o.CreatedDate,
                                                           Name = o.Name,
                                                           Priority = o.Priority,
                                                           Status = o.Status,
                                                           Noise = o.Noise,
                                                           Type = o.Type,
-                                                          Product = o.ProductName,
-                                                          ProgramManager = o.ProgramManagerName,
-                                                          TechnicalLead = o.TechnicalLeadName
+                                                          ProductId = o.ProductName,
+                                                          ProgramManager = o.ProgramManagerName(),
+                                                          TechnicalLead = o.TechnicalLeadName()
                                                       }).OrderByDescending(o=>o.Priority));
+        }
+
+        [NonAction]
+        private static string GetTransactionStatusCode(ProjectEditStatus status)
+        {
+            switch (status)
+            {
+                case ProjectEditStatus.Ok:
+                    return null;
+
+                case ProjectEditStatus.ErrorDuplicateItem:
+                    return "Project with such value already exists. Please enter a different value.";
+
+                case ProjectEditStatus.ErrorNameIsEmpty:
+                    return "Project name is empty. Please enter one.";
+
+                case ProjectEditStatus.ErrorPropertyHasNotBeenUpdated:
+                    return "Error occured. Property has not been updated.";
+
+                case ProjectEditStatus.ErrorUndefinedFormat:
+                    return "Error occured. Value has invalid format.";
+
+                default:
+                    return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+            }
         }
     }
 }

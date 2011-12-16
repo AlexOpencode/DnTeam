@@ -126,6 +126,7 @@ namespace DnTeam.Controllers
         }
 
         [HttpGet]
+        [OpenIdAuthorize] 
         public ActionResult Details(string id)
         {
             var personsList = PersonRepository.GetActivePersonsList();
@@ -146,6 +147,7 @@ namespace DnTeam.Controllers
         }
 
         [HttpGet]
+        [OpenIdAuthorize]
         public ActionResult Edit(string id)
         {
             var person = PersonRepository.GetPerson(id);
@@ -166,6 +168,7 @@ namespace DnTeam.Controllers
         }
 
         [HttpGet]
+        [OpenIdAuthorize]
         public ActionResult Index()
         {
             ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
@@ -174,21 +177,25 @@ namespace DnTeam.Controllers
         }
 
         [HttpGet]
+        [OpenIdAuthorize]
         public ActionResult Inactive()
         {
             return View();
         }
 
+        [OpenIdAuthorize]
         public ActionResult Insert(string name, string location, string primaryManager)
         {
             return new JsonResult { Data = GetTransactionStatusCode(PersonRepository.CreatePerson(name, location, primaryManager)) };
         }
 
+        [OpenIdAuthorize]
         public ActionResult GetPeopleList()
         {
             return new JsonResult { Data = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value") };
         }
 
+        [OpenIdAuthorize]
         public ActionResult Delete(List<string> values)
         {
             PersonRepository.DeletePeople(values);
@@ -196,12 +203,14 @@ namespace DnTeam.Controllers
             return Content("");
         }
 
+        [OpenIdAuthorize]
         [GridAction]
         public ActionResult Select()
         {
             return View(new GridModel(Return()));
         }
 
+        [OpenIdAuthorize]
         [GridAction]
         public ActionResult SelectInActive()
         {
@@ -209,6 +218,7 @@ namespace DnTeam.Controllers
         }
 
         #region Update Person Data
+        [OpenIdAuthorize]
         [HttpPost]
         public ActionResult UpdatePersonProperty(string id, string name, string value)
         {
@@ -233,12 +243,14 @@ namespace DnTeam.Controllers
             return new JsonResult { Data = GetTransactionStatusCode(PersonRepository.UpdateProperty(id, name, value)) };
         }
 
+        [OpenIdAuthorize]
         [HttpPost]
         public ActionResult AddElementToPersonProperty(string id, string name, string value)
         {
             return new JsonResult { Data = PersonRepository.AddValueToPropertySet(id, name, value) };
         }
 
+        [OpenIdAuthorize]
         [HttpPost]
         public ActionResult DeleteElementFromPersonProperty(string id, string name, string value)
         {

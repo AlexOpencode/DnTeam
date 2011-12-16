@@ -8,7 +8,7 @@ using Telerik.Web.Mvc;
 
 namespace DnTeam.Controllers
 {
-    //[OpenIdAuthorize]
+    [OpenIdAuthorize]
     public class SettingsController : Controller
     {
         public ActionResult Index(string type)

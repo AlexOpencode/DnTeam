@@ -15,16 +15,16 @@ namespace DnTeam.Models
         [Display(Name = "Technical  Lead")]
         public string TechnicalLead { get; set; }
 
-        public string Details
-        {
-            get
-            {
-                return string.IsNullOrEmpty(Id)
-                           ? ""
-                           : "<a href=\"/Project/Details/" + Id +
-                             "\"><img class=\"link-button\" src=\"../../Content/link.png\" alt=\"View\"/></a>";
-            }
-        }
+        //public string Details
+        //{
+        //    get
+        //    {
+        //        return string.IsNullOrEmpty(Id)
+        //                   ? ""
+        //                   : "<a href=\"/Project/Details/" + Id +
+        //                     "\"><img class=\"link-button\" src=\"../../Content/link.png\" alt=\"View\"/></a>";
+        //    }
+        //}
 
 
     }
@@ -65,7 +65,7 @@ namespace DnTeam.Models
         [Required]
         [UIHint("Products")]
         [DisplayName("Product Line")]
-        public string Product { get; set; }
+        public string ProductId { get; set; }
 
         public ProjectModel()
         {
@@ -129,11 +129,11 @@ namespace DnTeam.Models
 
         [DisplayName("Target Date")]
         [DataType(DataType.Date)]
-        public DateTime TargetDate { get; set; }
+        public DateTime? TargetDate { get; set; }
 
         [DisplayName("Actual Date")]
         [DataType(DataType.Date)]
-        public DateTime ActualDate { get; set; }
+        public DateTime? ActualDate { get; set; }
 
         [DisplayName("Status")]
         [ReadOnly(true)]
@@ -141,7 +141,7 @@ namespace DnTeam.Models
         {
             get
             {
-                return string.IsNullOrEmpty(MilestoneId)
+                return (TargetDate == null || ActualDate == null)
                            ? string.Empty
                            : (ActualDate <= TargetDate)
                                  ? "<img alt=\"In time\" src=\"" + VirtualPathUtility.ToAbsolute("~/Content/yes.png") +

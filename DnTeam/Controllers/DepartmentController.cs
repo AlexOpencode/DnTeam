@@ -7,6 +7,8 @@ using DnTeam.Models;
 using DnTeamData.Models;
 namespace DnTeam.Controllers
 {
+
+    [OpenIdAuthorize]
     public class DepartmentController : Controller
     {
 

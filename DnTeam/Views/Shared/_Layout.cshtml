@@ -13,8 +13,7 @@
     <div class="page">
         <header>           
             <div class="helloDiv">
-            Hello, @Session["FriendlyIdentifier"]  | @Html.ActionLink("Logout", "LogOut", "Account") 
-              @*  @Html.Partial("_LogOnPartial")*@
+            Hello, @Session["FriendlyIdentifier"]  | @Html.ActionLink("Logout", "LogOut", "Person")               
             </div>
             @{ Html.Telerik().Menu()
         .Name("Menu")

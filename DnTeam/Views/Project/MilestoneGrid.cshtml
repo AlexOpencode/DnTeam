@@ -1,0 +1,168 @@
+﻿@using DnTeam.Models
+@model ProjectModel
+
+<p>
+    <a id="addMilestone" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Milestone</a>
+    <a id="editMilestone" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Milestone</a>
+    <a id="deleteMilestones" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Milestones</a>   
+    <a id="finishMilestones" class="t-button t-button-icontext"><span class="t-icon t-insert"></span>Make Selected Milestones Completed</a>
+</p>
+    @(Html.Telerik().Grid<MilestoneModel>()
+        .Name("MilestoneGrid").Sortable()
+        .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Milestone", new { projectId = Model.Id }))
+        .Columns(columns =>
+        {
+            columns.Bound(o => o.MilestoneId).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedMilestones' value='<#= MilestoneId #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
+            //columns.Bound(o => o.Index).Width(50);
+            columns.Bound(o => o.Name);
+            columns.Bound(o => o.TargetDate).Width(120);
+            columns.Bound(o => o.ActualDate).Width(120);
+            columns.Bound(o => o.Status).Width(50).Encoded(false).HtmlAttributes(new { style = "text-align:center" });
+        }))
+
+@{Html.Telerik().Window().Name("MilestoneEditWindow").Title("Insert").Content(
+      @<text>
+    @using (Html.BeginForm("Insert", "Project", FormMethod.Post, new { id = "MilestoneEditForm" }))
+    {
+        @Html.Hidden("MilestoneId")
+        <div class="editLine" style="padding-bottom: 30px;">
+            <div class="editElement">
+                <div class="editor-label">
+                   Name
+                </div>
+                <div class="editor-field">
+                   @Html.TextBox("MilestoneName", "", new { data_val_required ="Required" })
+                </div>
+            </div>
+            <div class="editElement">
+                <div class="editor-label">
+                   Target Date
+                </div>
+                <div class="editor-field">
+                   @Html.Telerik().DatePicker().Name("MilestoneTargetDate")
+                </div>
+            </div>  
+            <div class="editElement">
+                <div class="editor-label">
+                   Actual Date
+                </div>
+                <div class="editor-field">
+                   @Html.Telerik().DatePicker().Name("MilestoneActualDate")
+                </div>
+            </div>                
+        </div>   
+    }
+    <div id="editMilestoneResult" class="editLine"></div>            
+                <div class="editLine" style="padding-top: 20px;">
+                    <a class="t-button t-button-icontext yesButton" onclick="saveMilestone()"><span class="t-icon t-insert"></span><label>Insert</label></a>
+                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('MilestoneEditWindow')"><span class="t-icon t-cancel"></span><label>Cancel</label></a>
+                </div>
+      </text>).Visible(false).Draggable(true).Scrollable(false).Modal(true).Render();}
+
+ <script type="text/javascript">
+function saveMilestone() {
+    var milestoneId = $("#MilestoneId").val();
+    var name = $("#MilestoneName").val();
+    var targetDate = $('#MilestoneTargetDate').data("tDatePicker").value();
+    targetDate = (targetDate == null) ? "" : targetDate.toDateString();
+    var actualDate = $('#MilestoneActualDate').data("tDatePicker").value();
+    actualDate = (actualDate == null) ? "" : actualDate.toDateString();
+    
+    $.post('@Url.Action("Save", "Milestone")', { id: '@(Model.Id)', milestoneId: milestoneId, name: name, targetDate: targetDate, actualDate: actualDate }, function (data) {
+        if (data == null) {
+            $("#MilestoneGrid").data("tGrid").ajaxRequest();
+            closeWindow("MilestoneEditWindow");
+        } else {
+            showError($("#editMilestoneResult"), data, "MilestoneEditWindow");
+        }
+    }, 'json');
+}
+     $().ready(function() {
+         //Open insert window
+         $("#addMilestone").click(function (e) {
+             e.preventDefault();
+             
+             $("#MilestoneId").val("");
+             $("#MilestoneName").val("");
+             $("#MilestoneName").removeAttr("readonly", "readonly");
+             $('#MilestoneTargetDate').data("tDatePicker").value("");
+             $('#MilestoneActualDate').data("tDatePicker").value("");
+             
+             openWindow('MilestoneEditWindow', 'Insert', 'Insert', 'saveMilestone()');
+         });
+
+         //Open edit window
+         $("#editMilestone").click(function (e) {
+             e.preventDefault();
+             var values = new Array();
+             $("input:checkbox[name=checkedMilestones]:checked").each(function () {
+                 values.push($(this));
+             });
+
+            if (values.length != 1) {
+                alert("Please, check a milestone to edit.");
+            } else {
+                //get cell values
+                var ths = values[0].closest('tr').children('td');
+                $("#MilestoneId").val(values[0].val());
+                $("#MilestoneName").val(ths[1].innerHTML);
+                $("#MilestoneName").attr("readonly", "readonly");
+                $('#MilestoneTargetDate').data("tDatePicker").value(ths[2].innerHTML);
+                $('#MilestoneActualDate').data("tDatePicker").value(ths[3].innerHTML);
+                
+                openWindow('MilestoneEditWindow', 'Edit', 'Save', 'saveMilestone()');
+            }
+         });
+
+         //Delete selected values
+         $("#deleteMilestones").click(function (e) {
+             e.preventDefault();
+
+             var values = new Array();
+             $("input:checkbox[name=checkedMilestones]:checked").each(function () {
+                 values.push($(this).val());
+             });
+
+             if (values.length <= 0) {
+                 alert("Please, check milestones to be deleted.");
+             } else {
+                 if (confirm("Are you sure you want to delete these milestones?")) {
+                     $.ajax({
+                         type: 'POST',
+                         url: '@(Url.Action("Delete", "Milestone"))',
+                         dataType: 'json',
+                         traditional: true,
+                         data: { projectId: '@(Model.Id)', values: values },
+                         success: function () {
+                             $("#MilestoneGrid").data("tGrid").ajaxRequest();
+                         }
+                     });
+                 }
+             }
+         });
+
+         //Make completed edit window
+         $("#finishMilestones").click(function (e) {
+             e.preventDefault();
+             var values = new Array();
+             $("input:checkbox[name=checkedMilestones]:checked").each(function () {
+                 values.push($(this).val());
+             });
+
+             if (values.length <= 0) {
+                 alert("Please, check milestones to be completed.");
+             } else {
+                 $.ajax({
+                     type: 'POST',
+                     url: '@(Url.Action("Finish", "Milestone"))',
+                     dataType: 'json',
+                     traditional: true,
+                     data: { projectId: '@(Model.Id)', values: values },
+                     success: function () {
+                         $("#MilestoneGrid").data("tGrid").ajaxRequest();
+                     }
+                 });
+             }
+         });
+     });
+ </script>

@@ -8,7 +8,8 @@ using DnTeamData.Models;
 
 namespace DnTeam.Controllers
 {
-    //[OpenIdAuthorize]
+
+    [OpenIdAuthorize]
     public class ClientController : Controller
     {
 

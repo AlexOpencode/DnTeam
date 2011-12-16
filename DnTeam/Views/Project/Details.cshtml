@@ -8,134 +8,126 @@
 <h2>Project Details</h2>
 
 @using (Html.BeginForm())
- {
-<div class="editLine" style="padding-bottom: 30px;">
+{
+    <div class="editLine" style="padding-bottom: 30px;">
         <div class="editElement">
-             <div class="editor-label">
-                 @Html.LabelFor(model => model.Priority)
-             </div>
-             <div class="editor-field">
-                 @(Html.Telerik().DropDownListFor(model => model.Priority).BindTo(ViewData["ProjectPriorityTypes"] as SelectList)
-                 .ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
-             </div>
-         </div>
-         <div class="editElement">
-             <div class="editor-label">
-                 @Html.LabelFor(model => model.Name)
-             </div>
-             <div class="editor-field">
-                 @Html.EditorFor(model => model.Name)
-             </div>
-         </div>
-         <div class="editElement">
-             <div class="editor-label">
-                 @Html.LabelFor(model => model.Status)
-             </div>
-             <div class="editor-field">
-                 @(Html.Telerik().DropDownListFor(model => model.Status).BindTo(ViewData["ProjectStatuses"] as SelectList)
-                 .ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
-             </div>
-         </div>
-         <div class="editElement">
-         <div class="editor-label">
-             @Html.LabelFor(model => model.Type)
-         </div>
-         <div class="editor-field">
-             @(Html.Telerik().DropDownListFor(model => model.Type).BindTo(ViewData["ProjectTypes"] as SelectList)
-             .ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
-         </div>
-         </div>
-         <div class="editElement"> 
-         <div class="editor-label">
-             @Html.LabelFor(model => model.Noise)
-         </div>
-         <div class="editor-field">
-             @(Html.Telerik().DropDownListFor(model => model.Noise).BindTo(ViewData["ProjectNoiseTypes"] as SelectList)
-             .ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
-         </div>      
-         </div>
-         <div class="editElement">    
-         <div class="editor-label">
-             @Html.LabelFor(model => model.Product)
-         </div>
-         <div class="editor-field">
-            @(Html.Telerik().DropDownListFor(model => model.Product).BindTo(ViewData["Products"] as SelectList).ClientEvents(events => events.OnChange("onChangeDropDownValue"))) 
-         </div>   
-         </div>         
-         </div>
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Priority)
+            </div>
+            <div class="editor-field">
+                @(Html.Telerik().DropDownListFor(model => model.Priority).BindTo(ViewData["ProjectPriorityTypes"] as SelectList)
+                    .ClientEvents(events => events.OnChange("onChangeDropDownValue")))
+            </div>
+        </div>
+        <div class="editElement">
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Name)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.Name)
+            </div>
+        </div>
+        <div class="editElement">
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Status)
+            </div>
+            <div class="editor-field">
+                @(Html.Telerik().DropDownListFor(model => model.Status).BindTo(ViewData["ProjectStatuses"] as SelectList)
+                    .ClientEvents(events => events.OnChange("onChangeDropDownValue")))
+            </div>
+        </div>
+        <div class="editElement">
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Type)
+            </div>
+            <div class="editor-field">
+                @(Html.Telerik().DropDownListFor(model => model.Type).BindTo(ViewData["ProjectTypes"] as SelectList)
+                    .ClientEvents(events => events.OnChange("onChangeDropDownValue")))
+            </div>
+        </div>
+        <div class="editElement">
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Noise)
+            </div>
+            <div class="editor-field">
+                @(Html.Telerik().DropDownListFor(model => model.Noise).BindTo(ViewData["ProjectNoiseTypes"] as SelectList)
+                    .ClientEvents(events => events.OnChange("onChangeDropDownValue")))
+            </div>
+        </div>
+        <div class="editElement">
+            <div class="editor-label">
+                @Html.LabelFor(model => model.ProductId)
+            </div>
+            <div class="editor-field">
+                @(Html.Telerik().DropDownListFor(model => model.ProductId).BindTo(ViewData["Products"] as SelectList)
+                    .ClientEvents(events => events.OnChange("onChangeDropDownValue")))
+            </div>
+        </div>
+    </div>
    
  }
- <script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
- <script type="text/javascript">
-     function postUpdate(id, val) {
-         $.post('@Url.Action("UpdateProjectProperty", "Project")', { id: '@(Model.Id)', name: id, value: val }, function (data) {
-             if (data == '') {
-                 showOk(id);
-             } else {
-                 showError(id, data);
-             }
-         }, 'json');
-     }
 
-     function onChangeDropDownValue(e) {
-         postUpdate($(e.target).attr('id'), e.value);
-     }
 
-     $().ready(function () {
-         $("#Name").change(function () { postUpdate($(this).attr('id'), $(this).val()); });
-     });
- 
- </script>
-    
-<div id="milestonesDiv">
-    <h3>Milestones</h3>
-    @(Html.Telerik().Grid<MilestoneModel>()
-        .Name("MilestoneGrid")
-        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
-        .DataKeys(keys => keys.Add(o => o.MilestoneId))
-        .DataBinding(dataBinding => dataBinding.Ajax()
-                                            .Select("Select", "Milestone", new { projectId = Model.Id })
-                                            .Insert("Insert", "Milestone", new { projectId = Model.Id })
-                                            .Update("Save", "Milestone", new { projectId = Model.Id })
-                                            .Delete("Delete", "Milestone", new { projectId = Model.Id }))
-        .Columns(columns =>
-        {
-            columns.Bound(o => o.Index).Width(50);
-            columns.Bound(o => o.Name);
-            columns.Bound(o => o.TargetDate).Width(120);
-            columns.Bound(o => o.ActualDate).Width(120);
-            columns.Bound(o => o.Status).Width(50).Encoded(false).HtmlAttributes(new { style = "text-align:center" });
-            columns.Command(commands =>
-            {
-                commands.Edit().ButtonType(GridButtonType.ImageAndText);
-                commands.Delete().ButtonType(GridButtonType.ImageAndText);
-            }).Width(200).Title("Edit");
-        }))
-</div>
+<h3>Milestones</h3>
+@Html.Partial("MilestoneGrid", Model)
+
 
 
 <h3>Manage Assignments</h3>
+@Html.Partial("AssignmentsGrid", Model)
+
+@*<p>
+    <a id="addAssignments" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Assignment</a>    
+    <a id="editAssignments" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Assignment</a>
+    <a id="deleteAssignments" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Assignments</a>   
+</p>
 @(Html.Telerik().Grid<AssignmentModel>()
-        .Name("AssignmentGrid")
-        .ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
-        .DataKeys(keys => keys.Add(o => o.AssignmentId))
-        .DataBinding(dataBinding => dataBinding.Ajax()
-                                            .Select("Select", "Assignment", new { projectId = Model.Id})
-                                            .Insert("Insert", "Assignment", new { projectId = Model.Id})
-                                            .Update("Save", "Assignment", new { projectId = Model.Id})
-                                            .Delete("Delete", "Assignment", new { projectId = Model.Id}))
+        .Name("AssignmentGrid").Sortable()
+        //.ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
+        //.DataKeys(keys => keys.Add(o => o.AssignmentId))
+        .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Assignment", new { projectId = Model.Id}))
+                                            //.Insert("Insert", "Assignment", new { projectId = Model.Id})
+                                            //.Update("Save", "Assignment", new { projectId = Model.Id})
+                                            //.Delete("Delete", "Assignment", new { projectId = Model.Id}))
         .Columns(columns =>
         {
+            columns.Bound(o => o.AssignmentId).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= AssignmentId #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
             columns.Bound(o => o.Role);
             columns.Bound(o => o.Person);
             columns.Bound(o => o.Note);
             columns.Bound(o => o.StartDate).Width(200);
             columns.Bound(o => o.EndDate).Width(200);
             columns.Bound(o => o.Commitment).Width(50);
-            columns.Command(commands =>
-            {
-                commands.Edit().ButtonType(GridButtonType.ImageAndText);
-                commands.Delete().ButtonType(GridButtonType.ImageAndText);
-            }).Width(200).Title("Edit");
+            //columns.Command(commands =>
+            //{
+            //    commands.Edit().ButtonType(GridButtonType.ImageAndText);
+            //    commands.Delete().ButtonType(GridButtonType.ImageAndText);
+            //}).Width(200).Title("Edit");
         })
-)
+)*@
+
+@section HeadScripts {
+ <script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
+ <script type="text/javascript">
+     function postUpdate(elem, val) {
+         $.post('@Url.Action("UpdateProjectProperty", "Project")', { id: '@(Model.Id)', name: $(elem).attr("id"), value: val }, function (data) {
+             var parentdiv = $(elem).closest(".editor-field");
+             if (data == null) {
+                 showOk(parentdiv);
+             } else {
+                 showError(parentdiv, data);
+             }
+         }, 'json');
+     }
+
+     function onChangeDropDownValue(e) {
+         postUpdate($(e.target), e.value);
+     }
+
+     $().ready(function () {
+         $("#Name").change(function () { postUpdate($(this), $(this).val()); });
+     });
+ 
+ </script>
+
+}

@@ -62,7 +62,7 @@
                         </div>
                     </div>                    
                 </div>   
-                <div class="editLine"><br/>@Html.CheckBox("ShowEditPage", true) Show person's edit page after insert</div>   
+                @*<div class="editLine"><br/>@Html.CheckBox("ShowEditPage", true) Show person's edit page after insert</div>   *@
                 <div id="editResult" class="editLine"></div>            
                 <div class="editLine" style="padding-top: 20px;">
                     <a class="t-button t-button-icontext yesButton" onclick="addValue()"><span class="t-icon t-insert"></span><label>Insert</label></a>
@@ -143,8 +143,8 @@
                         traditional: true,
                         data: { values: values },
                         success: function () {
-                            fillPeople(); //rebind combobox
                             $("#PeopleGrid").data("tGrid").ajaxRequest();
+                            fillPeople(); //rebind combobox
                         }
                     });
                 }

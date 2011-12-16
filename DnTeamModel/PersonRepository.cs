@@ -14,7 +14,7 @@ namespace DnTeamData
     public static class PersonRepository
     {
         private static readonly MongoDatabase Db = Mongo.Init();
-        private static MongoCollection<Person> _coll = Db.GetCollection<Person>("Persons");
+        private static MongoCollection<Person> _coll = Db.GetCollection<Person>("People");
 
         #if DEBUG //Test area
         /// <summary>

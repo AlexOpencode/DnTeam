@@ -1,11 +1,15 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using DnTeamData;
+using DnTeamData.Models;
 using Telerik.Web.Mvc;
 using DnTeam.Models;
 
 namespace DnTeam.Controllers
 {
+    [OpenIdAuthorize]
     public class MilestoneController : Controller
     {
         [NonAction]
@@ -13,7 +17,7 @@ namespace DnTeam.Controllers
         {
             return new GridModel(ProjectRepository.GetMilestones(id).Select(o => new MilestoneModel
                                                                                      {
-                                                                                        MilestoneId = o.MilestoneId,
+                                                                                        MilestoneId = o.ToString(),
                                                                                         Index = o.Index,
                                                                                         ActualDate = o.ActualDate,
                                                                                         TargetDate = o.TargetDate,
@@ -27,33 +31,54 @@ namespace DnTeam.Controllers
             return View(Return(projectId));
         }
 
-        [GridAction]
-        public ActionResult Insert(string projectId)
+        public ActionResult Save(string id, string milestoneId, string name, string targetDate, string actualDate)
         {
-            var model = new MilestoneModel();
-            if (TryUpdateModel(model))
-            {
-                ProjectRepository.CreateMilestone(projectId, model.Index, model.ActualDate, model.TargetDate, model.Name);
-            }
-            return View(Return(projectId));
+            if (string.IsNullOrEmpty(milestoneId))
+                return new JsonResult { Data = GetTransactionStatusCode(ProjectRepository.InsertMilestone(id, name, targetDate, actualDate)) };
+
+            return new JsonResult { Data = GetTransactionStatusCode(ProjectRepository.UpdateMilestone(id, milestoneId, targetDate, actualDate)) };
+        }
+        
+        public ActionResult Delete(string projectId, List<string> values)
+        {
+            ProjectRepository.DeleteMilestones(projectId, values);
+            
+            return Content("");
         }
 
-        [GridAction]
-        public ActionResult Save(string id, string projectId)
+        public ActionResult Finish(string projectId, List<string> values)
         {
-            var model = new MilestoneModel();
-            if (TryUpdateModel(model))
-            {
-                ProjectRepository.UpdateMilestone(projectId, id, model.Index, model.ActualDate, model.TargetDate, model.Name);
-            }
-            return View(Return(projectId));
+            ProjectRepository.FinishMilestones(projectId, values);
+
+            return Content("");
         }
 
-        [GridAction]
-        public ActionResult Delete(string id, string projectId)
+        [NonAction]
+        private static string GetTransactionStatusCode(MilestoneEditStatus status)
         {
-            ProjectRepository.DeleteMilestone(projectId, id);
-            return View(Return(projectId));
+            switch (status)
+            {
+                case MilestoneEditStatus.Ok:
+                    return null;
+
+                case MilestoneEditStatus.ErrorDuplicateName:
+                    return "Milestone with such name already exists. Please enter a different value.";
+
+                case MilestoneEditStatus.ErrorNameIsEmpty:
+                    return "Milestone name is empty. Please enter one.";
+
+                case MilestoneEditStatus.ErrorMilestoneHasNotBeenUpdated:
+                    return "Error occured. Property has not been updated.";
+
+                case MilestoneEditStatus.ErrorActualDateFormat:
+                    return string.Format("Actual Date has invalid format. Please enter date in proper format (for example today is {0})", DateTime.Now.ToShortDateString());
+
+                case MilestoneEditStatus.ErrorTargetDateFormat:
+                    return string.Format("Target Date has invalid format. Please enter date in proper format (for example today is {0})", DateTime.Now.ToShortDateString());
+
+                default:
+                    return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+            }
         }
     }
 }
