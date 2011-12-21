@@ -193,7 +193,7 @@
     <Content Include="Scripts\2011.3.1115\telerik.treeview.min.js" />
     <Content Include="Scripts\2011.3.1115\telerik.upload.min.js" />
     <Content Include="Scripts\2011.3.1115\telerik.window.min.js" />
-    <Content Include="Scripts\customTelerikGridFilter.js" />
+    <Content Include="Scripts\gridFilter.js" />
     <Content Include="Scripts\openCloseTelerikWindow.js" />
     <Content Include="Scripts\jquery-1.7-vsdoc.js" />
     <Content Include="Scripts\jquery-1.7.js" />

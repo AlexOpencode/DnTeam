@@ -151,22 +151,22 @@ namespace DnTeam.Tests
             Assert.AreEqual(2, actual);
         }
 
-        /// <summary>
-        ///A test for GetFilteredDepartments
-        ///</summary>
-        [TestMethod]
-        public void GetFilteredDepartmentsTest()
-        {
-            var querys = new List<string> { "Location~location1,location2", "Name~name1,name3" };
-            var expected = new List<ObjectId> {ObjectId.GenerateNewId()};
-            DepartmentRepository.SaveDepartment(expected[0].ToString(), "location1", "name1", string.Empty, string.Empty, 11.11m, 11.11m);
-            DepartmentRepository.SaveDepartment(ObjectId.GenerateNewId().ToString(), "location2", "name2", string.Empty, string.Empty, 11.11m, 11.11m);
-            DepartmentRepository.SaveDepartment(ObjectId.GenerateNewId().ToString(), "location3", "name3", string.Empty, string.Empty, 11.11m, 11.11m);
+        ///// <summary>
+        /////A test for GetFilteredDepartments
+        /////</summary>
+        //[TestMethod]
+        //public void GetFilteredDepartmentsTest()
+        //{
+        //    var querys = new List<string> { "Location~location1,location2", "Name~name1,name3" };
+        //    var expected = new List<ObjectId> {ObjectId.GenerateNewId()};
+        //    DepartmentRepository.SaveDepartment(expected[0].ToString(), "location1", "name1", string.Empty, string.Empty, 11.11m, 11.11m);
+        //    DepartmentRepository.SaveDepartment(ObjectId.GenerateNewId().ToString(), "location2", "name2", string.Empty, string.Empty, 11.11m, 11.11m);
+        //    DepartmentRepository.SaveDepartment(ObjectId.GenerateNewId().ToString(), "location3", "name3", string.Empty, string.Empty, 11.11m, 11.11m);
 
-            var actual = DepartmentRepository.GetFilteredDepartments(querys);
+        //    var actual = DepartmentRepository.GetFilteredDepartments(querys);
             
-            Assert.IsTrue(expected.SequenceEqual(actual.Select(o=>o.Id)));
-        }
+        //    Assert.IsTrue(expected.SequenceEqual(actual.Select(o=>o.Id)));
+        //}
 
         /// <summary>
         ///A test for GetParentDependantDepartments

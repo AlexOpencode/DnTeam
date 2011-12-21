@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
+using System.Web.Security;
 
 namespace DnTeam
 {
@@ -30,6 +31,10 @@ namespace DnTeam
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
+
+            #if DEBUG //Default authenticate while debuging
+            FormsAuthentication.SetAuthCookie("DebugMode", false);
+            #endif
         }
     }
 }

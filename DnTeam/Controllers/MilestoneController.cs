@@ -13,22 +13,28 @@ namespace DnTeam.Controllers
     public class MilestoneController : Controller
     {
         [NonAction]
-        private static GridModel Return(string id)
+        private static IEnumerable<MilestoneModel> Return(string id)
         {
-            return new GridModel(ProjectRepository.GetMilestones(id).Select(o => new MilestoneModel
-                                                                                     {
-                                                                                        MilestoneId = o.ToString(),
-                                                                                        Index = o.Index,
-                                                                                        ActualDate = o.ActualDate,
-                                                                                        TargetDate = o.TargetDate,
-                                                                                        Name = o.Name
-                                                                                     }).OrderBy(x=>x.Index));
+            return ProjectRepository.GetMilestones(id).Select(o => new MilestoneModel
+            {
+                MilestoneId = o.ToString(),
+                Index = o.Index,
+                ActualDate = o.ActualDate,
+                TargetDate = o.TargetDate,
+                Name = o.Name
+            }).OrderBy(x => x.Name);
         }
 
         [GridAction]
-        public ActionResult Select(string projectId)
+        public ActionResult Select(string projectId, List<string> filterQuery)
         {
-            return View(Return(projectId));
+            if (filterQuery != null && filterQuery.Count() > 0)
+            {
+                var result = Return(projectId).Filter(filterQuery);
+                return View(new GridModel(result));
+            }
+
+            return View(new GridModel(Return(projectId)));
         }
 
         public ActionResult Save(string id, string milestoneId, string name, string targetDate, string actualDate)

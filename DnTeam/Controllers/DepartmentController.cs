@@ -29,11 +29,10 @@ namespace DnTeam.Controllers
         [GridAction]
         public ActionResult Select(List<string> filterQuery)
         {
-            //Apply filter, if any
-            if(filterQuery != null && filterQuery.Count > 1)
+            if (filterQuery != null && filterQuery.Count() > 0)
             {
-                filterQuery.RemoveAt(0);
-                return View(new GridModel(Return(DepartmentRepository.GetFilteredDepartments(filterQuery))));
+                var result = Return(DepartmentRepository.GetAllDepartments()).Filter(filterQuery);
+                return View(new GridModel(result));
             }
 
             return View(new GridModel(Return(DepartmentRepository.GetAllDepartments())));

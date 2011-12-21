@@ -234,27 +234,22 @@ namespace DnTeamData
             return matches.Select(department => info.GetValue(department, null).ToString()).Distinct();
         }
 
-        /// <summary>
-        /// Returns the list of filtered parameters
-        /// </summary>
-        /// <param name="queries">the list of queries of kind ColumnName~value1,value2</param>
-        /// <returns>The list of departments</returns>
-        public static List<Department> GetFilteredDepartments(List<string> queries)
-        {
-            var andQueryList = new List<IMongoQuery>();
-
-            foreach (string query in queries)
-            {
-                var v = query.Split('~');
-                var names = v[1].Split(',');
-
-                andQueryList.Add(Query.Or(names.Select(name => Query.Matches(v[0], new BsonRegularExpression(string.Format("/^{0}/i", name)))).Cast<IMongoQuery>().ToArray()));
-
-            }
-
-            return _coll.Find(Query.And(andQueryList.ToArray())).ToList();
-
-        }
+        ///// <summary>
+        ///// Returns the list of filtered parameters
+        ///// </summary>
+        ///// <param name="queries">the list of queries of kind ColumnName~value1,value2</param>
+        ///// <returns>The list of departments</returns>
+        //public static List<Department> GetFilteredDepartments(List<string> queries)
+        //{
+        //    var andQueryList = new List<IMongoQuery>();
+        //    foreach (string query in queries)
+        //    {
+        //        var v = query.Split('~');
+        //        var names = v[1].Split(',');
+        //        andQueryList.Add(Query.Or(names.Select(name => Query.Matches(v[0], new BsonRegularExpression(string.Format("/^{0}/i", name)))).Cast<IMongoQuery>().ToArray()));
+        //    }
+        //    return _coll.Find(Query.And(andQueryList.ToArray())).ToList();
+        //}
 
         /// <summary>
         /// Returns the string describing department

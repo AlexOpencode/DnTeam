@@ -5,24 +5,21 @@
     <a id="addNewDepartment" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Department</a>
     <a id="editDepartment" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Department</a>
     <a id="deleteDepartments" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Departments</a>
+    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>    
 </p>
 
 @(Html.Telerik().Grid<DepartmentModel>()
-        .Name("DepartmentsGrid")
-        .DataKeys(keys => keys.Add(o => o.Id))
+        .Name("DepartmentsGrid").Sortable().Pageable()  
         .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Department"))
         .Columns(columns =>
         {
             columns.Bound(o => o.Id).Filterable(false).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Id #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(o => o.Location);
-            columns.Bound(o => o.Name);
-            columns.Bound(o => o.ParentDepartment);
-            columns.Bound(o => o.Cost).Width(70);
-            columns.Bound(o => o.Rate).Width(70);
-        })
-        .Sortable()
-        .Pageable()     
-    )
+            columns.Bound(o => o.Location).HeaderHtmlAttributes(new { filterable_column = "Location" });
+            columns.Bound(o => o.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
+            columns.Bound(o => o.ParentDepartment).HeaderHtmlAttributes(new { filterable_column = "ParentDepartment" });
+            columns.Bound(o => o.Cost).Width(70).HeaderHtmlAttributes(new { filterable_column = "Cost" });
+            columns.Bound(o => o.Rate).Width(70).HeaderHtmlAttributes(new { filterable_column = "Rate" });
+        }))
 
 @{Html.Telerik().Window().Name("DepartmentWindow").Title("Insert").Content(
       @<text>
@@ -84,6 +81,12 @@
 
     $().ready(function () {
 
+        //Bind grid filters
+        $("#DepartmentsGrid").gridFilter({ postUrl: '@(Url.Action("Select", "Department"))', btnClearFilter: $("#clearFilter"), gridInstance: function () {
+            return $("#DepartmentsGrid").data("tGrid");
+        } 
+        });
+        
         //Open creation dialog
         $("#addNewDepartment").click(function (e) {
             e.preventDefault();
@@ -192,15 +195,5 @@
             $("#ParentDepartment").data('tComboBox').dataBind(data);
         }, "json");
     }
-   
-    
-</script>
+    </script>
 }
-
-<script src="@(Url.Content("~/Scripts/customTelerikGridFilter.js"))" type="text/javascript"></script>
-<script type="text/javascript">
-    var getGrid = function getGridInstance() {
-        return $("#DepartmentsGrid").data("tGrid");
-    };
-   $("#DepartmentsGrid").customTelerikGridFilter({ postUrl: '@(Url.Action("GetTopSearchOffers", "Department"))', getGridInstance: getGrid });
-</script>

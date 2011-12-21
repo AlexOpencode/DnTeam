@@ -13,24 +13,30 @@ namespace DnTeam.Controllers
     public class AssignmentController : Controller
     {
         [NonAction]
-        private static GridModel Return(string id)
+        private static IEnumerable<AssignmentModel> Return(string id)
         {
-            return new GridModel(ProjectRepository.GetAssignments(id).Select(o=> new AssignmentModel
-                                                                                     {
-                                                                                         Commitment = o.Commitment,
-                                                                                         EndDate = o.EndDate,
-                                                                                         Note = o.Note,
-                                                                                         Person = o.PersonName,
-                                                                                         Role = o.Role,
-                                                                                         StartDate = o.StartDate,
-                                                                                         AssignmentId = o.ToString()
-                                                                                     }));
+            return ProjectRepository.GetAssignments(id).Select(o=> new AssignmentModel
+            {
+                Commitment = o.Commitment,
+                EndDate = o.EndDate,
+                Note = o.Note,
+                Person = o.PersonName,
+                Role = o.Role,
+                StartDate = o.StartDate,
+                AssignmentId = o.ToString()
+            });
         }
 
         [GridAction]
-        public ActionResult Select(string projectId)
+        public ActionResult Select(string projectId, List<string> filterQuery)
         {
-            return View(Return(projectId));
+            if (filterQuery != null && filterQuery.Count() > 0)
+            {
+                var result = Return(projectId).Filter(filterQuery);
+                return View(new GridModel(result));
+            }
+
+            return View(new GridModel(Return(projectId)));
         }
         
         public ActionResult Save(string id, string assignmentId, string role, string person, string note, string startDate, string endDate, int commitment)

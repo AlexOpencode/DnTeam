@@ -8,6 +8,7 @@
 <p>
     <a id="editValue" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Client</a>
     <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Clients</a>
+    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a> 
 </p>
 
 @(Html.Telerik().Grid<ClientModel>()
@@ -16,7 +17,7 @@
         .Columns(columns =>
         {
             columns.Bound(o => o.Id).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Id #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(o => o.Name);
+            columns.Bound(o => o.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
         })
 )
 
@@ -63,6 +64,12 @@
     
     $().ready(function () {
 
+        //Bind grid filters
+        $("#ClientsGrid").gridFilter({ postUrl: '@(Url.Action("Select", "Client"))', btnClearFilter: $("#clearFilter"), gridInstance: function () {
+            return $("#ClientsGrid").data("tGrid");
+        }
+        });
+        
         //Open edit window
         $("#editValue").click(function () {
             var values = new Array();

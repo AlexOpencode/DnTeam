@@ -55,9 +55,15 @@ namespace DnTeam.Controllers
         }
 
         [GridAction]
-        public ActionResult Select()
+        public ActionResult Select(List<string> filterQuery)
         {
-            return View(Return());
+            if (filterQuery != null && filterQuery.Count() > 0)
+            {
+                var result = Return().Filter(filterQuery);
+                return View(new GridModel(result));
+            }
+
+            return View(new GridModel(Return()));
         }
         
         public ActionResult Insert(ProjectGridModel model)
@@ -76,9 +82,9 @@ namespace DnTeam.Controllers
         }
 
         [NonAction]
-        private static GridModel Return()
+        private static IEnumerable<ProjectGridModel> Return()
         {
-            return new GridModel(ProjectRepository.GetAllProjects()
+            return ProjectRepository.GetAllProjects()
                                      .Select(o => new ProjectGridModel
                                                       {
                                                           Id = o.ToString(),
@@ -91,7 +97,7 @@ namespace DnTeam.Controllers
                                                           ProductId = o.ProductName,
                                                           ProgramManager = o.ProgramManagerName(),
                                                           TechnicalLead = o.TechnicalLeadName()
-                                                      }).OrderByDescending(o=>o.Priority));
+                                                      }).OrderByDescending(o=>o.Priority);
         }
 
         [NonAction]

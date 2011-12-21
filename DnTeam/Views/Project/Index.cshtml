@@ -10,23 +10,23 @@
     <a id="addNewValue" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Project</a>    
     <a id="viewValues" class="t-button t-button-icontext"><img class="t-icon" src="@(Url.Content("~/Content/link.png"))" />View Selected Project</a>
     <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Projects</a>   
+    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>
 </p>
 @(Html.Telerik().Grid<ProjectGridModel>()
         .Name("Grid").Sortable()
         .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Project"))
         .Columns(columns =>
         {
-            //columns.Bound(o => o.Details).Width(45).Encoded(false).Title("").HtmlAttributes(new { style = "text-align:center" });
             columns.Bound(o => o.Id).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Id #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(o => o.Priority).Width(45);
-            columns.Bound(o => o.ProductId);
-            columns.Bound(o => o.Name);
-            columns.Bound(o => o.Status);
-            columns.Bound(o => o.Type);
-            columns.Bound(o => o.ProgramManager);
-            columns.Bound(o => o.TechnicalLead);
-            columns.Bound(o => o.Noise);
-            columns.Bound(o => o.CreatedDate).Width(200);
+            columns.Bound(o => o.Priority).Width(45).HeaderHtmlAttributes(new { filterable_column = "Priority" });
+            columns.Bound(o => o.ProductId).HeaderHtmlAttributes(new { filterable_column = "ProductId" });
+            columns.Bound(o => o.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
+            columns.Bound(o => o.Status).HeaderHtmlAttributes(new { filterable_column = "Status" });
+            columns.Bound(o => o.Type).HeaderHtmlAttributes(new { filterable_column = "Type" });
+            columns.Bound(o => o.ProgramManager).HeaderHtmlAttributes(new { filterable_column = "ProgramManager" });
+            columns.Bound(o => o.TechnicalLead).HeaderHtmlAttributes(new { filterable_column = "TechnicalLead" });
+            columns.Bound(o => o.Noise).HeaderHtmlAttributes(new { filterable_column = "Noise" });
+            columns.Bound(o => o.CreatedDate).Width(200).HeaderHtmlAttributes(new { filterable_column = "CreatedDate" });
         })
 )
 
@@ -131,6 +131,12 @@ function addValue() {
 
 $().ready(function () {
 
+    //bind grid filter
+        $("#Grid").gridFilter({ postUrl: '@(Url.Action("Select", "Project"))', btnClearFilter: $("#clearFilter"), gridInstance: function () {
+            return $("#Grid").data("tGrid");
+        }});
+    
+    
         //Open insert window
         $("#addNewValue").click(function (e) {
             e.preventDefault();

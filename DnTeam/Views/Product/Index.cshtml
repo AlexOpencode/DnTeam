@@ -9,15 +9,16 @@
     <a id="addNewValue" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Product</a>
     <a id="editValue" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Product</a>
     <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Products</a>
+    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>  
 </p>
 @(Html.Telerik().Grid<ProductModel>()
-        .Name("ProductsGrid").Sortable() 
+        .Name("ProductsGrid").Sortable().Pageable()
         .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Product"))
         .Columns(columns =>
         {
             columns.Bound(o => o.Id).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Id #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(p => p.Name);
-            columns.Bound(p => p.Client);
+            columns.Bound(p => p.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
+            columns.Bound(p => p.Client).HeaderHtmlAttributes(new { filterable_column = "Client" });
         })
 )
 
@@ -113,6 +114,12 @@
     }
     $().ready(function () {
 
+        //Bind grid filters
+        $("#ProductsGrid").gridFilter({ postUrl: '@(Url.Action("Select", "Product"))', btnClearFilter: $("#clearFilter"), gridInstance: function () {
+            return $("#ProductsGrid").data("tGrid");
+        }
+        });
+        
         //Open insert window
         $("#addNewValue").click(function (e) {
             e.preventDefault();

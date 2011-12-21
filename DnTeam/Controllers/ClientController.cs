@@ -19,15 +19,21 @@ namespace DnTeam.Controllers
         }
 
         [NonAction]
-        private IEnumerable<ClientModel> Return(IEnumerable<Client> clients)
+        private IEnumerable<ClientModel> Return()
         {
-            return clients.Select(o => new ClientModel { Name = o.Name, Id = o.ToString()});
+            return ClientRepository.GetAllClients().Select(o => new ClientModel { Name = o.Name, Id = o.ToString() });
         }
             
         [GridAction]
-        public ActionResult Select()
+        public ActionResult Select(List<string> filterQuery)
         {
-            return View(new GridModel(Return(ClientRepository.GetAllClients())));
+            if (filterQuery != null && filterQuery.Count() > 0)
+            {
+                var result = Return().Filter(filterQuery);
+                return View(new GridModel(result));
+            }
+
+            return View(new GridModel(Return()));
         }
 
         public ActionResult MultipleInsert(string value)

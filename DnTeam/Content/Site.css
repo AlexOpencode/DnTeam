@@ -433,3 +433,20 @@ div.filterAction a label { cursor: pointer;  }
 #person .display-field img { vertical-align: middle;}
 
 #person a:visited { color: #105CD6; }
+
+
+
+
+input[type=filter]
+{         
+    border: 1px solid #CCCCCC;
+    color: #444444;
+    font-size: 0.9em;    
+    margin-bottom: 5px;
+    width: 100%; 
+}
+
+.t-grid-header td
+{
+    border: none;
+}

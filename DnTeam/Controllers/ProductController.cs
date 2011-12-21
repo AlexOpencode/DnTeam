@@ -25,8 +25,14 @@ namespace DnTeam.Controllers
         }
             
         [GridAction]
-        public ActionResult Select()
+        public ActionResult Select(List<string> filterQuery)
         {
+            if (filterQuery != null && filterQuery.Count() > 0)
+            {
+                var result = Return().Filter(filterQuery);
+                return View(new GridModel(result));
+            }
+
             return View(new GridModel(Return()));
         }
 

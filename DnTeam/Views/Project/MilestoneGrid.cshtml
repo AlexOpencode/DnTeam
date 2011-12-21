@@ -6,6 +6,7 @@
     <a id="editMilestone" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Milestone</a>
     <a id="deleteMilestones" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Milestones</a>   
     <a id="finishMilestones" class="t-button t-button-icontext"><span class="t-icon t-insert"></span>Make Selected Milestones Completed</a>
+    <a id="clearFilterMilestone" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>
 </p>
     @(Html.Telerik().Grid<MilestoneModel>()
         .Name("MilestoneGrid").Sortable()
@@ -14,9 +15,9 @@
         {
             columns.Bound(o => o.MilestoneId).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedMilestones' value='<#= MilestoneId #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
             //columns.Bound(o => o.Index).Width(50);
-            columns.Bound(o => o.Name);
-            columns.Bound(o => o.TargetDate).Width(120);
-            columns.Bound(o => o.ActualDate).Width(120);
+            columns.Bound(o => o.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
+            columns.Bound(o => o.TargetDate).Width(120).HeaderHtmlAttributes(new { filterable_column = "TargetDate" });
+            columns.Bound(o => o.ActualDate).Width(120).HeaderHtmlAttributes(new { filterable_column = "ActualDate" });
             columns.Bound(o => o.Status).Width(50).Encoded(false).HtmlAttributes(new { style = "text-align:center" });
         }))
 
@@ -77,7 +78,12 @@ function saveMilestone() {
         }
     }, 'json');
 }
-     $().ready(function() {
+$().ready(function () {
+    //bind grid filter
+    $("#MilestoneGrid").gridFilter({ postUrl: '@(Url.Action("Select", "Milestone", new { projectId = Model.Id }))', btnClearFilter: $("#clearFilterMilestone"), gridInstance: function () {
+        return $("#MilestoneGrid").data("tGrid");
+    }});
+    
          //Open insert window
          $("#addMilestone").click(function (e) {
              e.preventDefault();

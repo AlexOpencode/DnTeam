@@ -11,23 +11,21 @@
     <a id="addNewValue" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Person</a>
     <a id="editValue" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Person</a>
     <a id="viewValues" class="t-button t-button-icontext"><img class="t-icon" src="@(Url.Content("~/Content/link.png"))" />View Selected Person</a>
-    <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected People</a>    
+    <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected People</a> 
+    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>      
 </p>
 
 @(Html.Telerik().Grid(Model)
-        .Name("PeopleGrid")
+        .Name("PeopleGrid").Sortable().Pageable() 
         .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Person"))
         .Columns(columns =>
         {
             columns.Bound(o => o.Id).Sortable(false)
                 .ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Id #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
-            //columns.Bound(o => o.Id).Sortable(false)
-            //    .ClientTemplate("<a href='" + @Url.Action("Details", "Person") + "/<#= Id #>'><img class='link-button' src='" + @Url.Content("~/Content/link.png") + "' alt='View'/></a>")
-            //    .Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });           
-            columns.Bound(o => o.Name).Width(200);
-            columns.Bound(o => o.Location);
-            columns.Bound(o => o.PrimaryManager);
-            columns.Bound(o => o.TechnologySkills);
+            columns.Bound(o => o.Name).Width(200).HeaderHtmlAttributes(new { filterable_column = "Name" });
+            columns.Bound(o => o.Location).HeaderHtmlAttributes(new { filterable_column = "Location" });
+            columns.Bound(o => o.PrimaryManager).HeaderHtmlAttributes(new { filterable_column = "PrimaryManager" });
+            columns.Bound(o => o.TechnologySkills).HeaderHtmlAttributes(new { filterable_column = "TechnologySkills" });
             
         }) 
 )
@@ -72,6 +70,7 @@
 
 
 @section HeadScripts {
+
 <script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
 <script type="text/javascript">
     function addValue() {
@@ -116,6 +115,11 @@
     }
     
     $().ready(function () {
+        
+        //Bind grid filters
+        $("#PeopleGrid").gridFilter({ postUrl: '@(Url.Action("Select", "Person"))', btnClearFilter: $("#clearFilter"), gridInstance: function () {
+            return $("#PeopleGrid").data("tGrid");
+        }});
 
         //Open insert window
         $("#addNewValue").click(function (e) {

@@ -11,6 +11,7 @@ using DotNetOpenAuth.OpenId.RelyingParty;
 using DotNetOpenAuth.OpenId;
 using DotNetOpenAuth.Messaging;
 
+
 namespace DnTeam.Controllers
 {
     public class PersonController : Controller
@@ -47,17 +48,17 @@ namespace DnTeam.Controllers
         {
             return PersonRepository.GetAllPeople(isActive).Select(o => new PersonGridModel
                                                                      {
-                Id = o.ToString(),
-                PrimaryManager = o.PrimaryManagerName,
-                Name = o.Name,
-                Location = o.LocationName,
-                TechnologySkills = (o.TechnologySpecialties.Count > 0) 
-                    ? o.TechnologySpecialties.Select(s => s.Name).Aggregate((workingSentence, next) => next + ", " + workingSentence)
-                    : string.Empty
-            });
+                                                                         Id = o.ToString(),
+                                                                         PrimaryManager = o.PrimaryManagerName,
+                                                                         Name = o.Name,
+                                                                         Location = o.LocationName,
+                                                                         TechnologySkills = (o.TechnologySpecialties.Count > 0)
+                                                                             ? o.TechnologySpecialties.Select(s => s.Name).Aggregate((workingSentence, next) => next + ", " + workingSentence)
+                                                                             : string.Empty
+                                                                     });
         }
 
-        public ActionResult LogIn ()
+        public ActionResult LogIn()
         {
             Response.AppendHeader("X-XRDS-Location", new Uri(Request.Url, Response.ApplyAppPathModifier("~/Home/xrds")).AbsoluteUri);
             return View();
@@ -81,7 +82,7 @@ namespace DnTeam.Controllers
                 if (Identifier.TryParse(Request.Form["openid_identifier"], out id))
                 {
                     //Validate Identifier is assigned to an active user in the database
-                    
+
 
                     if (string.IsNullOrEmpty(PersonRepository.ValidateIdentifier(id.ToString())))
                     {
@@ -112,9 +113,9 @@ namespace DnTeam.Controllers
 
                     if (!string.IsNullOrEmpty(returnUrl))
                         return Redirect(returnUrl);
-                        
+
                     return RedirectToAction("Index", "Home");
-                        
+
                 case AuthenticationStatus.Canceled:
                     ViewData["Message"] = "Canceled at provider";
                     return View("LogIn");
@@ -126,23 +127,23 @@ namespace DnTeam.Controllers
         }
 
         [HttpGet]
-        [OpenIdAuthorize] 
+        [OpenIdAuthorize]
         public ActionResult Details(string id)
         {
             var personsList = PersonRepository.GetActivePersonsList();
             var model = MapPersonToModel(PersonRepository.GetPerson(id), personsList);
-            
+
             //customize display values
             model.PhotoUrl = string.IsNullOrEmpty(model.PhotoUrl) ? "../../Content/noImage.jpg" : model.PhotoUrl;
             model.PrimaryManagerName = (model.PrimaryManagerName == "wanted")
                                            ? model.PrimaryManagerName
-                                           : string.Format("<a href=\"{0}\">{1}</a>", Url.Action("Details", new {id = model.PrimaryManager}), model.PrimaryManagerName);
+                                           : string.Format("<a href=\"{0}\">{1}</a>", Url.Action("Details", new { id = model.PrimaryManager }), model.PrimaryManagerName);
             model.PrimaryPeerName = (model.PrimaryPeerName == "wanted")
                                            ? model.PrimaryPeerName
                                            : string.Format("<a href=\"{0}\">{1}</a>", Url.Action("Details", new { id = model.PrimaryPeer }), model.PrimaryPeerName);
 
             model.DepartmentDescription = DepartmentRepository.GetDepartmentDescription(model.LocatedIn);
-           
+
             return View(model);
         }
 
@@ -153,7 +154,7 @@ namespace DnTeam.Controllers
             var person = PersonRepository.GetPerson(id);
 
             //Prevent editing if person is not active
-            if (!person.IsActive) 
+            if (!person.IsActive)
                 return RedirectToAction("Index");
 
             var personsList = PersonRepository.GetActivePersonsList();
@@ -163,7 +164,7 @@ namespace DnTeam.Controllers
             ViewData["LocationsList"] = DepartmentRepository.GetDepartmentsDictionary().ToSelectList(string.Empty, "none");
             ViewData["TechnologySpecialtyNames"] = new SelectList(SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyNames));
             ViewData["TechnologySpecialtyLevels"] = SettingsRepository.GetSettingValues(EnumName.TechnologySpecialtyLevels);
-            
+
             return View(model);
         }
 
@@ -172,7 +173,7 @@ namespace DnTeam.Controllers
         public ActionResult Index()
         {
             ViewData["PersonsList"] = new SelectList(PersonRepository.GetActivePersonsList(), "key", "value");
-            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value"); 
+            ViewData["LocationsList"] = new SelectList(DepartmentRepository.GetDepartmentsDictionary(), "key", "value");
             return View();
         }
 
@@ -199,21 +200,33 @@ namespace DnTeam.Controllers
         public ActionResult Delete(List<string> values)
         {
             PersonRepository.DeletePeople(values);
-            
+
             return Content("");
         }
 
         [OpenIdAuthorize]
         [GridAction]
-        public ActionResult Select()
+        public ActionResult Select(List<string> filterQuery)
         {
+            if (filterQuery != null && filterQuery.Count() > 0)
+            {
+                var result = Return().Filter(filterQuery);
+                return View(new GridModel(result));
+            }
+
             return View(new GridModel(Return()));
         }
 
         [OpenIdAuthorize]
         [GridAction]
-        public ActionResult SelectInActive()
+        public ActionResult SelectInActive(List<string> filterQuery)
         {
+            if (filterQuery != null && filterQuery.Count() > 0)
+            {
+                var result = Return(false).Filter(filterQuery);
+                return View(new GridModel(result));
+            }
+
             return View(new GridModel(Return(false)));
         }
 
@@ -236,7 +249,7 @@ namespace DnTeam.Controllers
                 }
                 else
                 {
-                    return new JsonResult {Data = "OpenId Identifier is not valid."};
+                    return new JsonResult { Data = "OpenId Identifier is not valid." };
                 }
             }
 
@@ -255,8 +268,8 @@ namespace DnTeam.Controllers
         public ActionResult DeleteElementFromPersonProperty(string id, string name, string value)
         {
             PersonRepository.DeleteValueFromPropertySet(id, name, value);
-            
-            return Content("");
+
+            return new JsonResult { Data = null };
         }
         #endregion
 
@@ -284,6 +297,6 @@ namespace DnTeam.Controllers
                     return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
             }
         }
-        
+
     }
 }

@@ -7,26 +7,11 @@ namespace DnTeam.Models
 {
     public class ProjectGridModel : ProjectModel
     {
-        [UIHint("Persons")]
         [Display(Name = "Program Manager")]
         public string ProgramManager { get; set; }
 
-        [UIHint("Persons")]
         [Display(Name = "Technical  Lead")]
         public string TechnicalLead { get; set; }
-
-        //public string Details
-        //{
-        //    get
-        //    {
-        //        return string.IsNullOrEmpty(Id)
-        //                   ? ""
-        //                   : "<a href=\"/Project/Details/" + Id +
-        //                     "\"><img class=\"link-button\" src=\"../../Content/link.png\" alt=\"View\"/></a>";
-        //    }
-        //}
-
-
     }
 
     public class ProjectModel

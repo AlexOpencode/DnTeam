@@ -13,22 +13,27 @@ namespace DnTeam.Controllers
     public class PersonSpecialtyController : Controller
     {
         [NonAction]
-        private static GridModel Return(string id)
+        private static IEnumerable<SpecialtyModel> Return(string id)
         {
-            return new GridModel(PersonRepository.GetTechnologySpecialties(id).Select(o => new SpecialtyModel
-                                                                                     {
-                                                                                        Name = o.Name,
-                                                                                        Level = o.Level,
-                                                                                        FirstUsed = o.FirstUsed,
-                                                                                        LastUsed = o.LastUsed,
-                                                                                        LastProjectNote = o.LastProjectNote
-                                                                                     }));
+            return PersonRepository.GetTechnologySpecialties(id).Select(o => new SpecialtyModel
+            {
+                Name = o.Name,
+                Level = o.Level,
+                FirstUsed = o.FirstUsed,
+                LastUsed = o.LastUsed,
+                LastProjectNote = o.LastProjectNote
+            });
         }
 
         [GridAction]
-        public ActionResult Select(string id)
+        public ActionResult Select(string id, List<string> filterQuery)
         {
-            return View(Return(id));
+            if (filterQuery != null && filterQuery.Count() > 0)
+            {
+                var result = Return(id).Filter(filterQuery);
+                return View(new GridModel(result));
+            }
+            return View(new GridModel(Return(id)));
         }
 
         [HttpPost]

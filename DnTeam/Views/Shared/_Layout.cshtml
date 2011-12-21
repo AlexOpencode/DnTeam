@@ -55,6 +55,6 @@
         <footer>
         </footer>
     </div>
-    @Html.Telerik().ScriptRegistrar()
+    @Html.Telerik().ScriptRegistrar().DefaultGroup(group => group.Add("~/Scripts/gridFilter.js"))
 </body>
 </html>

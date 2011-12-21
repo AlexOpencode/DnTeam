@@ -5,19 +5,20 @@
     <a id="addAssignment" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Assignment</a>
     <a id="editAssignment" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Assignment</a>
     <a id="deleteAssignments" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Assignments</a>    
+    <a id="clearFilterAssignment" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>
 </p>
     @(Html.Telerik().Grid<AssignmentModel>()
-        .Name("AssignmentsGrid").Sortable()
+        .Name("AssignmentsGrid").Sortable().Pageable()
         .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Assignment", new { projectId = Model.Id }))
         .Columns(columns =>
         {
             columns.Bound(o => o.AssignmentId).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedAssignments' value='<#= AssignmentId #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(o => o.Role);
-            columns.Bound(o => o.Person);
-            columns.Bound(o => o.Note);
-            columns.Bound(o => o.StartDate).Width(200);
-            columns.Bound(o => o.EndDate).Width(200);
-            columns.Bound(o => o.Commitment).Width(50);
+            columns.Bound(o => o.Role).HeaderHtmlAttributes(new { filterable_column = "Role" });
+            columns.Bound(o => o.Person).HeaderHtmlAttributes(new { filterable_column = "Person" });
+            columns.Bound(o => o.Note).HeaderHtmlAttributes(new { filterable_column = "Note" });
+            columns.Bound(o => o.StartDate).Width(200).HeaderHtmlAttributes(new { filterable_column = "StartDate" });
+            columns.Bound(o => o.EndDate).Width(200).HeaderHtmlAttributes(new { filterable_column = "EndDate" });
+            columns.Bound(o => o.Commitment).Width(50).HeaderHtmlAttributes(new { filterable_column = "Commitment" });
         }))
 
 @{Html.Telerik().Window().Name("AssignmentEditWindow").Title("Insert").Content(
@@ -82,6 +83,7 @@
                 <div class="editLine" style="padding-top: 20px;">
                     <a class="t-button t-button-icontext yesButton" onclick="saveAssignment()"><span class="t-icon t-insert"></span><label>Insert</label></a>
                     <a class="t-button t-button-icontext noButton" onclick="closeWindow('AssignmentEditWindow')"><span class="t-icon t-cancel"></span><label>Cancel</label></a>
+                    <a id="clearFilterAssignment" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>
                 </div>
       </text>).Visible(false).Draggable(true).Scrollable(false).Modal(true).Render();}
 
@@ -111,6 +113,14 @@ function saveAssignment() {
     }, 'json');
 }
 $().ready(function () {
+
+    //bind grid filter
+    $("#AssignmentsGrid").gridFilter({ postUrl: '@(Url.Action("Select", "Assignment", new { projectId = Model.Id }))', btnClearFilter: $("#clearFilterAssignment"), gridInstance: function () {
+        return $("#AssignmentsGrid").data("tGrid");
+    }});
+    
+    
+    
     //Open insert window
     $("#addAssignment").click(function (e) {
         e.preventDefault();
