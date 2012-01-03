@@ -254,6 +254,22 @@ namespace DnTeamData.Models
     }
 
     /// <summary>
+    /// Decribes Functional (project) specialties
+    /// </summary>
+    public class FunctionalSpecialty : Specialty
+    {
+        /// <summary>
+        /// Project Id
+        /// </summary>
+        public string ProjectId { get; set; }
+
+        /// <summary>
+        /// User Roles
+        /// </summary>
+        public string Roles { get; set; }
+    }
+
+    /// <summary>
     /// The list of Person edit statuses
     /// </summary>
     public enum PersonEditStatus

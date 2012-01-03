@@ -9,18 +9,21 @@ namespace DnTeam.Models
         public string Id { get; set; }
 
         [Required]
+        [LocalizedDisplay("Department_Name")]
         public string Name { get; set; }
 
-        [DisplayName("Parent Department")]
+        [LocalizedDisplay("Department_Parent")]
         public string ParentDepartment { get; set; }
         
-        [UIHint("Locations")]
+        [LocalizedDisplay("Department_Location")]
         public string Location { get; set; }
 
         [UIHint("Currency")]
+        [LocalizedDisplay("Department_Cost")]
         public decimal Cost { get; set; }
 
         [UIHint("Currency")]
+        [LocalizedDisplay("Department_Rate")]
         public decimal Rate { get; set; }
     }
 }

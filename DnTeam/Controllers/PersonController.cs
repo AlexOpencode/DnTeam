@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using DnTeam.Models;
@@ -82,11 +84,9 @@ namespace DnTeam.Controllers
                 if (Identifier.TryParse(Request.Form["openid_identifier"], out id))
                 {
                     //Validate Identifier is assigned to an active user in the database
-
-
                     if (string.IsNullOrEmpty(PersonRepository.ValidateIdentifier(id.ToString())))
                     {
-                        ViewData["Message"] = "User with such OpenId is not registered or is not active.";
+                        ViewData["Message"] = Resources.Labels.People_Error_Not_Found_OpenId;
                         return View("LogIn");
                     }
 
@@ -100,7 +100,7 @@ namespace DnTeam.Controllers
                         return View("LogIn");
                     }
                 }
-                ViewData["Message"] = "Invalid identifier";
+                ViewData["Message"] = Resources.Labels.People_Error_Invalid_OpenId;
                 return View("Login");
             }
 
@@ -108,7 +108,7 @@ namespace DnTeam.Controllers
             switch (response.Status)
             {
                 case AuthenticationStatus.Authenticated:
-                    Session["FriendlyIdentifier"] = PersonRepository.ValidateIdentifier(response.ClaimedIdentifier);
+                    //Session["FriendlyIdentifier"] = PersonRepository.ValidateIdentifier(response.ClaimedIdentifier);
                     FormsAuthentication.SetAuthCookie(response.ClaimedIdentifier, false);
 
                     if (!string.IsNullOrEmpty(returnUrl))
@@ -134,7 +134,7 @@ namespace DnTeam.Controllers
             var model = MapPersonToModel(PersonRepository.GetPerson(id), personsList);
 
             //customize display values
-            model.PhotoUrl = string.IsNullOrEmpty(model.PhotoUrl) ? "../../Content/noImage.jpg" : model.PhotoUrl;
+            model.PhotoUrl = string.IsNullOrEmpty(model.PhotoUrl) ? VirtualPathUtility.ToAbsolute("~/Content/noImage.jpg") : model.PhotoUrl;
             model.PrimaryManagerName = (model.PrimaryManagerName == "wanted")
                                            ? model.PrimaryManagerName
                                            : string.Format("<a href=\"{0}\">{1}</a>", Url.Action("Details", new { id = model.PrimaryManager }), model.PrimaryManagerName);
@@ -242,14 +242,14 @@ namespace DnTeam.Controllers
                 if (Identifier.TryParse(value, out iden))
                 {
                     if (!string.IsNullOrEmpty(PersonRepository.ValidateIdentifier(iden.ToString())))
-                        return new JsonResult { Data = "OpenId Identifier is user by other user." };
+                        return new JsonResult { Data = Resources.Labels.People_Error_Duplicate_OpenId };
 
                     //assign valid OpenId format to save in the database
                     value = iden.ToString();
                 }
                 else
                 {
-                    return new JsonResult { Data = "OpenId Identifier is not valid." };
+                    return new JsonResult { Data = Resources.Labels.People_Error_Invalid_OpenId };
                 }
             }
 
@@ -282,19 +282,19 @@ namespace DnTeam.Controllers
                     return null;
 
                 case PersonEditStatus.ErrorDuplicateName:
-                    return "User name already exists. Please enter a different user name.";
+                    return Resources.Labels.People_Error_Duplicate_Name;
 
                 case PersonEditStatus.ErrorDuplicateItem:
-                    return "User with such value already exists. Please enter a different value.";
+                    return Resources.Labels.People_Error_Duplicate_Item;
 
                 case PersonEditStatus.ErrorInvalidPrimaryManager:
-                    return "Please, select primary manager from the list or leave the field empty.";
+                    return Resources.Labels.People_Error_Invalid_Primary_Manager;
 
                 case PersonEditStatus.ErrorInvalidLocation:
-                    return "Please, select department location from the list or leave the field empty.";
+                    return Resources.Labels.People_Error_Invalid_Location;
 
                 default:
-                    return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+                    return Resources.Labels.Error_Default;
             }
         }
 

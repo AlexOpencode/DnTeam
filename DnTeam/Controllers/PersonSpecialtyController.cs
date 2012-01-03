@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using DnTeamData;
@@ -12,10 +11,12 @@ namespace DnTeam.Controllers
     [OpenIdAuthorize]
     public class PersonSpecialtyController : Controller
     {
-        [NonAction]
-        private static IEnumerable<SpecialtyModel> Return(string id)
+       
+
+        [GridAction]
+        public ActionResult SelectTechnology(string id, List<string> filterQuery)
         {
-            return PersonRepository.GetTechnologySpecialties(id).Select(o => new SpecialtyModel
+            var specialties = PersonRepository.GetTechnologySpecialties(id).Select(o => new TechnologySpecialtyModel
             {
                 Name = o.Name,
                 Level = o.Level,
@@ -23,17 +24,29 @@ namespace DnTeam.Controllers
                 LastUsed = o.LastUsed,
                 LastProjectNote = o.LastProjectNote
             });
+
+            if (filterQuery != null && filterQuery.Count() > 0)
+                return View(new GridModel(specialties.Filter(filterQuery)));
+            
+            return View(new GridModel(specialties));
         }
 
         [GridAction]
-        public ActionResult Select(string id, List<string> filterQuery)
+        public ActionResult SelectProject(string id, List<string> filterQuery)
         {
-            if (filterQuery != null && filterQuery.Count() > 0)
+            var specialties = ProjectRepository.GetPersonProjectSpecialties(id).Select(o => new FunctionalSpecialtyModel
             {
-                var result = Return(id).Filter(filterQuery);
-                return View(new GridModel(result));
-            }
-            return View(new GridModel(Return(id)));
+                Name = o.Name,
+                Roles = o.Roles,
+                FirstUsed = o.FirstUsed,
+                LastUsed = o.LastUsed,
+                ProjectId = o.ProjectId
+            });
+
+            if (filterQuery != null && filterQuery.Count() > 0)
+                return View(new GridModel(specialties.Filter(filterQuery)));
+
+            return View(new GridModel(specialties));
         }
 
         [HttpPost]
@@ -60,17 +73,14 @@ namespace DnTeam.Controllers
                 case PersonEditStatus.Ok:
                     return null;
 
-                case PersonEditStatus.ErrorDuplicateName:
-                    return "User name already exists. Please, enter a different user name.";
-
-                case PersonEditStatus.ErrorDateIsNotValid:
-                    return string.Format("Date is not in valid format. Please, enter a valid date (for example today is: {0}).", DateTime.Now.ToShortDateString());
+               case PersonEditStatus.ErrorDateIsNotValid:
+                    return Resources.Labels.Error_Invalid_Date_Format;
 
                 case PersonEditStatus.ErrorDuplicateSpecialtyName:
-                    return "The selected specialty is already defined for the given person. Please, select other one.";
+                    return Resources.Labels.Specialty_Error_Duplicate_Name;
                     
                 default:
-                    return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+                    return Resources.Labels.Error_Default;
             }
         }
     }

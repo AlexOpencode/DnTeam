@@ -1,0 +1,45 @@
+﻿@using DnTeam.Models
+@{
+    ViewBag.Title = Resources.Labels.Localization_Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Resources.Labels.Localization_Title</h2>
+<p>    
+    @*<a id="addValue" class="t-button t-button-icontext"><span class="t-icon t-add"></span>@Resources.Labels.Localization_Add_a_New</a>*@
+    <a id="editValue" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>@Resources.Labels.Localization_Edit</a>
+    @*<a id="deleteValue" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>@Resources.Labels.Localization_Delete</a>
+    <a id="turnOn" class="t-button t-button-icontext"><span class="t-icon t-insert"></span>@Resources.Labels.Localization_Turn_On</a>
+    <a id="turnOff" class="t-button t-button-icontext"><span class="t-icon t-cancel"></span>@Resources.Labels.Localization_Turn_Off</a>*@    
+</p>
+
+@(Html.Telerik().Grid<Language>()
+        .Name("ClientsGrid").Sortable()
+        .DataBinding(dataBinding => dataBinding.Ajax().Select("Select","Localization"))
+        .Columns(columns =>
+        {            
+            columns.Bound(o => o.Culture).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Culture #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(o => o.Title);
+            columns.Bound(o => o.Culture);
+            columns.Bound(o => o.Flag).Title(Resources.Labels.Localization_Flag);
+        }))
+
+@section HeadScripts {
+<script type="text/javascript">
+    $().ready(function() {
+        
+        $("#editValue").click(function() {
+            var values = new Array();
+            $("input:checkbox[name=checkedRecords]:checked").each(function() {
+                values.push($(this));
+            });
+
+            if (values.length != 1) {
+                alert("@(Resources.Labels.Localization_Error_Edit_Nothing)");
+            } else {
+                 window.location = "@(Url.Action("Edit", "Localization"))?lang=" + values[0].val();
+            }
+        });
+    });
+</script> 
+}

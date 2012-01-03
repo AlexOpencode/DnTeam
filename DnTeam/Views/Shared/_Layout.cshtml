@@ -1,50 +1,75 @@
-﻿<!DOCTYPE html>
+﻿@using DnTeam.Controllers
+@using DnTeam.Models
+@using DnTeamData.Models
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <title>@ViewBag.Title</title>
     <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
     <script src="@Url.Content("~/Scripts/2011.3.1115/jquery-1.6.4.min.js")" type="text/javascript"></script>  
-    <script src="@Url.Content("~/Scripts/openCloseTelerikWindow.js")" type="text/javascript"></script>     
+    <script src="@Url.Content("~/Scripts/DnTeam.openCloseTelerikWindow.js")" type="text/javascript"></script>     
+    <script src="@Url.Content("~/Scripts/DnTeam.showOperationStatus.js")" type="text/javascript"></script> 
     @RenderSection("HeadScripts", required: false)        
-    @Html.Telerik().StyleSheetRegistrar().DefaultGroup(group => group.Add("telerik.common.css").Add("telerik.metro.min.css"))
+    @Html.Telerik().StyleSheetRegistrar().DefaultGroup(group => group.Add("telerik.common.css").Add("telerik.metro.min.css").Combined(true).Compress(true))
 </head>
 <body>
     <div class="page">
         <header>           
-            <div class="helloDiv">
-            Hello, @Session["FriendlyIdentifier"]  | @Html.ActionLink("Logout", "LogOut", "Person")               
+            <div class="helloDiv">            
+            @Html.ActionLink(Resources.Labels.Menu_Log_Out, "LogOut", "Person")               
             </div>
             @{ Html.Telerik().Menu()
         .Name("Menu")
         .Items(menu =>
         {
-            menu.Add().Text("Home").Action("Index", "Home");
-            menu.Add().Text("Projects").Action("Index", "Project");
-            menu.Add().Text("People").Action("Index", "Person").Items(item => item.Add().Text("Inactive").Action("Inactive", "Person"));
-            menu.Add().Text("Clients").Action("Index", "Client");
-            menu.Add().Text("Products").Action("Index", "Product");
-            menu.Add().Text("Departments").Action("Index", "Department");
+            menu.Add().Text(Resources.Labels.Menu_Home).Action("Index", "Home");
+            menu.Add().Text(Resources.Labels.Menu_Projects).Action("Index", "Project");
+            menu.Add().Text(Resources.Labels.Menu_People).Action("Index", "Person").Items(item => item.Add().Text("Inactive").Action("Inactive", "Person"));
+            menu.Add().Text(Resources.Labels.Menu_Clients).Action("Index", "Client");
+            menu.Add().Text(Resources.Labels.Menu_Products).Action("Index", "Product");
+            menu.Add().Text(Resources.Labels.Menu_Departments).Action("Index", "Department");
             menu.Add()
-                .Text("Settings")
+                .Text(Resources.Labels.Menu_Settings)
                 .Items(item =>
                 {
-                    item.Add().Text("Locations").Action("Index", "Settings", new { type = "Locations" });
-                    item.Add().Text("Technology Specialty").Items(subItem =>
+                    item.Add().Text(Resources.Labels.Menu_System_Labels).Action("Index", "Localization");
+                    item.Add().Text(Resources.Labels.Menu_Locations).Action("Index", "Settings", new { title = "Locations", type = EnumName.Locations });
+                    item.Add().Text(Resources.Labels.Menu_Technology_Specialty).Items(subItem =>
                     {
-                        subItem.Add().Text("Names").Action("Index", "Settings", new { type = "Technology Specialty Names" });
-                        subItem.Add().Text("Levels").Action("Index", "Settings", new { type = "Technology Specialty Levels" });
+                        subItem.Add().Text(Resources.Labels.Menu_Technology_Specialty_Names).Action("Index", "Settings",
+                            new { title = Resources.Labels.Menu_Technology_Specialty_Names, type = EnumName.TechnologySpecialtyNames });
+                        subItem.Add().Text(Resources.Labels.Menu_Technology_Specialty_Levels).Action("Index", "Settings",
+                            new { title = Resources.Labels.Menu_Technology_Specialty_Levels, type = EnumName.TechnologySpecialtyLevels });
                     });
-                    item.Add().Text("Project").Items(subItem =>
+                    item.Add().Text(Resources.Labels.Menu_Project).Items(subItem =>
                     {
-                        subItem.Add().Text("Roles").Action("Index", "Settings", new { type = "Project Roles" });
-                        subItem.Add().Text("Statuses").Action("Index", "Settings", new { type = "Project Statuses" });
-                        subItem.Add().Text("Types").Action("Index", "Settings", new { type = "Project Types" });
-                        subItem.Add().Text("Milestones").Action("Index", "Settings", new { type = "Project Milestones" });
-                        subItem.Add().Text("Noise Types").Action("Index", "Settings", new { type = "Project Noise Types" });
-                        subItem.Add().Text("Priority Types").Action("Index", "Settings", new { type = "Project Priority Types" });
+                        subItem.Add().Text(Resources.Labels.Menu_Project_Roles).Action("Index", "Settings",
+                            new { title = Resources.Labels.Menu_Project_Roles, type = EnumName.ProjectRoles });
+                        subItem.Add().Text(Resources.Labels.Menu_Project_Statuses).Action("Index", "Settings",
+                            new { title = Resources.Labels.Menu_Project_Statuses, type = EnumName.ProjectStatuses });
+                        subItem.Add().Text(Resources.Labels.Menu_Project_Types).Action("Index", "Settings",
+                            new { title = Resources.Labels.Menu_Project_Types, type = EnumName.ProjectTypes });
+                        subItem.Add().Text(Resources.Labels.Menu_Project_Milestones).Action("Index", "Settings",
+                            new { title = Resources.Labels.Menu_Project_Milestones, type = EnumName.ProjectMilestones });
+                        subItem.Add().Text(Resources.Labels.Menu_Project_Noise_Types).Action("Index", "Settings",
+                            new { title = Resources.Labels.Menu_Project_Noise_Types, type = EnumName.ProjectNoiseTypes });
+                        subItem.Add().Text(Resources.Labels.Menu_Project_Priority_Types).Action("Index", "Settings",
+                            new { title = Resources.Labels.Menu_Project_Priority_Types, type = EnumName.ProjectPriorityTypes });
                     });
                 });
+            menu.Add().ImageUrl("~/Content/languages/" + Resources.Labels.Flag).Text(Resources.Labels.Title).Items(subItem =>
+            {
+                if (HttpContext.Current.Cache["LangList"] == null)
+                {
+                    LocalizationController.FillLanguages();
+                }
+                foreach (var lang in HttpContext.Current.Cache["LangList"] as IEnumerable<Language>)
+                {
+                    subItem.Add().ImageUrl("~/Content/languages/" + lang.Flag.Trim()).Text(lang.Title).Action("Change", "Localization",
+                    new { lang = lang.Culture, returnUrl = Request.RawUrl });
+                }
+            });
         })
         .Render();
 }
@@ -55,6 +80,6 @@
         <footer>
         </footer>
     </div>
-    @Html.Telerik().ScriptRegistrar().DefaultGroup(group => group.Add("~/Scripts/gridFilter.js"))
+    @Html.Telerik().ScriptRegistrar().DefaultGroup(group => group.Add("~/Scripts/DnTeam.gridFilter.js"))
 </body>
 </html>

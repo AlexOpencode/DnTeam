@@ -66,7 +66,7 @@ namespace DnTeamData
 
             var res = _coll.Update(query, update, SafeMode.True);
 
-            return (res.DocumentsAffected > 0) ? AssignmentEditStatus.Ok : AssignmentEditStatus.ErrorAssignmentHasNotBeenInserted;
+            return (res.DocumentsAffected > 0) ? AssignmentEditStatus.Ok : AssignmentEditStatus.ErrorNotInserted;
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace DnTeamData
 
             var res = _coll.Update(query, update, SafeMode.True);
 
-            return res.UpdatedExisting ? AssignmentEditStatus.Ok : AssignmentEditStatus.ErrorAssignmentHasNotBeenUpdated;
+            return res.UpdatedExisting ? AssignmentEditStatus.Ok : AssignmentEditStatus.ErrorNotUpdated;
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace DnTeamData
 
             if (string.IsNullOrEmpty(name))
             {
-                errorTargetDateFormat = MilestoneEditStatus.ErrorNameIsEmpty;
+                errorTargetDateFormat = MilestoneEditStatus.ErrorNoName;
                 return false;
             }
 
@@ -247,7 +247,7 @@ namespace DnTeamData
             {
                 var res = _coll.Update(query, update, SafeMode.True);
 
-                return res.UpdatedExisting ? MilestoneEditStatus.Ok : MilestoneEditStatus.ErrorMilestoneHasNotBeenUpdated;
+                return res.UpdatedExisting ? MilestoneEditStatus.Ok : MilestoneEditStatus.ErrorNotUpdated;
             }
             catch (MongoSafeModeException ex)
             {
@@ -308,13 +308,13 @@ namespace DnTeamData
         /// <param name="programManager">Program Manager id</param>
         /// <param name="technicalLead">Technical lead id</param>
         /// <returns>Project edit status</returns>
-        public static ProjectEditStatus Insert(string name, string priority, DateTime createdDate, string status, string noise, string product, string projectType, 
+        public static ProjectEditStatus Insert(string name, string priority, DateTime createdDate, string status, string noise, string product, string projectType,
             string programManager, string technicalLead)
         {
             var milestonesName = SettingsRepository.GetSettingValues(EnumName.ProjectMilestones);
 
             if (string.IsNullOrEmpty(name)) 
-                return ProjectEditStatus.ErrorNameIsEmpty;
+                return ProjectEditStatus.ErrorNoName;
 
             try
             {
@@ -395,7 +395,7 @@ namespace DnTeamData
             try
             {
                 var res = _coll.Update(query, update, SafeMode.True);
-                return res.UpdatedExisting ? ProjectEditStatus.Ok : ProjectEditStatus.ErrorPropertyHasNotBeenUpdated;
+                return res.UpdatedExisting ? ProjectEditStatus.Ok : ProjectEditStatus.ErrorPropertyNotUpdated;
             }
             catch (MongoSafeModeException ex)
             {
@@ -410,19 +410,19 @@ namespace DnTeamData
         /// </summary>
         /// <param name="id">Person Id</param>
         /// <returns>The list of project specialties</returns>
-        public static IEnumerable<Specialty> GetPersonProjectSpecialties(string id)
+        public static IEnumerable<FunctionalSpecialty> GetPersonProjectSpecialties(string id)
         {
             var personId = ObjectId.Parse(id);
             var query = Query.EQ("Assignments.PersonId", personId);
             var cursor = _coll.Find(query);
 
-            return cursor.Select(o => new Specialty
+            return cursor.Select(o => new FunctionalSpecialty
                                             {
                                                 Name = o.Name,
-                                                LastProjectNote = o.Id.ToString(),
+                                                ProjectId = o.Id.ToString(),
                                                 FirstUsed = o.Assignments.Where(x => x.PersonId == personId).OrderBy(x => x.StartDate).First().StartDate,
                                                 LastUsed = o.Assignments.Where(x => x.PersonId == personId).OrderByDescending(x => x.EndDate).First().EndDate,
-                                                Level = o.Assignments.Where(x => x.PersonId == personId).Select(x => x.Role).Distinct().OrderByDescending(x=>x)
+                                                Roles = o.Assignments.Where(x => x.PersonId == personId).Select(x => x.Role).Distinct().OrderByDescending(x=>x)
                                                     .Aggregate((workingSentence, next) => next + ", " + workingSentence)
                                             });
         }

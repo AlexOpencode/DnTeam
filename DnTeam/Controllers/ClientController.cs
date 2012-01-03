@@ -63,10 +63,10 @@ namespace DnTeam.Controllers
                     return null;
 
                 case  TransactionStatus.DuplicateItem:
-                    return "Client with such name already exists. Please, enter other name.";
+                    return Resources.Labels.Client_Error_Duplicate_Item;
 
                 default:
-                    return "Undefined error occured. Please, contact your administrator.";
+                    return Resources.Labels.Error_Default;
             }
         }
     }

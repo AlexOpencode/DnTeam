@@ -159,7 +159,7 @@ namespace DnTeamData
         {
            
                 if(string.IsNullOrEmpty(name))
-                    return DepartmentEditStatus.ErrorNameIsEmpty;
+                    return DepartmentEditStatus.ErrorNoName;
 
                 ObjectId departmentOf;
                 if(!ObjectId.TryParse(parentId, out departmentOf) && !string.IsNullOrEmpty(parentName))

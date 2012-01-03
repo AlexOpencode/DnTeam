@@ -83,6 +83,6 @@ namespace DnTeamData.Models
         /// <summary>
         /// Department name was empty
         /// </summary>
-        ErrorNameIsEmpty,
+        ErrorNoName,
     }
 }

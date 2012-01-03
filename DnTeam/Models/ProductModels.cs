@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DnTeam.Models
 {
@@ -8,11 +7,10 @@ namespace DnTeam.Models
         public string Id { get; set; }
 
         [Required]
-        [DisplayName("Product Name")]
+        [LocalizedDisplay("Products_Name")]
         public string Name { get; set; }
 
-        [UIHint("Clients"), Required]
-        [DisplayName("Client Name")]
+        [LocalizedDisplay("Products_Client")]
         public string  Client { get; set; }
     }
 }

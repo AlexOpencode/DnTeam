@@ -11,36 +11,33 @@ namespace DnTeam.Controllers
     [OpenIdAuthorize]
     public class SettingsController : Controller
     {
-        public ActionResult Index(string type)
-        {
-            var e = SettingsRepository.GetEnumName(type);
-            if (e == EnumName.Undefined)
-                return View("Error");
 
-            ViewBag.Title = type;
+        public ActionResult Index(EnumName type, string title)
+        {
+            ViewBag.SettingType = type;
+            ViewBag.Title = title;
+            
             return View();
         }
         
         [GridAction]
-        public ActionResult Select(string type)
+        public ActionResult Select(EnumName type)
         {
-            var enumName = SettingsRepository.GetEnumName(type);
-            var list = SettingsRepository.GetSettingValues(enumName);
+            var list = SettingsRepository.GetSettingValues(type);
 
             return View(new GridModel((list != null) ? list.Select(o => new Value {Name = o}).ToList() : new List<Value>()));
         }
 
-        public ActionResult MultipleInsert(string type, string value)
+        public ActionResult MultipleInsert(EnumName type, string value)
         {
-            SettingsRepository.BatchAddSettingValues(SettingsRepository.GetEnumName(type), Common.SplitValues(value));
+            SettingsRepository.BatchAddSettingValues(type, Common.SplitValues(value));
 
             return Content("");
         }
 
-        public ActionResult Delete(string type, List<string> values)
+        public ActionResult Delete(EnumName type, List<string> values)
         {
-            var enumName = SettingsRepository.GetEnumName(type);
-            SettingsRepository.BatchDeleteSettingValues(enumName, values);
+            SettingsRepository.BatchDeleteSettingValues(type, values);
 
             return Content("");
         }

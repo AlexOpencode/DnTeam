@@ -28,20 +28,6 @@ namespace DnTeamData
         #endif
 
         /// <summary>
-        /// Returns parsed string as Enum
-        /// </summary>
-        /// <param name="value">Settings name</param>
-        /// <returns>Enum value</returns>
-        public static EnumName GetEnumName(string value)
-        {
-            EnumName res;
-            if (Enum.TryParse(value.Replace(" ", string.Empty), true, out res))
-                return res;
-
-            return EnumName.Undefined;
-        }
-
-        /// <summary>
         /// Returns the list of values of the defined setting
         /// </summary>
         /// <param name="name">Setting's Enum value</param>

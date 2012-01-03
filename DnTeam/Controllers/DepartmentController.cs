@@ -80,16 +80,16 @@ namespace DnTeam.Controllers
                     return null;
 
                 case DepartmentEditStatus.ErrorDuplicate:
-                    return "Department with such name and location already exists. Please, enter other name or select other location.";
+                    return Resources.Labels.Department_Error_Duplicate;
 
                 case DepartmentEditStatus.ErrorParentUndefined:
-                    return "Please, select parent department from the list or leave the field empty.";
+                    return Resources.Labels.Department_Parent_Undefined;
 
-                case DepartmentEditStatus.ErrorNameIsEmpty:
-                    return "Please, enter the Name of the department.";
+                case DepartmentEditStatus.ErrorNoName:
+                    return Resources.Labels.Department_No_Name;
 
                 default:
-                    return "Undefined error occured. Please, contact your administrator.";
+                    return Resources.Labels.Error_Default;
             }
         }
     }

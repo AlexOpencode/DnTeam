@@ -1,4 +1,5 @@
-﻿@model DnTeam.Models.PersonModel
+﻿@using DnTeam.Models
+@model PersonModel
 
 @{
     ViewBag.Title = "Details";
@@ -11,7 +12,7 @@
     </div>        
     <div class="column editButton">
     
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }, new { @class = "t-button" })
+    @Html.ActionLink(Resources.Labels.Edit, "Edit", new { id = Model.Id }, new { @class = "t-button" })
     
     </div>  
 
@@ -19,25 +20,21 @@
     <h2>@Html.DisplayFor(model => model.Name)</h2>    
     
     @if (!string.IsNullOrEmpty(Model.DepartmentDescription))
-    {<text>    
-        @*<div class="display-label">Location</div>*@
+    {<text>            
         <div class="display-field">
             <img src="http://localhost:29539/Content/home.png" /> @Html.DisplayFor(model => model.DepartmentDescription)
         </div>  
     </text>} 
 
     @if (!string.IsNullOrEmpty(Model.Phone))
-    {<text>  
-            @*<div class="display-label">Phone</div>*@
+    {<text>             
     <div class="display-field">
         <img src="http://localhost:29539/Content/phone.png" /> @Html.DisplayFor(model => model.Phone)
     </div>
     </text>} 
 
     @if(Model.DoB != null)
-    {<text>
-       @* <div class="display-label">
-            Date of Birth</div>*@
+    {<text>       
         <div class="display-field">
             <img src="http://localhost:29539/Content/dob.png" /> @Html.DisplayFor(model => model.DoB)
         </div>
@@ -45,78 +42,116 @@
             
     @if (!string.IsNullOrEmpty(Model.Comments))
      {<text>
-    <div class="display-label">Comments</div>
+    <div class="display-label">@Html.LabelFor(model => model.Comments)</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Comments)
     </div>
     </text>} 
 
-    <div class="display-label">Primary Manager: @Html.Raw(Model.PrimaryManagerName)</div>
+    <div class="display-label">@Html.LabelFor(model => model.PrimaryManager): @Html.Raw(Model.PrimaryManagerName)</div>
 
     @if (Model.OtherManagers.Count() > 0)
      {<text>
-         <div class="display-label">Other Managers</div>
+         <div class="display-label">@Html.LabelFor(model => model.OtherManagers)</div>
          <div class="display-field">@Html.Raw(Model.OtherManagers.Select(o => Html.ActionLink(o.Value, "Details", new {id = o.Key}, null).ToString())
             .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
      </text>}           
              
-    <div class="display-label">Primary Peer: @Html.Raw(Model.PrimaryPeerName)</div>
+    <div class="display-label">@Html.LabelFor(model => model.PrimaryPeer): @Html.Raw(Model.PrimaryPeerName)</div>
     
     @if (Model.OtherPeers.Count() > 0)
      {<text>
-         <div class="display-label">Other Peers</div>
+         <div class="display-label">@Html.LabelFor(model => model.OtherPeers)</div>
          <div class="display-field">@Html.Raw(Model.OtherPeers.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
             .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
      </text>}
             
     @if (Model.LikesToWorkWith.Count() > 0)
      {<text>
-         <div class="display-label">Likes to Work With</div>
+         <div class="display-label">@Html.LabelFor(model => model.LikesToWorkWith)</div>
          <div class="display-field">@Html.Raw(Model.LikesToWorkWith.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
             .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
      </text>}
     
     @if (Model.DirectReports.Count() > 0)
      {<text>
-         <div class="display-label">Direct Reports</div>
+         <div class="display-label">@Html.LabelFor(model => model.DirectReports)</div>
          <div class="display-field">@Html.Raw(Model.DirectReports.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
             .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
      </text>}     
      
      @if (Model.Links.Count() > 0)
      {<text>
-         <div class="display-label">Links</div>
+         <div class="display-label">@Html.LabelFor(model => model.Links)</div>
          <div class="display-field">@Html.Raw(Model.Links.Select(o=>string.Format("<a target=\"_blank\" href=\"{0}\">{0}</a>", (o.Length < 45) ? o : o.Substring(0,45) + " .." )).Aggregate((workingSentence, next) => next + "<br/> " + workingSentence))</div>
      </text>}     
      </div>    
      <div class="column">
      
-         <div class="display-label">Technology Specialties</div>
+         <div class="display-label">@Resources.Labels.People_Technology_Specialties</div>
          <div class="display-field">
-         <table>
-            <tr><th>Name</th><th>Level</th><th>First Used</th><th>Last Used</th><th>Last Project Note</th></tr>
-             @foreach(var s in Model.GetTechnologySpecialties())
-                                    {<text>
-                                        <tr><td>@s.Name</td><td>@s.Level</td><td>@s.FirstUsed.ToShortDateString()</td><td>@s.LastUsed.ToShortDateString()</td><td>@s.LastProjectNote</td></tr>
-                                    </text>}
-         </table>
+         <p><a id="clearFilterTechnologySpecialties" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>@Resources.Labels.Clear_Filter</a></p>
+         @(Html.Telerik().Grid<TechnologySpecialtyModel>()
+            .Name("TechnologySpecialtiesGrid")
+            .DataBinding(dataBinding => dataBinding.Ajax().Select("SelectTechnology", "PersonSpecialty", new { id = Model.Id}))
+            .Columns(columns =>
+            {
+                columns.Bound(o => o.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
+                columns.Bound(o => o.Level).Width(100).HeaderHtmlAttributes(new { filterable_column = "Level" });
+                columns.Bound(o => o.FirstUsed).Width(100).HeaderHtmlAttributes(new { filterable_column = "FirstUsed" });
+                columns.Bound(o => o.LastUsed).Width(100).HeaderHtmlAttributes(new { filterable_column = "LastUsed" });
+                columns.Bound(o => o.LastProjectNote).Sortable(false).HeaderHtmlAttributes(new { filterable_column = "LastProjectNote" });
+            }).Sortable())
          </div>
     
-    <div class="display-label">Project (Functional) Specialties</div>
+    <div class="display-label">@Resources.Labels.People_Project_Specialties</div>
          <div class="display-field">
-         <table>
-            <tr><th>Project Name</th><th>Roles</th><th>From</th><th>To</th></tr>
-             @foreach (var s in Model.GetProjectSpecialties())
-                                    {<text>
-                                        <tr>
-                                            <td>@Html.ActionLink(s.Name, "Details", "Project", new { id = s.LastProjectNote}, null)</td>
-                                            <td>@s.Level</td>
-                                            <td>@s.FirstUsed.ToShortDateString()</td>
-                                            <td>@s.LastUsed.ToShortDateString()</td>
-                                        </tr>
-                                    </text>}
-         </table>
+         <p>
+            <a id="viewValues" class="t-button t-button-icontext"><img class="t-icon" src="@(Url.Content("~/Content/link.png"))" />@Resources.Labels.Projects_View_Selected_Project</a>
+            <a id="clearFilterProjectSpecialties" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>@Resources.Labels.Clear_Filter</a>
+         </p>
+         @(Html.Telerik().Grid<FunctionalSpecialtyModel>()
+            .Name("ProjectSpecialtiesGrid")
+            .DataBinding(dataBinding => dataBinding.Ajax().Select("SelectProject", "PersonSpecialty", new { id = Model.Id}))
+            .Columns(columns =>
+            {
+                columns.Bound(o => o.ProjectId).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= ProjectId #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(o => o.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
+                columns.Bound(o => o.Roles).HeaderHtmlAttributes(new { filterable_column = "Level" });
+                columns.Bound(o => o.FirstUsed).Width(100).HeaderHtmlAttributes(new { filterable_column = "FirstUsed" });
+                columns.Bound(o => o.LastUsed).Width(100).HeaderHtmlAttributes(new { filterable_column = "LastUsed" });                
+            }).Sortable())      
          </div>
          </div>
 
 </div>
+@section HeadScripts 
+{
+<script type="text/javascript">
+ $().ready(function() {
+        //bind grid filter
+     $("#TechnologySpecialtiesGrid").gridFilter({ postUrl: '@(Url.Action("SelectTechnology", "PersonSpecialty", new { id = Model.Id}))', btnClearFilter: $("#clearFilterTechnologySpecialties"), gridInstance: function () {
+            return $("#TechnologySpecialtiesGrid").data("tGrid");
+        }});
+        //bind grid filter
+    $("#ProjectSpecialtiesGrid").gridFilter({ postUrl: '@(Url.Action("SelectProject", "PersonSpecialty", new { id = Model.Id }))', btnClearFilter: $("#clearFilterProjectSpecialties"), gridInstance: function () {
+        return $("#ProjectSpecialtiesGrid").data("tGrid");
+    }});
+     
+        //Open details 
+        $("#viewValues").click(function () {
+            var values = new Array();
+            $("input:checkbox[name=checkedRecords]:checked").each(function () {
+                values.push($(this));
+            });
+
+            if (values.length != 1) {
+                alert("@(Resources.Labels.Projects_Error_Details_Nothing)");
+            } else {
+                window.location = "@(Url.Action("Details", "Project"))/" + values[0].val();
+            }
+        });
+     
+    });
+ </script>
+}

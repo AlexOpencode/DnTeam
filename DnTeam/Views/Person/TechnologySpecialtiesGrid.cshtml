@@ -1,0 +1,172 @@
+﻿@using DnTeam.Models
+@model PersonModel
+<p>
+    <a onclick="insertTechnologySpecialty()" class="t-button t-button-icontext"><span class="t-icon t-add"></span>@Resources.Labels.Specialty_Add_a_New</a>
+    <a onclick="editTechnologySpecialty()" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>@Resources.Labels.Specialty_Edit_Selected</a>
+    <a onclick="deleteTechnologySpecialties()" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>@Resources.Labels.Specialty_Delete_Selected</a>
+    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>@Resources.Labels.Clear_Filter</a>
+</p>
+@(Html.Telerik().Grid<TechnologySpecialtyModel>()
+.Name("TechnologySpecialtiesGrid")
+.DataBinding(dataBinding => dataBinding.Ajax().Select("SelectTechnology", "PersonSpecialty", new { id = Model.Id}))
+.Columns(columns =>
+{
+    columns.Bound(o => o.Name).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedTechnologySpecialty' value='<#= Name #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
+    columns.Bound(o => o.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
+    columns.Bound(o => o.Level).Width(100).HeaderHtmlAttributes(new { filterable_column = "Level" });
+    columns.Bound(o => o.FirstUsed).Width(100).HeaderHtmlAttributes(new { filterable_column = "FirstUsed" });
+    columns.Bound(o => o.LastUsed).Width(100).HeaderHtmlAttributes(new { filterable_column = "LastUsed" });
+    columns.Bound(o => o.LastProjectNote).Sortable(false).HeaderHtmlAttributes(new { filterable_column = "LastProjectNote" });
+}).Sortable())
+
+@{ Html.Telerik().Window()
+        .Name("TechnologySpecialtiesWindow")
+        .Draggable(true)
+        .Modal(true)
+        .Visible(false)
+        .Buttons(b => b.Close())
+        .Content(@<text>
+    
+        <div class="editLine"><div class="editor-label">@Resources.Labels.Specialty_Name</div>
+        @(Html.Telerik().DropDownList().Name("TechnologySpecialtyName").BindTo(ViewData["TechnologySpecialtyNames"] as SelectList))</div>                
+        <div class="editLine">
+            <div class="editor-label">@Resources.Labels.Specialty_Level</div>
+            <div class="editor-field">
+                @foreach (string v in (IEnumerable<string>)ViewData["TechnologySpecialtyLevels"])
+                {
+                   <div class="technologySpecialtyLevelRadio"><input type="radio" name="TechnologySpecialtyValue" value="@(v)"/> @(v)</div>
+                }
+            </div>
+        </div>
+        <div class="editLine">
+            <div class="editElement">
+                <div class="editor-label">@Resources.Labels.Specialty_First_Used</div>
+                <div class="editor-field">@(Html.Telerik().DatePicker().Name("TechnologySpecialtyExperienceSince"))</div>        
+            </div>
+            <div class="editElement">
+                <div class="editor-label">@Resources.Labels.Specialty_Last_Used</div>
+                <div class="editor-field">@(Html.Telerik().DatePicker().Name("TechnologySpecialtyLastUsed"))</div>
+            </div>
+        </div>
+        <div class="editLine">
+            <div class="editor-label">@Resources.Labels.Specialty_Last_Project_Note</div>
+            <div class="editor-field"> @Html.TextArea("TechnologySpecialtyNote", "", new { cols = "47", @class = "notResizable" })</div>
+        </div>
+        <div class="editLine"><span id="TechnologySpecialtiesWindowResult"></span></div>
+        <div class="editLine" style="padding-top: 20px;">
+            <a class="t-button t-button-icontext yesButton" onclick="saveTechnologySpecialty('false')"><span class="t-icon t-insert"></span><label>@Resources.Labels.Window_Button_Insert</label></a>
+            <a class="t-button t-button-icontext noButton" onclick="closeWindow('TechnologySpecialtiesWindow')"><span class="t-icon t-cancel"></span><label>@Resources.Labels.Window_Button_Cancel</label></a>
+        </div>
+       
+    </text>)
+        .Width(400)
+        .Render();
+}
+
+<script type="text/javascript">
+    function insertTechnologySpecialty() {
+        $('#TechnologySpecialtyNote').val('');
+        var namedd = $('#TechnologySpecialtyName').data('tDropDownList');
+        if (!namedd.data) {
+            alert("@(Resources.Labels.Specialty_Error_No_Names)");
+            return;
+        }
+        namedd.select(0);
+        namedd.enable();
+        var radioBtns = $("input:radio[name=TechnologySpecialtyValue]");
+        if (radioBtns.length <= 0) {
+            alert("@(Resources.Labels.Specialty_Error_No_Levels)");
+            return;
+        }
+        radioBtns.removeAttr("checked");
+        radioBtns.first().attr("checked", "checked");
+        openWindow('TechnologySpecialtiesWindow', '@(Resources.Labels.Window_Title_Insert)', '@(Resources.Labels.Window_Button_Insert)', 'saveTechnologySpecialty(\'false\')');
+    }
+
+    function saveTechnologySpecialty(update) {
+        var name = $('#TechnologySpecialtyName').val();
+        var value = $('input[name=TechnologySpecialtyValue]:checked').val();
+        var expSince = $('#TechnologySpecialtyExperienceSince').data("tDatePicker").value();
+        if (expSince == null) {
+            showError($("#TechnologySpecialtyNote"), "@(Resources.Labels.Specialty_Error_First_Used_Is_Invalid)", 'TechnologySpecialtiesWindow');
+            return;
+        }
+        expSince = expSince.toDateString();
+        var lastUsed = $('#TechnologySpecialtyLastUsed').data("tDatePicker").value();
+        if (lastUsed == null) {
+            showError($("#TechnologySpecialtyNote"), "@(Resources.Labels.Specialty_Error_Last_Used_Is_Invalid)", 'TechnologySpecialtiesWindow');
+            return;
+        }
+        lastUsed = lastUsed.toDateString();
+        var note = $('#TechnologySpecialtyNote').val();
+
+        $.post('@Url.Action("Save", "PersonSpecialty")', { id: '@(Model.Id)', name: name, value: value, lastUsed: lastUsed, firstUsed: expSince, note: note, update: update }, function (data) {
+            if (data == null) {
+                closeWindow('TechnologySpecialtiesWindow');
+                $("#TechnologySpecialtiesGrid").data("tGrid").ajaxRequest();
+            } else {
+                showError($("#TechnologySpecialtyNote"), data, 'TechnologySpecialtiesWindow');
+            }
+        }, 'json');
+
+    }
+
+    function editTechnologySpecialty() {
+        var values = new Array();
+        $("input:checkbox[name=checkedTechnologySpecialty]:checked").each(function () {
+            values.push($(this));
+        });
+
+        if (values.length != 1) {
+            alert("@(Resources.Labels.Specialty_Error_Edit_Nothing)");
+        } else {
+            //get cell values
+            var ths = values[0].closest('tr').children('td');
+            //open edit TechnologySpecialty window
+            openEditTechnologySpecialty(values[0].val(), ths[1].innerHTML, ths[2].innerHTML, ths[3].innerHTML, ths[4].innerHTML, ths[5].innerHTML);
+        }
+    }
+
+    function openEditTechnologySpecialty(id, name, level, firstUsed, lastUsed, note) {
+        var namedd = $('#TechnologySpecialtyName').data('tDropDownList');
+        namedd.value(name);
+        namedd.disable();
+        $("input:radio[name:TechnologySpecialtyValue]").removeAttr("checked");
+        $('input:radio[name:TechnologySpecialtyValue]').filter("[value=" + level + "]").attr("checked", "checked");
+        $('#TechnologySpecialtyLastUsed').data("tDatePicker").value(lastUsed);
+        $('#TechnologySpecialtyExperienceSince').data("tDatePicker").value(firstUsed);
+        $('#TechnologySpecialtyNote').val(note);
+
+        openWindow('TechnologySpecialtiesWindow', '@(Resources.Labels.Window_Title_Edit)', '@(Resources.Labels.Window_Button_Save)', 'saveTechnologySpecialty(\'true\')');
+    };
+
+    function deleteTechnologySpecialties() {
+        var values = new Array();
+        $("input:checkbox[name=checkedTechnologySpecialty]:checked").each(function () {
+            values.push($(this).val());
+        });
+        if (values.length <= 0) {
+            alert("@(Resources.Labels.Specialty_Error_Delete_Nothing)");
+        } else {
+            if (confirm("@(Resources.Labels.Specialty_Delete_Are_You_Sure)")) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@(Url.Action("Delete", "PersonSpecialty"))',
+                    dataType: 'json',
+                    traditional: true,
+                    data: { id: '@(Model.Id)', values: values },
+                    success: function () {
+                        $("#TechnologySpecialtiesGrid").data("tGrid").ajaxRequest();
+                    }
+                });
+            }
+        }
+    }
+
+    $().ready(function() {
+        //bind grid filter
+        $("#TechnologySpecialtiesGrid").gridFilter({ postUrl: '@(Url.Action("SelectTechnology", "PersonSpecialty", new { id = Model.Id }))', btnClearFilter: $("#clearFilter"), gridInstance: function () {
+            return $("#TechnologySpecialtiesGrid").data("tGrid");
+        }});
+    });
+</script>

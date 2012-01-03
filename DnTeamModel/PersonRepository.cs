@@ -308,7 +308,6 @@ namespace DnTeamData
         public static PersonEditStatus UpdateTechnologySpecialty(string id, string name, string value, string lastUsed, string firstUsed, string note)
         {
             //validate dates are valid
-            //validate dates are valid
             DateTime firstUsedDate;
             if (!DateTime.TryParse(firstUsed, out firstUsedDate))
             {

@@ -2,10 +2,10 @@
 @model ProjectModel
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = Resources.Labels.Projects_Details_Title;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<h2>Project Details</h2>
+<h2>@Resources.Labels.Projects_Details_Title</h2>
 
 @using (Html.BeginForm())
 {
@@ -68,46 +68,13 @@
  }
 
 
-<h3>Milestones</h3>
+<h3>@Resources.Labels.Milestone_Title</h3>
 @Html.Partial("MilestoneGrid", Model)
 
-
-
-<h3>Manage Assignments</h3>
+<h3>@Resources.Labels.Assignment_Title</h3>
 @Html.Partial("AssignmentsGrid", Model)
 
-@*<p>
-    <a id="addAssignments" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Assignment</a>    
-    <a id="editAssignments" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Assignment</a>
-    <a id="deleteAssignments" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Assignments</a>   
-</p>
-@(Html.Telerik().Grid<AssignmentModel>()
-        .Name("AssignmentGrid").Sortable()
-        //.ToolBar(commands => commands.Insert().ButtonType(GridButtonType.ImageAndText))
-        //.DataKeys(keys => keys.Add(o => o.AssignmentId))
-        .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Assignment", new { projectId = Model.Id}))
-                                            //.Insert("Insert", "Assignment", new { projectId = Model.Id})
-                                            //.Update("Save", "Assignment", new { projectId = Model.Id})
-                                            //.Delete("Delete", "Assignment", new { projectId = Model.Id}))
-        .Columns(columns =>
-        {
-            columns.Bound(o => o.AssignmentId).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= AssignmentId #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(o => o.Role);
-            columns.Bound(o => o.Person);
-            columns.Bound(o => o.Note);
-            columns.Bound(o => o.StartDate).Width(200);
-            columns.Bound(o => o.EndDate).Width(200);
-            columns.Bound(o => o.Commitment).Width(50);
-            //columns.Command(commands =>
-            //{
-            //    commands.Edit().ButtonType(GridButtonType.ImageAndText);
-            //    commands.Delete().ButtonType(GridButtonType.ImageAndText);
-            //}).Width(200).Title("Edit");
-        })
-)*@
-
 @section HeadScripts {
- <script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
  <script type="text/javascript">
      function postUpdate(elem, val) {
          $.post('@Url.Action("UpdateProjectProperty", "Project")', { id: '@(Model.Id)', name: $(elem).attr("id"), value: val }, function (data) {

@@ -8,7 +8,7 @@ using DnTeam.Models;
 
 namespace DnTeam.Controllers
 {
-
+    
     [OpenIdAuthorize]
     public class AssignmentController : Controller
     {
@@ -61,14 +61,14 @@ namespace DnTeam.Controllers
                 case AssignmentEditStatus.Ok:
                     return null;
 
-                case AssignmentEditStatus.ErrorAssignmentHasNotBeenUpdated:
-                    return "Assignment has not been updated. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+                case AssignmentEditStatus.ErrorNotUpdated:
+                    return Resources.Labels.Assignment_Error_Not_Updated;
 
-                case AssignmentEditStatus.ErrorAssignmentHasNotBeenInserted:
-                    return "Assignment has not been inserted. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+                case AssignmentEditStatus.ErrorNotInserted:
+                    return Resources.Labels.Assignment_Error_Not_Inserted;
 
                 default:
-                    return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+                    return Resources.Labels.Error_Default;
             }
         }
     }

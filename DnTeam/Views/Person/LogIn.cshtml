@@ -6,23 +6,26 @@
 
 <html>
 <head>
-    <title>LogIn</title>
-    
+    <title>Log In</title>  
+    <link href="../../Content/Site.css" rel="stylesheet" type="text/css" />
+    <link href="../../Content/2011.3.1115/telerik.common.min.css" rel="stylesheet" type="text/css" />
+    <link href="../../Content/2011.3.1115/telerik.metro.min.css" rel="stylesheet" type="text/css" /> 
 </head>
-<body>
-    <div>
-        @if (ViewData["Message"] != null) { 
+<body>    
+    <div style="width: 500px; min-height:100px; margin-left:auto; margin-right:auto; margin-top:10%; ">
+      <p style="color: red;">  @if (ViewData["Message"] != null) { 
 		 @Html.Encode(ViewData["Message"].ToString())
        } 
-	<p>You must log in before entering the Members Area: </p>
-	<form action="Authenticate?ReturnUrl=@(HttpUtility.UrlEncode(Request.QueryString["ReturnUrl"]))" method="post">
-	<label for="openid_identifier">OpenID: </label>
-	<input id="openid_identifier" name="openid_identifier" size="40" />
-	<input type="submit" value="Login" />
-	</form>
-    <script type="text/javascript">
-        document.getElementById("openid_identifier").focus();
-	</script>	
-    </div>
+    </p>
+	    <p>You must log in before entering the Members Area: </p>
+	    <form action="Authenticate?ReturnUrl=@(HttpUtility.UrlEncode(Request.QueryString["ReturnUrl"]))" method="post">
+	    <label for="openid_identifier">OpenID: </label>
+	    <input id="openid_identifier" name="openid_identifier" size="50" />
+	    <input type="submit" value="Login" class="t-button" />
+	    </form>
+    </div>    	   
+   <script type="text/javascript">
+       document.getElementById("openid_identifier").focus();
+   </script>     
 </body>
 </html>

@@ -51,33 +51,6 @@ namespace DnTeam.Tests
 
         #endregion
 
-
-        /// <summary>
-        ///A test for GetEnumName
-        ///</summary>
-        [TestMethod]
-        public void GetEnumNameTest()
-        {
-            const string value = "Project Milestones";
-            const EnumName expected = EnumName.ProjectMilestones;
-            EnumName actual = SettingsRepository.GetEnumName(value);
-
-            Assert.AreEqual(expected, actual);
-        }
-
-        /// <summary>
-        ///A test for GetEnumNameWithUndefined value
-        ///</summary>
-        [TestMethod]
-        public void GetUndefinedEnumNameTest()
-        {
-            const string value = "Undefined Setting";
-            const EnumName expected = EnumName.Undefined;
-            EnumName actual = SettingsRepository.GetEnumName(value);
-
-            Assert.AreEqual(expected, actual);
-        }
-
         /// <summary>
         ///A test for BatchDeleteSettingValues
         ///</summary>

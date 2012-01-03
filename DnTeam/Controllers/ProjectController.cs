@@ -72,7 +72,7 @@ namespace DnTeam.Controllers
             model.TechnicalLead = (model.TechnicalLead == BlankPerson) ? string.Empty : model.TechnicalLead;
 
             return new JsonResult { Data = GetTransactionStatusCode(ProjectRepository.Insert(model.Name, model.Priority, model.CreatedDate, model.Status, 
-                model.Noise, model.ProductId, model.Type, model.ProgramManager, model.TechnicalLead)) };
+                model.Noise, model.ProductId, model.Type, model.ProgramManager,  model.TechnicalLead)) };
         }
 
         public ActionResult Delete(List<string> values)
@@ -109,19 +109,19 @@ namespace DnTeam.Controllers
                     return null;
 
                 case ProjectEditStatus.ErrorDuplicateItem:
-                    return "Project with such value already exists. Please enter a different value.";
+                    return Resources.Labels.Project_Error_Duplicate_Item;
 
-                case ProjectEditStatus.ErrorNameIsEmpty:
-                    return "Project name is empty. Please enter one.";
+                case ProjectEditStatus.ErrorNoName:
+                    return Resources.Labels.Project_Error_No_Name;
 
-                case ProjectEditStatus.ErrorPropertyHasNotBeenUpdated:
-                    return "Error occured. Property has not been updated.";
+                case ProjectEditStatus.ErrorPropertyNotUpdated:
+                    return Resources.Labels.Project_Error_Propery_Not_Updated;
 
                 case ProjectEditStatus.ErrorUndefinedFormat:
-                    return "Error occured. Value has invalid format.";
+                    return Resources.Labels.Project_Error_Undefined_Format;
 
                 default:
-                    return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+                    return Resources.Labels.Error_Default;
             }
         }
     }

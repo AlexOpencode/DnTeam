@@ -6,14 +6,14 @@
 
 <h2>@ViewBag.Title</h2>
 
-<h4>You can enter multiple values with a <b>"~"</b> separator: @Html.TextBox("MultipleSettingValue","",new {@style = "width:700px"}) <input type="button" class="t-button" value="Add" onclick="addMultipleSettingValue()"/> </h4>  
+<h4>@Resources.Labels.Multiple_Values_Hint @Html.TextBox("MultipleSettingValue","",new {@style = "width:700px"}) <input type="button" class="t-button" value="@(Resources.Labels.Add_Button)" onclick="addMultipleSettingValue()"/> </h4>  
 <p>
-    <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Values</a>
+    <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>@Resources.Labels.Delete_Selected_Values</a>
 </p>
 
 @(Html.Telerik().Grid<Value>()
-        .Name("SettingsGrid").Sortable() 
-        .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Settings"))
+        .Name("SettingsGrid").Sortable()
+            .DataBinding(dataBinding => dataBinding.Ajax().Select("Select", "Settings", new { type = ViewBag.SettingType }))
         .Columns(columns =>
         {
             columns.Bound(o => o.Name).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= Name #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
@@ -24,7 +24,7 @@
 @section HeadScripts {
 <script type="text/javascript">
     function addMultipleSettingValue() {
-        $.post('@Url.Action("MultipleInsert", "Settings")', { value: $("#MultipleSettingValue").val(), type: '@ViewBag.Title' }, function () {
+        $.post('@Url.Action("MultipleInsert", "Settings")', { value: $("#MultipleSettingValue").val(), type: '@ViewBag.SettingType' }, function () {
             $("#MultipleSettingValue").val("");
             $("#SettingsGrid").data("tGrid").ajaxRequest();
         });
@@ -42,15 +42,15 @@
             });
             
             if (values.length <= 0) {
-                alert("Please, check values to be deleted.");
+                alert("@(Resources.Labels.Error_Delete_Nothing)");
             } else {
-                if (confirm("Are you sure you want to delete these values?")) {
+                if (confirm("@(Resources.Labels.Delete_Are_You_Sure)")) {
                     $.ajax({
                         type: 'POST',
                         url: '@(Url.Action("Delete", "Settings"))',
                         dataType: 'json',
                         traditional: true,
-                        data: { values: values, type: '@ViewBag.Title' },
+                        data: { values: values, type: '@ViewBag.SettingType' },
                         success: function () {
                             $("#SettingsGrid").data("tGrid").ajaxRequest();
                         }

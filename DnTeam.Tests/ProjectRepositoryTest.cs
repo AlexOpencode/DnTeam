@@ -74,7 +74,7 @@ namespace DnTeam.Tests
             const bool addName = false;
 
             //MilestoneEditStatus.ErrorNameIsEmpty----------------------------//
-            MilestoneEditStatus expected = MilestoneEditStatus.ErrorNameIsEmpty;
+            MilestoneEditStatus expected = MilestoneEditStatus.ErrorNoName;
             MilestoneEditStatus actual = ProjectRepository.InsertMilestone(projectId, name, targetDate, actualDate, index, addName);
            
             Assert.AreEqual(expected, actual);
@@ -266,8 +266,8 @@ namespace DnTeam.Tests
             Assert.IsTrue(actual[0].FirstUsed == DateTime.Parse(minDate));
             Assert.IsTrue(actual[0].LastUsed == DateTime.Parse(maxDate));
             Assert.IsTrue(actual[0].Name == "name1");
-            Assert.IsTrue(actual[0].LastProjectNote == projectId);
-            Assert.IsTrue(actual[0].Level == "test_role1, test_role2, test_role3");
+            Assert.IsTrue(actual[0].ProjectId == projectId);
+            Assert.IsTrue(actual[0].Roles == "test_role1, test_role2, test_role3");
         }
 
         /// <summary>
@@ -317,7 +317,7 @@ namespace DnTeam.Tests
 
 
             //ProjectEditStatus.ErrorDuplicateItem--------//
-            expected = ProjectEditStatus.ErrorNameIsEmpty;
+            expected = ProjectEditStatus.ErrorNoName;
             name = string.Empty;
 
             actual = ProjectRepository.Insert(name, priority, createdDate, status, noise, product, projectType, programManager, technicalLead);

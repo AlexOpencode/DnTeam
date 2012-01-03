@@ -239,7 +239,7 @@ namespace DnTeamData.Models
         /// <summary>
         /// Project name is empty
         /// </summary>
-        ErrorNameIsEmpty,
+        ErrorNoName,
         /// <summary>
         /// Project already exists
         /// </summary>
@@ -251,7 +251,7 @@ namespace DnTeamData.Models
         /// <summary>
         /// Property has not been updated
         /// </summary>
-        ErrorPropertyHasNotBeenUpdated,
+        ErrorPropertyNotUpdated,
     }
 
     /// <summary>
@@ -266,7 +266,7 @@ namespace DnTeamData.Models
         /// <summary>
         /// Name of milestone is invalid
         /// </summary>
-        ErrorNameIsEmpty,
+        ErrorNoName,
         /// <summary>
         /// Name of milestone is duplicate
         /// </summary>
@@ -282,7 +282,7 @@ namespace DnTeamData.Models
         /// <summary>
         /// Milestone has not been updated
         /// </summary>
-        ErrorMilestoneHasNotBeenUpdated
+        ErrorNotUpdated
     }
 
     /// <summary>
@@ -297,10 +297,10 @@ namespace DnTeamData.Models
         /// <summary>
         /// Project assignment has not been inserted
         /// </summary>
-        ErrorAssignmentHasNotBeenInserted,
+        ErrorNotInserted,
         /// <summary>
         /// Project assignment has not been updated
         /// </summary>
-        ErrorAssignmentHasNotBeenUpdated,
+        ErrorNotUpdated,
     }
 }

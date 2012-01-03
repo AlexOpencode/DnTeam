@@ -1,18 +1,18 @@
 ﻿@model IEnumerable<DnTeam.Models.PersonGridModel>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = Resources.Labels.People_Title;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>People Management</h2>
+<h2>@Resources.Labels.People_Title</h2>
 
 <p>
-    <a id="addNewValue" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Person</a>
-    <a id="editValue" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Person</a>
-    <a id="viewValues" class="t-button t-button-icontext"><img class="t-icon" src="@(Url.Content("~/Content/link.png"))" />View Selected Person</a>
-    <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected People</a> 
-    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>      
+    <a id="addNewValue" class="t-button t-button-icontext"><span class="t-icon t-add"></span>@Resources.Labels.People_Add_a_New</a>
+    <a id="editValue" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>@Resources.Labels.People_Edit_Selected</a>
+    <a id="viewValues" class="t-button t-button-icontext"><img class="t-icon" src="@(Url.Content("~/Content/link.png"))" />@Resources.Labels.People_View_Selected</a>
+    <a id="deleteValues" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>@Resources.Labels.People_Delete_Selected</a> 
+    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>@Resources.Labels.Clear_Filter</a>      
 </p>
 
 @(Html.Telerik().Grid(Model)
@@ -30,12 +30,12 @@
         }) 
 )
 
-@{Html.Telerik().Window().Name("ValueEditWindow").Title("Insert").Content(
+@{Html.Telerik().Window().Name("ValueEditWindow").Title(Resources.Labels.Window_Title_Insert).Content(
       @<text>                
                 <div class="editLine">
                     <div class="editElement">
                         <div class="editor-label">
-                            Name
+                            @Resources.Labels.People_Name
                         </div>
                         <div class="editor-field">
                             @Html.TextBox("Name")                      
@@ -43,7 +43,7 @@
                      </div>  
                      <div class="editElement">
                         <div class="editor-label">
-                            Department Location
+                            @Resources.Labels.People_Department_Location
                         </div>
                         <div class="editor-field">
                              @(Html.Telerik().ComboBox().Name("Location").BindTo(ViewData["LocationsList"] as SelectList)
@@ -52,26 +52,23 @@
                     </div> 
                     <div class="editElement">
                         <div class="editor-label">
-                            Primary Manager
+                            @Resources.Labels.People_Primary_Manager
                         </div>
                         <div class="editor-field">
                             @(Html.Telerik().ComboBox().Name("PrimaryManager").BindTo(ViewData["PersonsList"] as SelectList)
                                 .Filterable(filtering => filtering.FilterMode(AutoCompleteFilterMode.StartsWith)).HighlightFirstMatch(true))
                         </div>
                     </div>                    
-                </div>   
-                @*<div class="editLine"><br/>@Html.CheckBox("ShowEditPage", true) Show person's edit page after insert</div>   *@
+                </div>                   
                 <div id="editResult" class="editLine"></div>            
                 <div class="editLine" style="padding-top: 20px;">
-                    <a class="t-button t-button-icontext yesButton" onclick="addValue()"><span class="t-icon t-insert"></span><label>Insert</label></a>
-                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('ValueEditWindow')"><span class="t-icon t-cancel"></span><label>Cancel</label></a>
+                    <a class="t-button t-button-icontext yesButton" onclick="addValue()"><span class="t-icon t-insert"></span><label>@Resources.Labels.Window_Button_Insert</label></a>
+                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('ValueEditWindow')"><span class="t-icon t-cancel"></span><label>@Resources.Labels.Window_Button_Cancel</label></a>
                 </div>
       </text>).Visible(false).Draggable(true).Scrollable(false).Modal(true).Width(600).Render();}
 
 
 @section HeadScripts {
-
-<script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
 <script type="text/javascript">
     function addValue() {
         var name = $("#Name").val();
@@ -79,20 +76,20 @@
         var primaryManager = $("#PrimaryManager").data("tComboBox");
 
         if (name.length <= 0) {
-            showError($("#editResult"), "Name can't be empty.", "ValueEditWindow");
+            showError($("#editResult"), "@(string.Format("{0} {1}", Resources.Labels.People_Name,Resources.Labels.Error_Is_Empty))", "ValueEditWindow");
             return;
         }
 
         if (location.value() == location.text()) {
             if (location.text().length > 0) {
-                showError($("#editResult"), "Please, select department location from the list or leave the field empty.", "ValueEditWindow");
+                showError($("#editResult"), "@(Resources.Labels.People_Location_Is_Invalid)", "ValueEditWindow");
                 return;
             }
         }
 
         if (primaryManager.value() == primaryManager.text()) {
             if (primaryManager.text().length > 0) {
-                showError($("#editResult"), "Please, select primary manager from the list or leave the field empty.", "ValueEditWindow");
+                showError($("#editResult"), "@(Resources.Labels.People_Primary_Manager_Is_Invalid)", "ValueEditWindow");
                 return;
             }
         }
@@ -137,9 +134,9 @@
             });
 
             if (values.length <= 0) {
-                alert("Please, check people to be deleted.");
+                alert("@(Resources.Labels.People_Error_Delete_Nothing)");
             } else {
-                if (confirm("Are you sure you want to delete these people?")) {
+                if (confirm("@(Resources.Labels.People_Delete_Are_You_Sure)")) {
                     $.ajax({
                         type: 'POST',
                         url: '@(Url.Action("Delete", "Person"))',
@@ -163,7 +160,7 @@
             });
 
             if (values.length != 1) {
-                alert("Please, check one person to be edited.");
+                alert("@(Resources.Labels.People_Error_Edit_Nothing)");
             } else {
                 window.location = "@(Url.Action("Edit", "Person"))/" + values[0].val();
             }
@@ -177,7 +174,7 @@
             });
 
             if (values.length != 1) {
-                alert("Please, check one person to view details.");
+                alert("@(Resources.Labels.People_Error_View_Nothing)");
             } else {
                 window.location = "@(Url.Action("Details", "Person"))/" + values[0].val();
             }

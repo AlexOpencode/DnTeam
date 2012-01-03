@@ -1,11 +1,16 @@
 ﻿@using DnTeam.Models
-<h2>Departments</h2>
+@{
+    ViewBag.Title = Resources.Labels.Departments_Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Resources.Labels.Departments_Title</h2>
 
 <p>
-    <a id="addNewDepartment" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Department</a>
-    <a id="editDepartment" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Department</a>
-    <a id="deleteDepartments" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Departments</a>
-    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>    
+    <a id="addNewDepartment" class="t-button t-button-icontext"><span class="t-icon t-add"></span>@Resources.Labels.Departments_Add_a_New</a>
+    <a id="editDepartment" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>@Resources.Labels.Departments_Edit_Selected</a>
+    <a id="deleteDepartments" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>@Resources.Labels.Departments_Delete_Selected</a>
+    <a id="clearFilter" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>@Resources.Labels.Clear_Filter</a>    
 </p>
 
 @(Html.Telerik().Grid<DepartmentModel>()
@@ -21,7 +26,7 @@
             columns.Bound(o => o.Rate).Width(70).HeaderHtmlAttributes(new { filterable_column = "Rate" });
         }))
 
-@{Html.Telerik().Window().Name("DepartmentWindow").Title("Insert").Content(
+@{Html.Telerik().Window().Name("DepartmentWindow").Title(Resources.Labels.Window_Title_Insert).Content(
       @<text>
                 @Html.Hidden("DepartmentId")
                 <div class="editLine">
@@ -36,7 +41,7 @@
                     </div>
                     <div class="editElement">
                         <div class="editor-label">
-                            Name
+                            @Resources.Labels.Departments_Name
                         </div>
                         <div class="editor-field">
                             @Html.TextBox("Name")                      
@@ -44,7 +49,7 @@
                     </div>
                     <div class="editElement">
                         <div class="editor-label">
-                            Parent Department
+                            @Resources.Labels.Departments_Parent_Department
                         </div>
                         <div class="editor-field">
                             @(Html.Telerik().ComboBox().Name("ParentDepartment").BindTo(ViewData["DepartmentsList"] as SelectList)
@@ -53,7 +58,7 @@
                     </div>
                     <div class="editElement">
                         <div class="editor-label">
-                            Cost
+                            @Resources.Labels.Departments_Cost
                         </div>
                         <div class="editor-field">
                            @(Html.Telerik().CurrencyTextBox().Name("Cost").InputHtmlAttributes(new {style="width:100px"}).MinValue(0).Value(10).CurrencySymbol(" "))
@@ -61,22 +66,20 @@
                     </div>
                     <div class="editElement">
                         <div class="editor-label">
-                            Rate
+                            @Resources.Labels.Departments_Rate
                         </div>
                         <div class="editor-field">
-                            @(Html.Telerik().CurrencyTextBox().Name("Rate").InputHtmlAttributes(new { style = "width:100px" })
-                                            .MinValue(0).Value(10).CurrencySymbol(" "))
+                            @(Html.Telerik().CurrencyTextBox().Name("Rate").InputHtmlAttributes(new { style = "width:100px" }).MinValue(0).Value(10).CurrencySymbol(" "))
                         </div>
                     </div>
                 </div>
                 <div id="editDepartmentStatus" class="editLine"> </div>
                 <div class="editLine" style="padding-top: 20px;">
-                    <a class="t-button t-button-icontext yesButton" onclick="addDepartment()"><span class="t-icon t-insert"></span><label>Insert</label></a>
-                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('DepartmentWindow')"><span class="t-icon t-cancel"></span><label>Cancel</label></a>
+                    <a class="t-button t-button-icontext yesButton" onclick="addDepartment()"><span class="t-icon t-insert"></span><label>@Resources.Labels.Window_Button_Insert</label></a>
+                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('DepartmentWindow')"><span class="t-icon t-cancel"></span><label>@Resources.Labels.Window_Button_Cancel</label></a>
                 </div>
       </text>).Visible(false).Draggable(true).Scrollable(false).Modal(true).Width(800).Render();}
 @section HeadScripts {
-<script src="@Url.Content("~/Scripts/showOperationStatus.js")" type="text/javascript"></script>
 <script type="text/javascript">
 
     $().ready(function () {
@@ -90,7 +93,7 @@
         //Open creation dialog
         $("#addNewDepartment").click(function (e) {
             e.preventDefault();
-            openWindow('DepartmentWindow', 'Insert', 'Insert', 'addDepartment()');
+            openWindow('DepartmentWindow', '@(Resources.Labels.Window_Title_Insert)', '@(Resources.Labels.Window_Button_Insert)', 'addDepartment()');
         });
 
         //Delete selected departments
@@ -103,9 +106,9 @@
             });
 
             if (values.length <= 0) {
-                alert("Please, check departments to be deleted.");
+                alert("@(Resources.Labels.Departments_Error_Delete_Nothing)");
             } else {
-                if (confirm("Are you sure you want to delete these departments?")) {
+                if (confirm("@(Resources.Labels.Departments_Delete_Are_You_Sure)")) {
                     $.ajax({
                         type: 'POST',
                         url: '@(Url.Action("DeleteDepartments", "Department"))',
@@ -130,7 +133,7 @@
             });
 
             if (values.length != 1) {
-                alert("Please, check one department to be edited.");
+                alert("@(Resources.Labels.Departments_Error_Edit_Nothing)");
             } else {
                 //get cell values
                 var ths = values[0].closest('tr').children('td');
@@ -156,7 +159,7 @@
         $("#Rate").data("tTextBox").value(rate);
         $("#Cost").data("tTextBox").value(cost);
 
-        openWindow('DepartmentWindow', 'Edit', 'Save', 'updateDepartment()');
+        openWindow('DepartmentWindow', '@(Resources.Labels.Window_Title_Edit)', '@(Resources.Labels.Window_Button_Save)', 'updateDepartment()');
     };
 
     function addDepartment() {

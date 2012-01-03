@@ -2,10 +2,10 @@
 @model ProjectModel
 
 <p>
-    <a id="addAssignment" class="t-button t-button-icontext"><span class="t-icon t-add"></span>Add a New Assignment</a>
-    <a id="editAssignment" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>Edit Selected Assignment</a>
-    <a id="deleteAssignments" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>Delete Selected Assignments</a>    
-    <a id="clearFilterAssignment" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>
+    <a id="addAssignment" class="t-button t-button-icontext"><span class="t-icon t-add"></span>@Resources.Labels.Assignment_Add_a_New</a>
+    <a id="editAssignment" class="t-button t-button-icontext"><span class="t-icon t-edit"></span>@Resources.Labels.Assignment_Edit_Selected</a>
+    <a id="deleteAssignments" class="t-button t-button-icontext"><span class="t-icon t-delete"></span>@Resources.Labels.Assignment_Delete_Selected</a>    
+    <a id="clearFilterAssignment" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>@Resources.Labels.Clear_Filter</a>
 </p>
     @(Html.Telerik().Grid<AssignmentModel>()
         .Name("AssignmentsGrid").Sortable().Pageable()
@@ -21,7 +21,7 @@
             columns.Bound(o => o.Commitment).Width(50).HeaderHtmlAttributes(new { filterable_column = "Commitment" });
         }))
 
-@{Html.Telerik().Window().Name("AssignmentEditWindow").Title("Insert").Content(
+@{Html.Telerik().Window().Name("AssignmentEditWindow").Title(Resources.Labels.Window_Title_Insert).Content(
       @<text>
     @using (Html.BeginForm("Insert", "Project", FormMethod.Post, new { id = "AssignmentEditForm" }))
     {
@@ -29,7 +29,7 @@
         <div class="editLine" style="padding-bottom: 30px;">
             <div class="editElement">
                 <div class="editor-label">
-                   Role
+                   @Resources.Labels.Assignment_Role
                 </div>
                 <div class="editor-field">
                     @(Html.Telerik().ComboBox().Name("AssignmentRole").BindTo(ViewData["ProjectRoles"] as SelectList)
@@ -38,7 +38,7 @@
             </div>
             <div class="editElement">
                 <div class="editor-label">
-                   Person
+                   @Resources.Labels.Assignment_Person
                 </div>
                 <div class="editor-field">
                    @(Html.Telerik().DropDownList().Name("AssignmentPerson").BindTo(ViewData["PersonsList"] as SelectList))
@@ -46,7 +46,7 @@
             </div>  
             <div class="editElement">
                 <div class="editor-label">
-                   Assignment
+                   @Resources.Labels.Assignment_Assignment
                 </div>
                 <div class="editor-field">
                    @Html.TextBox("AssignmentNote","",new {style="width:300px;"})
@@ -54,7 +54,7 @@
             </div>
             <div class="editElement">
                 <div class="editor-label">
-                   Start Date
+                   @Resources.Labels.Assignment_Start_Date
                 </div>
                 <div class="editor-field">
                   @Html.Telerik().DatePicker().Name("AssignmentStartDate").Value(DateTime.Now.Date)
@@ -62,7 +62,7 @@
             </div>
             <div class="editElement">
                 <div class="editor-label">
-                   End Date
+                   @Resources.Labels.Assignment_End_Date
                 </div>
                 <div class="editor-field">
                   @Html.Telerik().DatePicker().Name("AssignmentEndDate").Value(DateTime.Now.Date)
@@ -70,7 +70,7 @@
             </div>   
              <div class="editElement">
                 <div class="editor-label">
-                   Commitment
+                   @Resources.Labels.Assignment_Commitment
                 </div>
                 <div class="editor-field">
                   @(Html.Telerik().CurrencyTextBox().Name("AssignmentCommitment").MinValue(0).MaxValue(100).IncrementStep(10).CurrencySymbol("% ").DecimalDigits(0).Value(100)
@@ -81,9 +81,8 @@
     }
     <div id="editAssignmentResult" class="editLine"></div>            
                 <div class="editLine" style="padding-top: 20px;">
-                    <a class="t-button t-button-icontext yesButton" onclick="saveAssignment()"><span class="t-icon t-insert"></span><label>Insert</label></a>
-                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('AssignmentEditWindow')"><span class="t-icon t-cancel"></span><label>Cancel</label></a>
-                    <a id="clearFilterAssignment" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>Clear Filter</a>
+                    <a class="t-button t-button-icontext yesButton" onclick="saveAssignment()"><span class="t-icon t-insert"></span><label>@Resources.Labels.Window_Button_Insert</label></a>
+                    <a class="t-button t-button-icontext noButton" onclick="closeWindow('AssignmentEditWindow')"><span class="t-icon t-cancel"></span><label>@Resources.Labels.Window_Button_Cancel</label></a>                    
                 </div>
       </text>).Visible(false).Draggable(true).Scrollable(false).Modal(true).Render();}
 
@@ -95,11 +94,11 @@ function saveAssignment() {
     var note = $("#AssignmentNote").val();
     var startDate = $('#AssignmentStartDate').data("tDatePicker").value();
     if (startDate == null) {
-        showError($("#editAssignmentResult"), "Plese, enter valid Start Date.", "AssignmentEditWindow");
+        showError($("#editAssignmentResult"), "@(Resources.Labels.Assignment_Error_Start_Date)", "AssignmentEditWindow");
     }
     var endDate = $('#AssignmentEndDate').data("tDatePicker").value();
     if (endDate == null) {
-        showError($("#editAssignmentResult"), "Plese, enter valid End Date.", "AssignmentEditWindow");
+        showError($("#editAssignmentResult"), "@(Resources.Labels.Assignment_Error_End_Date)", "AssignmentEditWindow");
     }
     var commitment = $('#AssignmentCommitment').data("tTextBox").value();
 
@@ -132,8 +131,8 @@ $().ready(function () {
         $('#AssignmentStartDate').data("tDatePicker").value(new Date());
         $('#AssignmentEndDate').data("tDatePicker").value(new Date());
         $('#AssignmentCommitment').data("tTextBox").value(100);
-        
-        openWindow('AssignmentEditWindow', 'Insert', 'Insert', 'saveAssignment()');
+
+        openWindow('AssignmentEditWindow', '@(Resources.Labels.Window_Title_Insert)', '@(Resources.Labels.Window_Button_Insert)', 'saveAssignment()');
     });
 
     //Open edit window
@@ -145,7 +144,7 @@ $().ready(function () {
         });
 
         if (values.length != 1) {
-            alert("Please, check a Assignment to edit.");
+            alert("@(Resources.Labels.Assignment_Error_Edit_Nothing)");
         } else {
             //get cell values
             var ths = values[0].closest('tr').children('td');
@@ -156,8 +155,8 @@ $().ready(function () {
             $('#AssignmentStartDate').data("tDatePicker").value(ths[4].innerHTML);
             $('#AssignmentEndDate').data("tDatePicker").value(ths[5].innerHTML);
             $('#AssignmentCommitment').data("tTextBox").value(ths[6].innerHTML);
-            
-            openWindow('AssignmentEditWindow', 'Edit', 'Save', 'saveAssignment()');
+
+            openWindow('AssignmentEditWindow', '@(Resources.Labels.Window_Title_Edit)', '@(Resources.Labels.Window_Button_Save)', 'saveAssignment()');
         }
     });
 
@@ -171,9 +170,9 @@ $().ready(function () {
         });
 
         if (values.length <= 0) {
-            alert("Please, check Assignments to be deleted.");
+            alert("@(Resources.Labels.Assignment_Error_Delete_Nothing)");
         } else {
-            if (confirm("Are you sure you want to delete these Assignments?")) {
+            if (confirm("@(Resources.Labels.Assignment_Delete_Are_You_Sure)")) {
                 $.ajax({
                     type: 'POST',
                     url: '@(Url.Action("Delete", "Assignment"))',

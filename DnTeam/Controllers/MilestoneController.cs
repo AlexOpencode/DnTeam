@@ -68,22 +68,22 @@ namespace DnTeam.Controllers
                     return null;
 
                 case MilestoneEditStatus.ErrorDuplicateName:
-                    return "Milestone with such name already exists. Please enter a different value.";
+                    return Resources.Labels.Milestone_Error_Duplicate_Name;
 
-                case MilestoneEditStatus.ErrorNameIsEmpty:
-                    return "Milestone name is empty. Please enter one.";
+                case MilestoneEditStatus.ErrorNoName:
+                    return Resources.Labels.Milestone_Error_No_Name;
 
-                case MilestoneEditStatus.ErrorMilestoneHasNotBeenUpdated:
-                    return "Error occured. Property has not been updated.";
+                case MilestoneEditStatus.ErrorNotUpdated:
+                    return Resources.Labels.Milestone_Error_Not_Updated;
 
                 case MilestoneEditStatus.ErrorActualDateFormat:
-                    return string.Format("Actual Date has invalid format. Please enter date in proper format (for example today is {0})", DateTime.Now.ToShortDateString());
+                    return Resources.Labels.Milestone_Error_Actual_Date_Format;
 
                 case MilestoneEditStatus.ErrorTargetDateFormat:
-                    return string.Format("Target Date has invalid format. Please enter date in proper format (for example today is {0})", DateTime.Now.ToShortDateString());
+                    return Resources.Labels.Milestone_Error_Target_Date_Format;
 
                 default:
-                    return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
+                    return Resources.Labels.Error_Default;
             }
         }
     }

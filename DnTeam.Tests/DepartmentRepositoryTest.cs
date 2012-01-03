@@ -231,7 +231,7 @@ namespace DnTeam.Tests
             Assert.AreEqual(expected, actual);
 
             
-            expected = DepartmentEditStatus.ErrorNameIsEmpty;
+            expected = DepartmentEditStatus.ErrorNoName;
             actual = DepartmentRepository.SaveDepartment(ObjectId.GenerateNewId().ToString(), location, emptyName, string.Empty, emptyParentName, 11.11m, 11.11m);
             Assert.AreEqual(expected, actual);
 

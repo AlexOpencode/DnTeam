@@ -66,6 +66,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_GlobalResources\Labels.bg.designer.cs">
+      <DependentUpon>Labels.bg.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="App_GlobalResources\Labels.en.designer.cs">
+      <DependentUpon>Labels.en.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="App_GlobalResources\Labels.Designer.cs">
+      <DependentUpon>Labels.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Controllers\LocalizationController.cs" />
     <Compile Include="Controllers\PersonController.cs" />
     <Compile Include="Controllers\AssignmentController.cs" />
     <Compile Include="Controllers\ClientController.cs" />
@@ -79,6 +95,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="LocalizedDisplay.cs" />
+    <Compile Include="Models\Localization.cs" />
     <Compile Include="Models\PersonModels.cs" />
     <Compile Include="Models\ClientModels.cs" />
     <Compile Include="Models\ProductModels.cs" />
@@ -101,6 +119,8 @@
     <Content Include="Content\asterisk.png" />
     <Content Include="Content\dob.png" />
     <Content Include="Content\home.png" />
+    <Content Include="Content\languages\bg.png" />
+    <Content Include="Content\languages\en.png" />
     <Content Include="Content\link.png" />
     <Content Include="Content\no.png" />
     <Content Include="Content\noImage.jpg" />
@@ -193,12 +213,12 @@
     <Content Include="Scripts\2011.3.1115\telerik.treeview.min.js" />
     <Content Include="Scripts\2011.3.1115\telerik.upload.min.js" />
     <Content Include="Scripts\2011.3.1115\telerik.window.min.js" />
-    <Content Include="Scripts\gridFilter.js" />
-    <Content Include="Scripts\openCloseTelerikWindow.js" />
+    <Content Include="Scripts\DnTeam.gridFilter.js" />
+    <Content Include="Scripts\DnTeam.openCloseTelerikWindow.js" />
     <Content Include="Scripts\jquery-1.7-vsdoc.js" />
     <Content Include="Scripts\jquery-1.7.js" />
     <Content Include="Scripts\jquery-1.7.min.js" />
-    <Content Include="Scripts\showOperationStatus.js" />
+    <Content Include="Scripts\DnTeam.showOperationStatus.js" />
     <Content Include="Scripts\jquery-ui-1.8.16.js" />
     <Content Include="Scripts\jquery-ui-1.8.16.min.js" />
     <Content Include="Scripts\jquery.validate-vsdoc.js" />
@@ -206,6 +226,16 @@
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Views\Person\Inactive.cshtml" />
     <None Include="Views\Home\xrds.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Currency.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Date.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Views\Shared\EditorTemplates\Persons.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Products.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ProjectNoiseTypes.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ProjectPriorityTypes.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ProjectStatuses.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ProjectTypes.cshtml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -225,18 +255,15 @@
     <Content Include="Scripts\MicrosoftMvcValidation.js" />
     <Content Include="Scripts\MicrosoftMvcValidation.debug.js" />
     <Content Include="Views\_ViewStart.cshtml" />
-    <Content Include="Views\Person\LogOn.cshtml" />
-    <Content Include="Views\Person\Register.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
-    <Content Include="Views\Shared\EditorTemplates\ProjectNoiseTypes.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ProjectPriorityTypes.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\Currency.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\ChangableDropdown.cshtml" />
     <Content Include="Views\Project\MilestoneGrid.cshtml" />
     <Content Include="Views\Project\AssignmentsGrid.cshtml" />
+    <Content Include="Views\Localization\Edit.cshtml" />
+    <Content Include="Views\Localization\Index.cshtml" />
+    <Content Include="Views\Person\TechnologySpecialtiesGrid.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -257,20 +284,6 @@
     <Content Include="Views\Project\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\ProjectStatuses.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\Integer.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\Date.cshtml">
-      <SubType>Code</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Views\Project\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -280,19 +293,10 @@
     <Content Include="Views\Client\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\Clients.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Views\Product\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Department\Index.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\Persons.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\Locations.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Person\Edit.cshtml" />
@@ -301,19 +305,25 @@
     <Content Include="Views\Person\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\NullableDate.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\ProjectTypes.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\Products.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\ProjectRoles.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Views\Person\LogIn.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_GlobalResources\Labels.resx">
+      <Generator>GlobalResourceProxyGenerator</Generator>
+      <LastGenOutput>Labels.Designer.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_GlobalResources\Labels.en.resx">
+      <Generator>GlobalResourceProxyGenerator</Generator>
+      <LastGenOutput>Labels.en.designer.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_GlobalResources\Labels.bg.resx">
+      <Generator>GlobalResourceProxyGenerator</Generator>
+      <LastGenOutput>Labels.bg.designer.cs</LastGenOutput>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

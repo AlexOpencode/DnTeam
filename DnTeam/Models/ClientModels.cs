@@ -7,6 +7,7 @@ namespace DnTeam.Models
         public string Id { get; set; }
 
         [Required]
+        [LocalizedDisplay("Client_Name")]
         public string Name { get; set; }
     }
 }
