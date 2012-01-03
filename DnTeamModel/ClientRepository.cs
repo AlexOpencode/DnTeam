@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using DnTeamData.Models;
 using MongoDB.Driver;
@@ -119,14 +118,13 @@ namespace DnTeamData
         /// <param name="values">Client names</param>
         public static void InsertClients(IEnumerable<string> values)
         {
-            var options = new MongoInsertOptions(_coll)
-                              {
-                                  CheckElementNames = true,
-                                  Flags = InsertFlags.ContinueOnError,
-                                  SafeMode = SafeMode.False
-                              }; //if name is dublicate skips it, and continue to insert others
-
-            _coll.InsertBatch(values.Select(o => new Client{ Name = o }), options);
+            //if name is dublicate skips it, and continue to insert others
+            _coll.InsertBatch(values.Select(o => new Client { Name = o }), new MongoInsertOptions
+                                                                               {
+                                                                                   CheckElementNames = true, 
+                                                                                   Flags = InsertFlags.ContinueOnError, 
+                                                                                   SafeMode = SafeMode.False
+                                                                               });
         }
     }
 }
