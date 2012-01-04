@@ -22,26 +22,26 @@
     @if (!string.IsNullOrEmpty(Model.DepartmentDescription))
     {<text>            
         <div class="display-field">
-            <img src="http://localhost:29539/Content/home.png" /> @Html.DisplayFor(model => model.DepartmentDescription)
+            <img src="@(Url.Content("~/Content/home.png"))" /> @Html.DisplayFor(model => model.DepartmentDescription)
         </div>  
     </text>} 
 
     @if (!string.IsNullOrEmpty(Model.Phone))
     {<text>             
     <div class="display-field">
-        <img src="http://localhost:29539/Content/phone.png" /> @Html.DisplayFor(model => model.Phone)
+        <img src="@(Url.Content("~/Content/phone.png"))" /> @Html.DisplayFor(model => model.Phone)
     </div>
     </text>} 
 
     @if(Model.DoB != null)
     {<text>       
         <div class="display-field">
-            <img src="http://localhost:29539/Content/dob.png" /> @Html.DisplayFor(model => model.DoB)
+            <img src="@(Url.Content("~/Content/dob.png"))" /> @Html.DisplayFor(model => model.DoB)
         </div>
      </text>}
             
     @if (!string.IsNullOrEmpty(Model.Comments))
-     {<text>
+    {<text>
     <div class="display-label">@Html.LabelFor(model => model.Comments)</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Comments)
@@ -51,30 +51,30 @@
     <div class="display-label">@Html.LabelFor(model => model.PrimaryManager): @Html.Raw(Model.PrimaryManagerName)</div>
 
     @if (Model.OtherManagers.Count() > 0)
-     {<text>
+    {<text>
          <div class="display-label">@Html.LabelFor(model => model.OtherManagers)</div>
-         <div class="display-field">@Html.Raw(Model.OtherManagers.Select(o => Html.ActionLink(o.Value, "Details", new {id = o.Key}, null).ToString())
+         <div class="display-field">@Html.Raw(Model.OtherManagers.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
             .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
      </text>}           
              
     <div class="display-label">@Html.LabelFor(model => model.PrimaryPeer): @Html.Raw(Model.PrimaryPeerName)</div>
     
     @if (Model.OtherPeers.Count() > 0)
-     {<text>
+    {<text>
          <div class="display-label">@Html.LabelFor(model => model.OtherPeers)</div>
          <div class="display-field">@Html.Raw(Model.OtherPeers.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
             .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
      </text>}
             
     @if (Model.LikesToWorkWith.Count() > 0)
-     {<text>
+    {<text>
          <div class="display-label">@Html.LabelFor(model => model.LikesToWorkWith)</div>
          <div class="display-field">@Html.Raw(Model.LikesToWorkWith.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
             .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
      </text>}
     
     @if (Model.DirectReports.Count() > 0)
-     {<text>
+    {<text>
          <div class="display-label">@Html.LabelFor(model => model.DirectReports)</div>
          <div class="display-field">@Html.Raw(Model.DirectReports.Select(o => Html.ActionLink(o.Value, "Details", new { id = o.Key }, null).ToString())
             .Aggregate((workingSentence, next) => next + ", " + workingSentence))</div>
@@ -83,7 +83,7 @@
      @if (Model.Links.Count() > 0)
      {<text>
          <div class="display-label">@Html.LabelFor(model => model.Links)</div>
-         <div class="display-field">@Html.Raw(Model.Links.Select(o=>string.Format("<a target=\"_blank\" href=\"{0}\">{0}</a>", (o.Length < 45) ? o : o.Substring(0,45) + " .." )).Aggregate((workingSentence, next) => next + "<br/> " + workingSentence))</div>
+         <div class="display-field">@Html.Raw(Model.Links.Select(o => string.Format("<a target=\"_blank\" href=\"{0}\">{0}</a>", (o.Length < 45) ? o : o.Substring(0, 45) + " ..")).Aggregate((workingSentence, next) => next + "<br/> " + workingSentence))</div>
      </text>}     
      </div>    
      <div class="column">
@@ -93,7 +93,7 @@
          <p><a id="clearFilterTechnologySpecialties" class="t-button t-button-icontext"><span class="t-icon t-clear-filter"></span>@Resources.Labels.Clear_Filter</a></p>
          @(Html.Telerik().Grid<TechnologySpecialtyModel>()
             .Name("TechnologySpecialtiesGrid")
-            .DataBinding(dataBinding => dataBinding.Ajax().Select("SelectTechnology", "PersonSpecialty", new { id = Model.Id}))
+            .DataBinding(dataBinding => dataBinding.Ajax().Select("SelectTechnology", "PersonSpecialty", new { id = Model.Id }))
             .Columns(columns =>
             {
                 columns.Bound(o => o.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
@@ -112,14 +112,14 @@
          </p>
          @(Html.Telerik().Grid<FunctionalSpecialtyModel>()
             .Name("ProjectSpecialtiesGrid")
-            .DataBinding(dataBinding => dataBinding.Ajax().Select("SelectProject", "PersonSpecialty", new { id = Model.Id}))
+            .DataBinding(dataBinding => dataBinding.Ajax().Select("SelectProject", "PersonSpecialty", new { id = Model.Id }))
             .Columns(columns =>
             {
                 columns.Bound(o => o.ProjectId).Sortable(false).ClientTemplate("<input type='checkbox' name='checkedRecords' value='<#= ProjectId #>' />").Title("").Width(50).HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(o => o.Name).HeaderHtmlAttributes(new { filterable_column = "Name" });
                 columns.Bound(o => o.Roles).HeaderHtmlAttributes(new { filterable_column = "Level" });
                 columns.Bound(o => o.FirstUsed).Width(100).HeaderHtmlAttributes(new { filterable_column = "FirstUsed" });
-                columns.Bound(o => o.LastUsed).Width(100).HeaderHtmlAttributes(new { filterable_column = "LastUsed" });                
+                columns.Bound(o => o.LastUsed).Width(100).HeaderHtmlAttributes(new { filterable_column = "LastUsed" });
             }).Sortable())      
          </div>
          </div>
@@ -130,7 +130,7 @@
 <script type="text/javascript">
  $().ready(function() {
         //bind grid filter
-     $("#TechnologySpecialtiesGrid").gridFilter({ postUrl: '@(Url.Action("SelectTechnology", "PersonSpecialty", new { id = Model.Id}))', btnClearFilter: $("#clearFilterTechnologySpecialties"), gridInstance: function () {
+     $("#TechnologySpecialtiesGrid").gridFilter({ postUrl: '@(Url.Action("SelectTechnology", "PersonSpecialty", new { id = Model.Id }))', btnClearFilter: $("#clearFilterTechnologySpecialties"), gridInstance: function () {
             return $("#TechnologySpecialtiesGrid").data("tGrid");
         }});
         //bind grid filter
