@@ -70,7 +70,9 @@
                 }
                 isClientNew = true;
             }
-            showError($("#editResult"), "@(string.Format("{0} {1}", Resources.Labels.Products_Client,Resources.Labels.Error_Is_Empty))", "ValueEditWindow");
+            else {
+                showError($("#editResult"), "@(string.Format("{0} {1}", Resources.Labels.Products_Client,Resources.Labels.Error_Is_Empty))", "ValueEditWindow");
+            }
         }
 
         $.post('@Url.Action("Insert", "Product")', { name: name, client: client.value(), isClientNew: isClientNew }, function (data) {

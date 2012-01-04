@@ -162,6 +162,7 @@ namespace DnTeam.Tests
             expected = ProductEditStatus.ClientIsInvalid;
             actual = ProductRepository.UpdateProduct(id, otherName, string.Empty, false);
 
+            Assert.AreEqual(expected, actual);
 
             //TransactionStatus.Ok--------//
             expected = ProductEditStatus.Ok;
