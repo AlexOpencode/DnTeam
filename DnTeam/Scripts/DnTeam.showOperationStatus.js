@@ -6,7 +6,7 @@ function showOk(element) {
     var theSpan = $('#' + tmpId);
     if (theSpan.length > 0) { theSpan.remove(); }
 
-    var ok = '<span class="resultOk" id="' + tmpId + '">@(Resources.Labels.Operation_Status_Saved)</span>';
+    var ok = '<span class="resultOk" id="' + tmpId + '">Ok!</span>';
     element.after(ok);
     $('#' + tmpId).delay(3600).fadeOut('fast', function () {
         $('#' + tmpId).remove();
