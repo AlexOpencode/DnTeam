@@ -434,7 +434,7 @@ namespace DnTeamData
         internal static IEnumerable<ObjectId> GetUsedProducts()
         {
             var cursor = _coll.FindAll();
-            cursor.Fields = Fields.Include("Product");
+            cursor.Fields = Fields.Include("ProductId");
 
             return cursor.Select(o => o.ProductId);
         }
