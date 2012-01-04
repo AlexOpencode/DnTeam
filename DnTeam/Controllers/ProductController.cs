@@ -54,15 +54,21 @@ namespace DnTeam.Controllers
         }
 
         [NonAction]
-        private string GetTransactionStatusCode(TransactionStatus status)
+        private string GetTransactionStatusCode(ProductEditStatus status)
         {
             switch (status)
             {
-                case TransactionStatus.Ok:
+                case ProductEditStatus.Ok:
                     return null;
 
-                case TransactionStatus.DuplicateItem:
+                case ProductEditStatus.DuplicateItem:
                     return Resources.Labels.Product_Error_Duplicate_Item;
+
+                case ProductEditStatus.NameIsEmpty:
+                    return string.Format("{0} {1}", Resources.Labels.Products_Name, Resources.Labels.Error_Is_Empty);
+
+                case ProductEditStatus.ClientIsInvalid:
+                    return string.Format("{0} {1}", Resources.Labels.Products_Client, Resources.Labels.Error_Is_Empty);
 
                 default:
                     return Resources.Labels.Error_Default;

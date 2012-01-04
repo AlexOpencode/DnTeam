@@ -47,23 +47,12 @@ namespace DnTeam.Tests
         [TestMethod]
         public void InsertClientTest()
         {
-            var client = new Client {Id = ObjectId.GenerateNewId(), Name = "Name1"};
-            var expectedStatus = TransactionStatus.Ok;
-
-            //TransactionStatus.Ok---------------------------------//
-            var actualStatus = ClientRepository.InsertClient(client);
-
-            Assert.AreEqual(expectedStatus,actualStatus);
-            var actualClientName = ClientRepository.GetName(client.Id);
-            Assert.AreEqual(client.Name, actualClientName);
-
-            //TransactionStatus.DuplicateClientName-----------------------------------//
-            client = new Client { Id = ObjectId.GenerateNewId(), Name = "Name1" };
-            expectedStatus = TransactionStatus.DuplicateItem;
-
-            actualStatus = ClientRepository.InsertClient(client);
-
-            Assert.AreEqual(expectedStatus, actualStatus);
+            const string expected = "Name1";
+            var id = ClientRepository.InsertClientTest(expected);
+            
+            var actual = ClientRepository.GetName(id);
+            
+            Assert.AreEqual(expected, actual);
         }
         
         /// <summary>
@@ -137,12 +126,12 @@ namespace DnTeam.Tests
         [TestMethod]
         public void GetNameTest()
         {
-            var expected = new Client { Id = ObjectId.GenerateNewId(), Name = "Name1"};
-            ClientRepository.InsertClient(expected);
+            const string expected = "Name1"; //new Client { Id = ObjectId.GenerateNewId(), Name = "Name1" };
+            var id = ClientRepository.InsertClientTest(expected);
 
-            string actual = ClientRepository.GetName(expected.Id);
-            
-            Assert.AreEqual(expected.Name, actual);
+            string actual = ClientRepository.GetName(id);
+
+            Assert.AreEqual(expected, actual);
         }
 
         /// <summary>
@@ -165,24 +154,28 @@ namespace DnTeam.Tests
         [TestMethod]
         public void UpdateClientTest()
         {
-            var client = new Client { Id = ObjectId.GenerateNewId(), Name = "Name1" };
-            ClientRepository.InsertClient(client);
+            const string clientName = "Name1";
+            var id = ClientRepository.InsertClientTest(clientName);
             const string expectedName = "Name2";
 
-            //TransactionStatus.Ok------------------//
-            var expectedStatus = TransactionStatus.Ok;
-            TransactionStatus actualStatus = ClientRepository.UpdateClient(client.Id.ToString(), expectedName);
+            //ClientEditStatus.NameIsEmpty------------------//
+            var expectedStatus = ClientEditStatus.NameIsEmpty;
+            ClientEditStatus actualStatus = ClientRepository.UpdateClient(id.ToString(), string.Empty);
+            Assert.AreEqual(expectedStatus, actualStatus);
+
+            //ClientEditStatus.Ok---------------//
+            expectedStatus = ClientEditStatus.Ok;
+            actualStatus = ClientRepository.UpdateClient(id.ToString(), expectedName);
 
             Assert.AreEqual(expectedStatus, actualStatus);
-            var actualName = ClientRepository.GetName(client.Id);
+            var actualName = ClientRepository.GetName(id);
             Assert.AreEqual(expectedName, actualName);
 
-            //TransactionStatus.DuplicateClientName--------------//
-            expectedStatus = TransactionStatus.DuplicateItem;
-            const string duplicateName = "Name1";
-            ClientRepository.InsertClient(new Client { Id = ObjectId.GenerateNewId(), Name = duplicateName });
+            //ClientEditStatus.DuplicateClientName--------//
+            expectedStatus = ClientEditStatus.DuplicateItem;
+            id = ClientRepository.InsertClientTest(clientName);
 
-            actualStatus = ClientRepository.UpdateClient(client.Id.ToString(), duplicateName);
+            actualStatus = ClientRepository.UpdateClient(id.ToString(), actualName);
             Assert.AreEqual(expectedStatus, actualStatus);
         }
     }

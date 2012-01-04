@@ -52,7 +52,13 @@
     }
 
     function updateValue() {
-        $.post('@Url.Action("Save", "Client")', { id: $("#ClientId").val(), name: $("#Name").val() }, function (data) {
+        var name = $("#Name").val();
+        if (name.length <= 0) {
+            showError($("#editResult"), "@(string.Format("{0} {1}", Resources.Labels.Client_Name, Resources.Labels.Error_Is_Empty))", "ValueEditWindow");
+            return;
+        }
+        
+        $.post('@Url.Action("Save", "Client")', { id: $("#ClientId").val(), name: name }, function (data) {
             if (data == null) {
                 $("#ClientsGrid").data("tGrid").ajaxRequest();
                 closeWindow("ValueEditWindow");

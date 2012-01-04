@@ -59,18 +59,21 @@ namespace DnTeamData
         /// <param name="client">Id of existing Client or Name of a new one</param>
         /// <param name="isClientNew">True - if client is a new one</param>
         /// <returns>Transaction Status</returns>
-        public static TransactionStatus InsertProduct(string name, string client, bool isClientNew)
+        public static ProductEditStatus InsertProduct(string name, string client, bool isClientNew)
         {
+            if (string.IsNullOrEmpty(name))
+                return ProductEditStatus.NameIsEmpty;
+
             ObjectId clientId;
             if (isClientNew) 
             {
                 //Add a new client
-                clientId = ObjectId.GenerateNewId();
-                ClientRepository.InsertClient(new Client { Id = clientId, Name = client });
+                clientId = ClientRepository.InsertClient(client);
             }
             else
             {
-                clientId = ObjectId.Parse(client);
+                if(!ObjectId.TryParse(client, out clientId))
+                    return ProductEditStatus.ClientIsInvalid;
             }
 
             try
@@ -79,12 +82,12 @@ namespace DnTeamData
             }
             catch(MongoSafeModeException ex)
             {
-                if (ex.Message.Contains("duplicate")) return TransactionStatus.DuplicateItem;
+                if (ex.Message.Contains("duplicate")) return ProductEditStatus.DuplicateItem;
 
                 throw;
             }
 
-            return TransactionStatus.Ok;
+            return ProductEditStatus.Ok;
         }
 
         /// <summary>
@@ -95,18 +98,21 @@ namespace DnTeamData
         /// <param name="client">Id of existing Client or Name of a new one</param>
         /// <param name="isClientNew">True - if client is a new one</param>
         /// <returns>Transaction Status</returns>
-        public static TransactionStatus UpdateProduct(string id, string name, string client, bool isClientNew)
+        public static ProductEditStatus UpdateProduct(string id, string name, string client, bool isClientNew)
         {
+            if (string.IsNullOrEmpty(name))
+                return ProductEditStatus.NameIsEmpty;
+
             ObjectId clientId;
             if (isClientNew)
             {
                 //Add a new client
-                clientId = ObjectId.GenerateNewId();
-                ClientRepository.InsertClient(new Client { Id = clientId, Name = client });
+                clientId = ClientRepository.InsertClient(client);
             }
             else
             {
-                clientId = ObjectId.Parse(client);
+                if (!ObjectId.TryParse(client, out clientId))
+                    return ProductEditStatus.ClientIsInvalid;
             }
 
             var query = Query.EQ("_id", ObjectId.Parse(id));
@@ -118,12 +124,12 @@ namespace DnTeamData
             }
             catch (MongoSafeModeException ex)
             {
-                if (ex.Message.Contains("duplicate")) return TransactionStatus.DuplicateItem;
+                if (ex.Message.Contains("duplicate")) return ProductEditStatus.DuplicateItem;
 
                 throw;
             }
 
-            return TransactionStatus.Ok;
+            return ProductEditStatus.Ok;
         }
 
         /// <summary>

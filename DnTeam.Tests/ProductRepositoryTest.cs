@@ -106,17 +106,30 @@ namespace DnTeam.Tests
             string client = ObjectId.Empty.ToString(); 
             const bool isClientNew = false;
 
-            //TransactionStatus.Ok--------------------------//
-            TransactionStatus expected = TransactionStatus.Ok;
-            TransactionStatus actual = ProductRepository.InsertProduct(name, client, isClientNew);
+            //ProductEditStatus.NameIsEmpty--------------------------//
+            ProductEditStatus expected = ProductEditStatus.NameIsEmpty;
+            ProductEditStatus actual = ProductRepository.InsertProduct(string.Empty, client, isClientNew);
+            
+            Assert.AreEqual(expected, actual);
+
+
+            //ProductEditStatus.ClientIsInvalid--------//
+            expected = ProductEditStatus.ClientIsInvalid;
+            actual = ProductRepository.InsertProduct(name, string.Empty, isClientNew);
+            
+            Assert.AreEqual(expected, actual);
+
+            //ProductEditStatus.Ok--------------------------//
+            expected = ProductEditStatus.Ok;
+            actual = ProductRepository.InsertProduct(name, client, isClientNew);
             
             Assert.AreEqual(expected, actual);
             var products = ProductRepository.GetAllProducts();
             Assert.AreEqual(products.Count(), 1);
             Assert.AreEqual(products.First().Name,name);
 
-            //TransactionStatus.DuplicateItem--------//
-            expected = TransactionStatus.DuplicateItem;
+            //ProductEditStatus.DuplicateItem--------//
+            expected = ProductEditStatus.DuplicateItem;
             actual = ProductRepository.InsertProduct(name, client, isClientNew);
 
             Assert.AreEqual(expected, actual);
@@ -137,14 +150,27 @@ namespace DnTeam.Tests
             string id = ProductRepository.GetAllProducts().First().Id.ToString();
             ProductRepository.InsertProduct(secondName, ObjectId.Empty.ToString(), false);
 
-            //TransactionStatus.Ok--------------------------//
-            TransactionStatus expected = TransactionStatus.Ok;
-            TransactionStatus actual = ProductRepository.UpdateProduct(id, otherName, ObjectId.Empty.ToString(), false);
+
+            //ProductEditStatus.NameIsEmpty--------------------------//
+            ProductEditStatus expected = ProductEditStatus.NameIsEmpty;
+            ProductEditStatus actual = ProductRepository.UpdateProduct(id, string.Empty, ObjectId.Empty.ToString(), false);
+
+            Assert.AreEqual(expected, actual);
+
+
+            //ProductEditStatus.ClientIsInvalid--------//
+            expected = ProductEditStatus.ClientIsInvalid;
+            actual = ProductRepository.UpdateProduct(id, otherName, string.Empty, false);
+
+
+            //TransactionStatus.Ok--------//
+            expected = ProductEditStatus.Ok;
+            actual = ProductRepository.UpdateProduct(id, otherName, ObjectId.Empty.ToString(), false);
             
             Assert.AreEqual(expected, actual);
 
             //TransactionStatus.DuplicateItem--------//
-            expected = TransactionStatus.DuplicateItem;
+            expected = ProductEditStatus.DuplicateItem;
             actual = ProductRepository.UpdateProduct(id, secondName, ObjectId.Empty.ToString(), false);
 
             Assert.AreEqual(expected, actual);

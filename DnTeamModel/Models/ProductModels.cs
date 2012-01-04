@@ -50,4 +50,28 @@ namespace DnTeamData.Models
             Id = ObjectId.GenerateNewId();
         }
     }
+
+    /// <summary>
+    /// Enum contains ProductEditstatuses
+    /// </summary>
+    public enum ProductEditStatus
+    {
+        /// <summary>
+        /// Transaction copleted successfuly
+        /// </summary>
+        /// 
+        Ok,
+        /// <summary>
+        /// Error occured: item with such index already exist
+        /// </summary>
+        DuplicateItem,
+        /// <summary>
+        /// Error occured: client value is invalid
+        /// </summary>
+        ClientIsInvalid,
+        /// <summary>
+        /// Error occured: name value is empty
+        /// </summary>
+        NameIsEmpty
+    }
 }

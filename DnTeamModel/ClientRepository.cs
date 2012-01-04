@@ -24,27 +24,32 @@ namespace DnTeamData
         {
             _coll = Db.GetCollection<Client>(collectionName);
         }
-        
+        /// <summary>
+        /// Calls internal function InsertClient
+        /// </summary>
+        /// <param name="name">Client name</param>
+        public static ObjectId InsertClientTest(string name)
+        {
+          return InsertClient(name);
+        }
         #endif
 
         /// <summary>
-        /// Inserts a new client to the database
+        /// Inserts a new client to the database. If client exists returns its id
         /// </summary>
-        /// <param name="client">Client object</param>
-        public static TransactionStatus InsertClient(Client client)
+        /// <param name="name">Client Name</param>
+        /// <returns>Client Id</returns>
+        internal static ObjectId InsertClient(string name)
         {
-            try
-            {
-                _coll.Insert(client, SafeMode.True);
-            }
-            catch (MongoSafeModeException ex)
-            {
-                if (ex.Message.Contains("duplicate")) return TransactionStatus.DuplicateItem;
+            var query = Query.EQ("Name", name);
+            var client = _coll.FindOne(query);
+            if (client != null)
+                return client.Id;
 
-                throw;
-            }
+            var id = ObjectId.GenerateNewId();
+            _coll.Save(new Client {Id = id, Name = name}, SafeMode.True);
 
-            return TransactionStatus.Ok;
+            return id;
         }
 
         /// <summary>
@@ -81,8 +86,11 @@ namespace DnTeamData
         /// <param name="id">Client Id</param>
         /// <param name="name">Client Name</param>
         /// <returns>Update status</returns>
-        public static TransactionStatus UpdateClient(string id, string name)
+        public static ClientEditStatus UpdateClient(string id, string name)
         {
+            if (string.IsNullOrEmpty(name))
+                return ClientEditStatus.NameIsEmpty;
+
             var query = Query.EQ("_id", ObjectId.Parse(id));
             var update = Update.Set("Name", name);
             try
@@ -91,12 +99,12 @@ namespace DnTeamData
             }
             catch(MongoSafeModeException ex)
             {
-                if (ex.Message.Contains("duplicate")) return TransactionStatus.DuplicateItem;
+                if (ex.Message.Contains("duplicate")) return ClientEditStatus.DuplicateItem;
 
                 throw;
             }
 
-            return TransactionStatus.Ok;
+            return ClientEditStatus.Ok;
         }
 
         /// <summary>
